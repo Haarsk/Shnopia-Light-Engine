@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shnopia Light Engine V6.3 Beta</title>
+    <title>Shnopia Light Engine V6.5 Beta</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&display=swap" rel="stylesheet">
     <style>
         /* --- CORE --- */
@@ -40,6 +40,12 @@
             .panel-header { padding: 5px 10px; height: 45px; }
         }
 
+        /* --- SCROLLBAR CUSTOMIZATION --- */
+        .panel-content::-webkit-scrollbar { width: 8px; }
+        .panel-content::-webkit-scrollbar-track { background: #0a1a0a; border-left: 1px solid #333; }
+        .panel-content::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; border: 1px solid #000; }
+        .panel-content::-webkit-scrollbar-thumb:hover { background: var(--lcd-on); }
+
         /* --- HEADER --- */
         .drag-bar { height: 15px; background: linear-gradient(to bottom, #1a2a1a, #0a1a0a); border-bottom: 1px solid #004400; cursor: grab; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
         .drag-bar:active { cursor: grabbing; }
@@ -51,7 +57,6 @@
         .lang-icon { font-size: 18px; margin-right: 10px; cursor: pointer; text-shadow: 0 0 5px #0f0; transition: transform 0.2s; position: relative; }
         .lang-icon:hover { transform: scale(1.2); }
         
-        /* Language Menu Popup */
         #lang-menu {
             position: absolute; top: 40px; right: 100px; background: #002200; border: 1px solid #0f0; 
             border-radius: 4px; display: none; flex-direction: column; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
@@ -77,7 +82,7 @@
         .panel-content { flex: 1; padding: 15px; display: none; flex-direction: column; overflow-y: auto; background: #020a02; min-height: 0; }
         .panel-content.visible { display: flex; }
 
-        /* --- LCD INPUTS & SLIDERS (UPDATED FOR FILL) --- */
+        /* --- LCD INPUTS & SLIDERS --- */
         .control-group { margin-bottom: 12px; flex-shrink: 0; }
         .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 9px; color: #00aa00; font-weight: bold; font-family: 'Orbitron'; }
         
@@ -92,7 +97,6 @@
         .lcd-input::-webkit-outer-spin-button, .lcd-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .lcd-input:focus { outline: 1px solid var(--lcd-on); background: #002200; }
 
-        /* COLORS FOR RGB */
         .color-r { color: #ff3333 !important; border-color: #ff3333 !important; text-shadow: 0 0 2px #500; }
         .color-g { color: #33ff33 !important; border-color: #33ff33 !important; text-shadow: 0 0 2px #050; }
         .color-b { color: #3388ff !important; border-color: #3388ff !important; text-shadow: 0 0 2px #005; }
@@ -101,20 +105,15 @@
         input[type=range] { 
             -webkit-appearance: none; width: 100%; background: transparent; margin: 0; touch-action: none; display: block; height: 24px; cursor: pointer; 
             border: 1px solid var(--lcd-on); background-color: var(--lcd-bg); border-radius: 2px; box-shadow: 0 0 5px rgba(51, 255, 51, 0.1); padding: 0; 
-            background-repeat: no-repeat; /* Vital for progress bar illusion */
+            background-repeat: no-repeat; 
         }
         input[type=range]:focus { outline: none; }
-        
-        /* The Track is effectively invisible now, handled by background-image in JS */
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 100%; background: transparent; border: none; }
-        
-        /* Thumb styling */
         input[type=range]::-webkit-slider-thumb { 
             -webkit-appearance: none; height: 100%; width: 10px; background: var(--lcd-on); border: 1px solid #fff; 
             border-radius: 1px; margin-top: 0; box-shadow: 0 0 8px var(--lcd-on); 
         }
 
-        /* Specific Colors for Sliders (Thumb & Border) */
         #input-r { border-color: #ff3333; } #input-r::-webkit-slider-thumb { background: #ff3333; box-shadow: 0 0 8px #ff3333; }
         #input-g { border-color: #33ff33; } #input-g::-webkit-slider-thumb { background: #33ff33; box-shadow: 0 0 8px #33ff33; }
         #input-b { border-color: #3388ff; } #input-b::-webkit-slider-thumb { background: #3388ff; box-shadow: 0 0 8px #3388ff; }
@@ -122,7 +121,6 @@
         #input-white-g { border-color: #33ff33; } #input-white-g::-webkit-slider-thumb { background: #33ff33; box-shadow: 0 0 8px #33ff33; }
         #input-white-b { border-color: #3388ff; } #input-white-b::-webkit-slider-thumb { background: #3388ff; box-shadow: 0 0 8px #3388ff; }
         
-        /* Standard Green Sliders */
         .modifier-slider.active input[type=range] { box-shadow: 0 0 10px var(--lcd-on); }
 
         /* --- BUTTON STYLES --- */
@@ -151,11 +149,7 @@
         .k6500 { background-color: #cfe7ff; }
 
         .preset-btn:hover { filter: brightness(1.2); }
-        .preset-btn.active { 
-            border: 2px solid #00ff00; 
-            box-shadow: 0 0 15px #00ff00, inset 0 0 5px #fff; 
-            transform: scale(1.05); z-index: 10;
-        }
+        .preset-btn.active { border: 2px solid #00ff00; box-shadow: 0 0 15px #00ff00, inset 0 0 5px #fff; transform: scale(1.05); z-index: 10; }
 
         .activate-btn { width: 100%; padding: 8px; margin-top: 8px; font-size: 11px; flex-shrink: 0; }
         .recall-btn { width: 100%; padding: 6px; margin-top: 8px; font-size: 10px; flex-shrink: 0; }
@@ -234,11 +228,12 @@
         .dropdown { width: 100%; background: #002200; color: #0f0; border: 1px solid #004400; padding: 5px; font-family: 'Roboto Mono'; font-size: 11px; border-radius: 3px; margin-top: 2px; }
         
         .help-signature { font-family: 'Orbitron'; font-size: 12px; color: var(--lcd-on); text-align: center; margin-bottom: 15px; border-bottom: 1px solid #004400; padding-bottom: 10px; }
-        .help-section { margin-bottom: 15px; border-bottom: 1px solid #004400; padding-bottom: 10px; }
-        .help-title { color: #fff; font-family: 'Orbitron'; font-size: 12px; margin-bottom: 5px; font-weight: bold; }
-        .help-text { font-size: 10px; color: #00aa00; line-height: 1.5; text-align: justify; }
+        .help-section { margin-bottom: 25px; border-bottom: 1px solid #003300; padding-bottom: 15px; }
+        .help-title { color: #fff; font-family: 'Orbitron'; font-size: 12px; margin-bottom: 8px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 5px #005500; }
+        .help-text { font-size: 10px; color: #00aa00; line-height: 1.6; text-align: justify; font-family: 'Roboto Mono'; }
+        .help-text strong { color: var(--lcd-on); }
         
-        .lang-selector { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap; display: none; } /* Hidden, now in header */
+        .lang-selector { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap; display: none; }
 
         .rossignol-box { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px; padding: 10px; background: #001a00; border-radius: 6px; border: 1px solid #003300; }
         .rossignol-brand { font-family: 'Orbitron'; font-size: 11px; color: #0f0; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
@@ -293,7 +288,7 @@
         <div class="control-panel" id="main-panel" onclick="event.stopPropagation()">
             <div class="drag-bar" id="drag-handle"><div class="grip-lines"></div></div>
             <div class="panel-header">
-                <span class="app-title">Shnopia Light Engine V6.3 Beta</span>
+                <span class="app-title">Shnopia Light Engine V6.5 Beta</span>
                 
                 <div class="header-controls">
                     <span class="lang-icon" onclick="toggleLangMenu(event)">🌍</span>
@@ -500,13 +495,40 @@
                 DIMMER: "INTENSITÉ", FULLSCREEN: "PLEIN ÉCRAN",
                 HELP_CONTENT: `
                 <div class="help-signature">MANUEL UTILISATEUR COMPLET</div>
-                <div class="help-section"><div class="help-title">1. ONGLET LIVE (PATCHES & PERFORMANCE)</div><div class="help-text">Le cœur du système. <strong>ENREGISTRER :</strong> Cliquez sur <strong>SAVE</strong>. Le bouton flashe ROUGE. Tous les réglages + boucle vidéo 2s sont sauvés. <strong>RAPPELER :</strong> Cliquez sur un pad.</div></div>
-                <div class="help-section"><div class="help-title">2. ONGLET COLOR</div><div class="help-text">Contrôle manuel. Roue et Sliders RVB. Cliquez sur les nombres verts pour taper une valeur. Mémoires en bas.</div></div>
-                <div class="help-section"><div class="help-title">3. ONGLET WHITE</div><div class="help-text">Température (CCT) et Teinte. Presets rapides avec retour visuel.</div></div>
-                <div class="help-section"><div class="help-title">4. FX (CINEMA & SHNOPIA)</div><div class="help-text">Effets dynamiques. <strong>COLOR OVERRIDE :</strong> Cliquez sur une couleur mémoire en haut pour <strong>REMPLACER</strong> les couleurs de l'effet.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Résolution pixels. Modifieurs : Grid, Warp, Noise.</div></div>
-                <div class="help-section"><div class="help-title">6. TEXTE</div><div class="help-text">Message défilant. Tapez le texte, activez-le, choisissez effet et vitesse.</div></div>
-                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Intensité générale, Blackout, Plein écran.</div></div>
+                <div class="help-section"><div class="help-title">1. ONGLET LIVE (PATCHES & PERFORMANCE)</div><div class="help-text">
+                    Cet onglet est le cœur du système pour le live. Il permet de sauvegarder et rappeler instantanément des "Patches" (configurations complètes).<br><br>
+                    <strong>ENREGISTRER :</strong> Cliquez sur <strong>SAVE</strong> sous un pad. Le bouton flashe ROUGE pendant 1 sec (temps d'enregistrement). Cela stocke tous les réglages (Couleur, FX, Matrix...) et capture une boucle vidéo de 2 secondes comme aperçu.<br>
+                    <strong>RAPPELER :</strong> Cliquez sur un pad pour rappeler la scène instantanément.
+                </div></div>
+                <div class="help-section"><div class="help-title">2. ONGLET COLOR (MANUEL)</div><div class="help-text">
+                    Contrôle total de la couleur.<br>
+                    <strong>ROUE :</strong> Sélection rapide teinte/saturation.<br>
+                    <strong>SLIDERS RVB :</strong> Ajustement fin. Cliquez sur les nombres verts (ex: 255) pour entrer une valeur précise au clavier.<br>
+                    <strong>MÉMOIRES :</strong> Cliquez sur la case pour CHARGER, sur SAVE pour SAUVEGARDER.
+                </div></div>
+                <div class="help-section"><div class="help-title">3. ONGLET WHITE (CCT)</div><div class="help-text">
+                    Gestion du blanc.<br>
+                    <strong>KELVIN :</strong> 1750K à 10000K.<br>
+                    <strong>TINT :</strong> Correction Vert/Magenta.<br>
+                    <strong>PRESETS :</strong> Boutons rapides avec retour visuel de la teinte.
+                </div></div>
+                <div class="help-section"><div class="help-title">4. FX (CINEMA & SHNOPIA)</div><div class="help-text">
+                    Effets dynamiques.<br>
+                    <strong>COLOR OVERRIDE :</strong> Cliquez sur les mémoires de couleur en haut pour les activer. Si actives, elles <strong>REMPLACENT</strong> les couleurs d'origine de l'effet. Plusieurs couleurs actives créent un cycle complexe.
+                </div></div>
+                <div class="help-section"><div class="help-title">5. ONGLET MATRIX</div><div class="help-text">
+                    Simule la résolution en pixels.<br>
+                    <strong>PRESETS :</strong> Formats standards (Titan, 1x1...).<br>
+                    <strong>MODIFIERS :</strong> Grid (multiplication), Warp (déformation), Noise (grain).
+                </div></div>
+                <div class="help-section"><div class="help-title">6. ONGLET TEXT</div><div class="help-text">
+                    Message défilant. Tapez le texte, activez-le (ON), choisissez la police et l'effet (Neon, Glitch...).
+                </div></div>
+                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">
+                    <strong>INTENSITÉ :</strong> Master dimmer.<br>
+                    <strong>BLACKOUT :</strong> Coupe tout.<br>
+                    <strong>FULL SCREEN :</strong> Mode plein écran.
+                </div></div>
                 `
             },
             EN: {
@@ -518,13 +540,29 @@
                 DIMMER: "INTENSITY", FULLSCREEN: "FULL SCREEN",
                 HELP_CONTENT: `
                 <div class="help-signature">FULL USER MANUAL</div>
-                <div class="help-section"><div class="help-title">1. LIVE TAB</div><div class="help-text">The core system. <strong>SAVE:</strong> Click <strong>SAVE</strong>. Red flash confirms. Stores settings + 2s video loop. <strong>RECALL:</strong> Click pad.</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR TAB</div><div class="help-text">Manual control. Wheel & RGB Sliders. Click green numbers to type. Memories at bottom.</div></div>
-                <div class="help-section"><div class="help-title">3. WHITE TAB</div><div class="help-text">CCT & Tint. Quick presets with visual feedback.</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Dynamic effects. <strong>COLOR OVERRIDE:</strong> Toggle memory colors at top to <strong>REPLACE</strong> effect colors.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Pixel resolution. Modifiers: Grid, Warp, Noise.</div></div>
-                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">Scrolling text. Type message, toggle ON, select settings.</div></div>
-                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Master Dimmer, Blackout, Full Screen.</div></div>
+                <div class="help-section"><div class="help-title">1. LIVE TAB (PATCHES)</div><div class="help-text">
+                    The heart of the system. Save and recall full setups.<br>
+                    <strong>SAVE:</strong> Click <strong>SAVE</strong> under a pad. Red flash confirms recording (2s video loop + settings).<br>
+                    <strong>RECALL:</strong> Click any pad to instantly recall the scene.
+                </div></div>
+                <div class="help-section"><div class="help-title">2. COLOR TAB</div><div class="help-text">
+                    Manual control. Wheel & RGB Sliders. Click the green numbers to type exact values on keyboard. Memories at bottom (Load/Save).
+                </div></div>
+                <div class="help-section"><div class="help-title">3. WHITE TAB</div><div class="help-text">
+                    CCT control. Kelvin (1750K-10000K) and Tint (Green/Magenta). Quick presets with visual feedback.
+                </div></div>
+                <div class="help-section"><div class="help-title">4. FX TABS</div><div class="help-text">
+                    Dynamic effects. <strong>COLOR OVERRIDE:</strong> Toggle memory colors at the top. Active colors <strong>REPLACE</strong> the original effect colors. Multiple active colors create a dynamic blend.
+                </div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX TAB</div><div class="help-text">
+                    Pixel resolution simulation. Presets (Titan, etc.) and Modifiers (Grid, Warp, Noise).
+                </div></div>
+                <div class="help-section"><div class="help-title">6. TEXT TAB</div><div class="help-text">
+                    Scrolling text layer. Type message, toggle ON, select font and effect type.
+                </div></div>
+                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">
+                    Master Dimmer, Blackout, Full Screen.
+                </div></div>
                 `
             },
             ES: {
@@ -536,12 +574,13 @@
                 DIMMER: "INTENSIDAD", FULLSCREEN: "PANTALLA COMPLETA",
                 HELP_CONTENT: `
                 <div class="help-signature">MANUAL DE USUARIO</div>
-                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Sistema central. <strong>SAVE:</strong> Clic en <strong>SAVE</strong>. Flash rojo confirma. Guarda ajustes + video 2s. <strong>RECALL:</strong> Clic en pad.</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">Control manual. Rueda y Sliders RGB. Clic en números para escribir.</div></div>
-                <div class="help-section"><div class="help-title">3. BLANCO</div><div class="help-text">CCT y Tinte. Presets rápidos.</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Efectos. <strong>COLOR OVERRIDE:</strong> Activa colores arriba para <strong>REEMPLAZAR</strong> los colores del efecto.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIZ</div><div class="help-text">Resolución de píxeles.</div></div>
-                <div class="help-section"><div class="help-title">6. TEXTO</div><div class="help-text">Texto desplazable. Escribe, activa, ajusta.</div></div>
+                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Sistema central. <strong>SAVE:</strong> Clic en <strong>SAVE</strong> (flash rojo) para guardar ajustes y video loop (2s). <strong>RECALL:</strong> Clic en pad.</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">Control manual. Rueda y Sliders RGB. Haz clic en los números verdes para escribir valores. Memorias abajo.</div></div>
+                <div class="help-section"><div class="help-title">3. BLANCO</div><div class="help-text">Control CCT (1750K-10000K) y Tinte. Botones rápidos con visualización.</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Efectos dinámicos. <strong>COLOR OVERRIDE:</strong> Activa colores arriba para <strong>REEMPLAZAR</strong> los colores originales del efecto.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIZ</div><div class="help-text">Resolución de píxeles y Modificadores (Grid, Warp, Noise).</div></div>
+                <div class="help-section"><div class="help-title">6. TEXTO</div><div class="help-text">Texto desplazable. Escribe, activa (ON), ajusta.</div></div>
+                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Dimmer maestro, Blackout, Pantalla completa.</div></div>
                 `
             },
             RU: {
@@ -553,12 +592,13 @@
                 DIMMER: "ЯРКОСТЬ", FULLSCREEN: "ПОЛНЫЙ ЭКРАН",
                 HELP_CONTENT: `
                 <div class="help-signature">РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ</div>
-                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Главная панель. <strong>SAVE:</strong> Сохраняет настройки и 2с видео (красная вспышка). <strong>RECALL:</strong> Нажмите пэд для вызова.</div></div>
-                <div class="help-section"><div class="help-title">2. ЦВЕТ</div><div class="help-text">Ручное управление. Колесо и RGB слайдеры. Нажмите цифры для ввода.</div></div>
-                <div class="help-section"><div class="help-title">3. БЕЛЫЙ</div><div class="help-text">CCT и Оттенок. Быстрые пресеты.</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Эффекты. <strong>COLOR OVERRIDE:</strong> Нажмите цвета сверху для <strong>ЗАМЕНЫ</strong> цветов эффекта.</div></div>
-                <div class="help-section"><div class="help-title">5. МАТРИЦА</div><div class="help-text">Разрешение пикселей.</div></div>
-                <div class="help-section"><div class="help-title">6. ТЕКСТ</div><div class="help-text">Бегущая строка.</div></div>
+                <div class="help-section"><div class="help-title">1. LIVE (ЖИВОЙ РЕЖИМ)</div><div class="help-text">Главная панель. <strong>SAVE:</strong> Нажмите (красная вспышка) для сохранения настроек и 2-сек видео. <strong>RECALL:</strong> Нажмите пэд.</div></div>
+                <div class="help-section"><div class="help-title">2. ЦВЕТ</div><div class="help-text">Ручное управление. Колесо и RGB слайдеры. Нажмите на зеленые цифры для ввода значений с клавиатуры.</div></div>
+                <div class="help-section"><div class="help-title">3. БЕЛЫЙ</div><div class="help-text">CCT (1750K-10000K) и Оттенок. Быстрые пресеты.</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Эффекты. <strong>COLOR OVERRIDE:</strong> Нажмите цвета сверху, чтобы <strong>ЗАМЕНИТЬ</strong> цвета эффекта.</div></div>
+                <div class="help-section"><div class="help-title">5. МАТРИЦА</div><div class="help-text">Разрешение пикселей и модификаторы (Сетка, Искажение, Шум).</div></div>
+                <div class="help-section"><div class="help-title">6. ТЕКСТ</div><div class="help-text">Бегущая строка с эффектами. Введите текст, включите (ON).</div></div>
+                <div class="help-section"><div class="help-title">7. ОБЩЕЕ</div><div class="help-text">Диммер, Blackout (Затемнение), Полный экран.</div></div>
                 `
             },
             JP: {
@@ -570,12 +610,13 @@
                 DIMMER: "調光", FULLSCREEN: "全画面",
                 HELP_CONTENT: `
                 <div class="help-signature">ユーザーマニュアル</div>
-                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">メインパネル。<strong>SAVE:</strong> 設定と2秒動画を保存（赤フラッシュ）。<strong>RECALL:</strong> パッドをクリックして呼び出し。</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">手動制御。ホイールとRGBスライダー。数値入力可能。</div></div>
-                <div class="help-section"><div class="help-title">3. WHITE</div><div class="help-text">CCTと色合い。クイックプリセット。</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">動的効果。<strong>COLOR OVERRIDE:</strong> 上部の色をクリックして効果の色を<strong>置換</strong>します。</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">ピクセル解像度設定。</div></div>
-                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">スクロールテキスト。</div></div>
+                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">メインパネル。<strong>SAVE:</strong> クリックして設定と2秒動画を保存（赤フラッシュ）。<strong>RECALL:</strong> パッドをクリックして呼び出し。</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">手動制御。ホイールとRGBスライダー。緑色の数字をクリックしてキーボード入力が可能。</div></div>
+                <div class="help-section"><div class="help-title">3. WHITE</div><div class="help-text">CCT (1750K-10000K) と色合い。クイックプリセット。</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">動的効果。<strong>COLOR OVERRIDE:</strong> 上部の色をクリックして効果の色を<strong>置換</strong>します。複数の色が選択された場合、ブレンドされます。</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">ピクセル解像度設定と修飾子（グリッド、ワープ、ノイズ）。</div></div>
+                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">スクロールテキスト。メッセージを入力し、ONに切り替えます。</div></div>
+                <div class="help-section"><div class="help-title">7. 全体</div><div class="help-text">マスター調光、ブラックアウト、フルスクリーン。</div></div>
                 `
             },
             PL: {
@@ -586,13 +627,14 @@
                 MESSAGE: "WIADOMOŚĆ", FONT: "CZCIONKA", EFFECT: "EFEKT", INTENSITY: "INTENSYWNOŚĆ", SIZE: "ROZMIAR", TEXT_OFF: "TEKST: WYŁ", TEXT_ON: "TEKST: WŁ",
                 DIMMER: "INTENSYWNOŚĆ", FULLSCREEN: "PEŁNY EKRAN",
                 HELP_CONTENT: `
-                <div class="help-signature">OPRACOWANE PRZEZ SHNOPIA Z MIŁOŚCI DO KINA</div>
-                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Siatka 16 padów. Kliknij <strong>SAVE</strong> (czerwony błysk), aby zapisać ustawienia i 2-sekundową pętlę wideo. Kliknij pad, aby przywołać.</div></div>
-                <div class="help-section"><div class="help-title">2. KOLOR</div><div class="help-text">Koło i suwaki RGB. Kliknij zielone liczby, aby wpisać wartości.</div></div>
-                <div class="help-section"><div class="help-title">3. BIAŁY</div><div class="help-text">CCT i Odcień. Szybkie presety.</div></div>
-                <div class="help-section"><div class="help-title">4. FX OVERRIDE</div><div class="help-text">W zakładkach FX kliknij kolor pamięci, aby go aktywować. Aktywne kolory <strong>ZASTĘPUJĄ</strong> oryginalne kolory efektu.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRYCA</div><div class="help-text">Rozdzielczość pikseli.</div></div>
-                <div class="help-section"><div class="help-title">6. TEKST</div><div class="help-text">Przewijany tekst.</div></div>
+                <div class="help-signature">INSTRUKCJA OBSŁUGI</div>
+                <div class="help-section"><div class="help-title">1. LIVE (PATCHE)</div><div class="help-text">Sercem systemu jest Live. <strong>SAVE:</strong> Kliknij <strong>SAVE</strong> (czerwony błysk) aby zapisać ustawienia i 2s wideo. <strong>RECALL:</strong> Kliknij pad, aby przywołać.</div></div>
+                <div class="help-section"><div class="help-title">2. KOLOR</div><div class="help-text">Sterowanie ręczne. Koło i suwaki RGB. Kliknij zielone liczby, aby wpisać wartości z klawiatury.</div></div>
+                <div class="help-section"><div class="help-title">3. BIAŁY</div><div class="help-text">CCT (1750K-10000K) i Odcień. Szybkie presety z wizualizacją.</div></div>
+                <div class="help-section"><div class="help-title">4. FX OVERRIDE</div><div class="help-text">Efekty dynamiczne. Kliknij kolory pamięci u góry, aby je aktywować. Aktywne kolory <strong>ZASTĘPUJĄ</strong> oryginalne kolory efektu.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRYCA</div><div class="help-text">Symulacja pikseli. Modyfikatory: Grid (Siatka), Warp (Zniekształcenie), Noise (Szum).</div></div>
+                <div class="help-section"><div class="help-title">6. TEKST</div><div class="help-text">Przewijany tekst. Wpisz wiadomość, włącz (ON), wybierz czcionkę i efekt.</div></div>
+                <div class="help-section"><div class="help-title">7. GLOBALNE</div><div class="help-text">Master Dimmer, Blackout, Pełny ekran.</div></div>
                 `
             }
         };
@@ -689,21 +731,14 @@
             CURRENT_LANG = lang;
             document.getElementById('lang-menu').classList.remove('show');
             const d = DICT[lang];
-            
-            // Translate elements with data-tr attribute
             document.querySelectorAll('[data-tr]').forEach(el => {
                 const key = el.getAttribute('data-tr');
                 if(d[key]) el.innerText = d[key];
             });
-            
-            // Update Toggle Button Text logic
             const txtBtn = document.getElementById('btn-text-toggle');
             if(state.textOn) txtBtn.innerText = d.TEXT_ON; else txtBtn.innerText = d.TEXT_OFF;
-            
-            // Update Help Content
             document.getElementById('help-content').innerHTML = d.HELP_CONTENT;
         }
-        // Initialize Language
         setLangGlobal('FR');
 
         // --- LIVE PAD SYSTEM ---
@@ -752,10 +787,7 @@
         function recallLive(index) {
             if(!liveMemory[index]) return;
             state = JSON.parse(JSON.stringify(liveMemory[index]));
-            
-            // FORCE UPDATE MATRIX UI & SLIDERS
             syncUI();
-            
             document.querySelectorAll('.live-pad').forEach(p => p.classList.remove('active-preset'));
             document.getElementById(`live-pad-${index}`).classList.add('active-preset');
         }
@@ -795,7 +827,6 @@
 
             if(state.fxMode === 8) { if(Math.random() > 0.98) stormFlash = 1; else stormFlash *= 0.85; if(stormFlash < 0.01) stormFlash = 0.02; }
 
-            // ACTIVE COLORS REPLACEMENT LOGIC V6.0
             const activeColors = state.savedColors.filter((c, i) => state.paletteActive[i]).map(hex => hexToRgb(hex)); 
             const usePalette = activeColors.length > 0 && state.fxMode !== 0;
             
@@ -804,41 +835,22 @@
             else if (state.mode === 'CCT') { rB=state.whiteRgb.r; gB=state.whiteRgb.g; bB=state.whiteRgb.b; } 
             else { rB=0; gB=0; bB=0; }
 
-            // Internal Pixel Function
             const p = (idx, r,g,b, i=1, x, y) => { 
-                // Modifiers
                 if(state.warpActive && state.warpLevel > 0) { let offset = Math.sin(y * 0.1 * state.warpLevel + t) * (state.warpLevel * 2); i *= (0.5 + 0.5 * Math.sin(offset)); }
                 if(state.noiseActive && state.noiseLevel > 0) { if(Math.random() < state.noiseLevel * 0.05) { r=255; g=255; b=255; } else { let grain = (Math.random()-0.5) * state.noiseLevel * 20; r+=grain; g+=grain; b+=grain; } }
                 
-                // --- COLOR OVERRIDE LOGIC V6.0 ---
                 if(usePalette) { 
-                    // Determine if pixel is lit in original effect
                     let luma = 0.299*r + 0.587*g + 0.114*b;
-                    
                     if (luma > 10) {
-                        // REPLACE MODE: Pick color from active slots
-                        // Cycle based on Time + Space relative to number of active colors
                         let cycle = Math.floor(t * 5 + (x/w)*2 + (y/h)*2); 
                         let colIndex = cycle % activeColors.length;
                         if (colIndex < 0) colIndex = 0;
-                        
                         let targetCol = activeColors[colIndex];
-                        
-                        // Apply target color, using original intensity (luma/255) and multiplier i
                         let intensity = (luma/255) * i;
-                        
-                        data[idx] = targetCol.r * intensity;
-                        data[idx+1] = targetCol.g * intensity;
-                        data[idx+2] = targetCol.b * intensity;
-                        data[idx+3] = 255;
-                    } else {
-                        data[idx]=0; data[idx+1]=0; data[idx+2]=0; data[idx+3]=255;
-                    }
+                        data[idx] = targetCol.r * intensity; data[idx+1] = targetCol.g * intensity; data[idx+2] = targetCol.b * intensity; data[idx+3] = 255;
+                    } else { data[idx]=0; data[idx+1]=0; data[idx+2]=0; data[idx+3]=255; }
                 } 
-                else { 
-                    // Standard Render
-                    data[idx]=r*i; data[idx+1]=g*i; data[idx+2]=b*i; data[idx+3]=255; 
-                }
+                else { data[idx]=r*i; data[idx+1]=g*i; data[idx+2]=b*i; data[idx+3]=255; }
             }
             const hsl = (idx, hVal, sVal, lVal, x, y) => { const rgb=hslToRgb(hVal,sVal,lVal); p(idx, rgb[0],rgb[1],rgb[2], 1, x, y); }
 
@@ -956,13 +968,10 @@
         // --- SLIDER TRACK PROGRESS UPDATE (NEW) ---
         function updateRangeStyle(input) {
             const val = (input.value - input.min) / (input.max - input.min) * 100;
-            // Get slider color dynamically or standard green
             let color = 'var(--lcd-on)';
             if(input.id.includes('-r')) color = '#ff3333';
             else if(input.id.includes('-g')) color = '#33ff33';
             else if(input.id.includes('-b')) color = '#3388ff';
-            
-            // Set gradient background
             input.style.backgroundImage = `linear-gradient(to right, ${color} 0%, ${color} ${val}%, #004400 ${val}%, #004400 100%)`;
         }
 
