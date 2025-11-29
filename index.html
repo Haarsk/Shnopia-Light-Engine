@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shnopia Light Engine V5.12 Image Mask</title>
+    <title>Shnopia Light Engine V6.1 Beta</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&display=swap" rel="stylesheet">
     <style>
         /* --- CORE --- */
@@ -110,21 +110,33 @@
             box-shadow: 0 0 15px #00ff00 !important; transform: scale(0.98);
         }
 
+        /* --- CCT BUTTONS STYLE --- */
         .preset-btn { 
-            flex: 1; background: #001100; border: 1px solid #004400; color: #008800; 
-            padding: 8px 0; border-radius: 3px; font-size: 9px; font-weight: bold; 
+            flex: 1; border: 1px solid #444; color: #000; 
+            padding: 10px 0; border-radius: 4px; font-size: 12px; font-weight: 900; 
             cursor: pointer; text-align: center; min-width: 50px; transition: 0.2s;
+            font-family: 'Orbitron'; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
-        .preset-btn:hover { border-color: #0f0; color: #0f0; }
+        .k2700 { background-color: #ffb46b; }
+        .k3200 { background-color: #ffd1a3; }
+        .k4300 { background-color: #ffebd1; }
+        .k5600 { background-color: #ffffff; }
+        .k6500 { background-color: #cfe7ff; }
+
+        .preset-btn:hover { filter: brightness(1.2); }
         .preset-btn.active { 
-            background: var(--lcd-on); color: #000; border-color: var(--lcd-on); 
-            box-shadow: 0 0 10px var(--lcd-on); text-shadow: none; 
+            border: 2px solid #00ff00; 
+            box-shadow: 0 0 15px #00ff00, inset 0 0 5px #fff; 
+            transform: scale(1.05); z-index: 10;
         }
 
         .activate-btn { width: 100%; padding: 8px; margin-top: 8px; font-size: 11px; flex-shrink: 0; }
         .recall-btn { width: 100%; padding: 6px; margin-top: 8px; font-size: 10px; flex-shrink: 0; }
         .memory-save-btn { flex: 1; font-size: 8px; }
-        .live-save-btn { flex: 1; font-size: 8px; }
+        .live-save-btn { flex: 1; font-size: 8px; transition: background 0.1s; }
+        /* RED FLASH STATE */
+        .live-save-btn.saving-red { background: #ff0000 !important; color: #fff !important; box-shadow: 0 0 15px #ff0000 !important; border-color: #fff !important; }
+
         .blackout-btn { background: #300; color: #700; border: 1px solid #500; flex: 1.2; }
         .blackout-btn.active { background: var(--danger); color: white; border-color: #fff; box-shadow: 0 0 10px var(--danger); animation: pulse 0.5s infinite alternate; }
         .fullscreen-btn { background: #002200; color: #050; border: 2px solid #050; flex: 1; transition: background 0.2s, color 0.2s; }
@@ -132,25 +144,6 @@
         
         .presets-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.7; } }
-
-        /* --- IMAGE UPLOAD STYLES --- */
-        .image-upload-area {
-            border: 2px dashed #004400; border-radius: 8px; background: #001100;
-            padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px;
-            transition: 0.3s;
-        }
-        .image-upload-area:hover { border-color: var(--lcd-on); background: #002200; }
-        .upload-icon { font-size: 24px; color: #008800; margin-bottom: 10px; display: block; }
-        .upload-text { font-family: 'Orbitron'; font-size: 10px; color: #00aa00; }
-        #image-input { display: none; }
-        .image-preview-box {
-            width: 100%; height: 150px; background: #000; border: 1px solid #004400;
-            margin-bottom: 15px; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        #preview-img-elem { max-width: 100%; max-height: 100%; display: none; }
-        .image-controls { display: flex; flex-direction: column; gap: 10px; }
-        .image-mode-row { display: flex; gap: 10px; }
 
         /* --- COLOR WHEEL --- */
         .wheel-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 140px; }
@@ -176,7 +169,6 @@
         .live-pad::after { content: ''; position: absolute; top:0; left:0; right:0; bottom:0; border: 1px solid transparent; transition: 0.2s; pointer-events: none; }
         .live-pad:active { transform: scale(0.98); border-color: #fff; }
         .live-pad.active-preset { border-color: var(--lcd-on); box-shadow: 0 0 15px var(--lcd-on); }
-        .live-save-btn.recording { background: #d00; color: #fff; animation: pulse 0.5s infinite; border-color: #f00; }
         .pad-video { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; pointer-events: none; }
         .empty-pad-text { font-size: 8px; color: #003300; font-family: 'Orbitron'; pointer-events: none; }
 
@@ -187,18 +179,18 @@
         .fx-card.active { background: var(--lcd-on); color: #000; border-color: var(--lcd-on); box-shadow: 0 0 10px var(--lcd-on); }
         
         .palette-container { display: flex; gap: 4px; justify-content: space-between; background: #051105; padding: 4px; border-radius: 4px; border: 1px solid #004400; margin-top: 4px; flex-shrink: 0; }
-        .palette-item { display: flex; flex-direction: column; gap: 2px; align-items: center; flex: 1; }
-        .palette-toggle { width: 100%; height: 6px; background: #002200; border: 1px solid #004400; border-radius: 2px; cursor: pointer; }
+        .palette-item { display: flex; flex-direction: column; gap: 2px; align-items: center; flex: 1; cursor: pointer; }
+        .palette-toggle { width: 100%; height: 6px; background: #002200; border: 1px solid #004400; border-radius: 2px; pointer-events: none; }
         .palette-toggle.active { background: #0f0; border-color: #0f0; box-shadow: 0 0 4px #0f0; }
-        .palette-display { width: 100%; height: 16px; border-radius: 2px; border: 1px solid #004400; }
+        .palette-display { width: 100%; height: 16px; border-radius: 2px; border: 1px solid #004400; pointer-events: none; }
 
         /* --- MATRIX (BIGGER TEXT) --- */
         .matrix-section { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; background: #051105; border: 1px solid #004400; border-radius: 4px; padding: 10px; }
         .mapping-list { flex: 1.5; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(5, 1fr); gap: 5px; overflow-y: auto; }
-        .map-btn { background: #002200; border: 1px solid #004400; color: #008800; padding: 0 5px; border-radius: 3px; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .map-btn span { display: block; line-height: 1.1; }
+        .map-btn { background: #002200; border: 1px solid #004400; color: #008800; padding: 0 5px; border-radius: 3px; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .map-btn span { display: block; line-height: 1.1; font-weight: bold; }
         .map-btn.active-map { background: #004400; color: #0f0; border-color: #0f0; box-shadow: 0 0 10px rgba(0,255,0,0.5); text-shadow: 0 0 2px #0f0; }
-        .map-set-display { font-family: 'Orbitron'; color: #0f0; font-size: 8px; margin-top: 2px; }
+        .map-set-display { font-family: 'Orbitron'; color: #0f0; font-size: 9px; margin-top: 2px; }
         .modifiers-container { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; border-top: 1px solid #004400; padding-top: 5px; }
 
         /* --- FOOTER --- */
@@ -276,7 +268,7 @@
         <div class="control-panel" id="main-panel" onclick="event.stopPropagation()">
             <div class="drag-bar" id="drag-handle"><div class="grip-lines"></div></div>
             <div class="panel-header">
-                <span class="app-title">Shnopia Light Engine V5.12</span>
+                <span class="app-title">Shnopia Light Engine V6.1 Beta</span>
                 <div class="preview-container"><span class="preview-label">PREVIEW</span><div class="header-preview-box" onclick="togglePreviewFS()"><canvas id="preview-canvas"></canvas></div></div>
                 <button class="hide-btn" onclick="minimizePanel()">HIDE ME</button>
             </div>
@@ -287,7 +279,6 @@
                 <button class="tab-btn" onclick="switchTab('tab-cct', this)">WHITE</button>
                 <button class="tab-btn" onclick="switchTab('tab-fx', this)">CINEMA FX</button>
                 <button class="tab-btn" onclick="switchTab('tab-custom', this)">SHNOPIA FX</button>
-                <button class="tab-btn" onclick="switchTab('tab-image', this)">IMAGE</button>
                 <button class="tab-btn" onclick="switchTab('tab-matrix', this)">MATRIX</button>
                 <button class="tab-btn" onclick="switchTab('tab-text', this)">TEXT</button>
                 <button class="tab-btn" onclick="switchTab('tab-help', this)">HOW TO USE</button>
@@ -296,28 +287,6 @@
             <div id="tab-live" class="panel-content">
                 <div class="live-grid" id="live-grid">
                     </div>
-            </div>
-
-            <div id="tab-image" class="panel-content">
-                <label class="image-upload-area">
-                    <input type="file" id="image-input" accept="image/*" onchange="handleImageUpload(this)">
-                    <span class="upload-icon">📂</span>
-                    <span class="upload-text">CLICK TO LOAD IMAGE (JPG, PNG, GIF)</span>
-                </label>
-                
-                <div class="image-preview-box"><img id="preview-img-elem" src=""></div>
-                
-                <div class="image-controls">
-                    <div class="image-mode-row">
-                        <button class="preset-btn active" id="btn-img-color" onclick="setImageMode('COLOR')">COLOR (NORMAL)</button>
-                        <button class="preset-btn" id="btn-img-mask" onclick="setImageMode('MASK')">MASK (TINT)</button>
-                    </div>
-                    <div class="control-group">
-                        <div class="label-row"><span>CONTRAST</span><input type="number" class="lcd-input" id="val-img-contrast" value="100" min="0" max="200"></div>
-                        <input type="range" min="0" max="200" value="100" id="input-img-contrast" oninput="updateImageContrast(this)">
-                    </div>
-                    <button class="activate-btn momentary-btn" onclick="activateStatic('IMAGE')">ACTIVATE IMAGE</button>
-                </div>
             </div>
 
             <div id="tab-wheel" class="panel-content visible">
@@ -357,11 +326,11 @@
                     <div class="label-row"><span>TEMPERATURE (KELVIN)</span><span id="val-kelvin">3200K</span></div>
                     <input type="range" min="1750" max="10000" value="3200" id="input-kelvin">
                     <div class="presets-row">
-                        <button class="preset-btn" onclick="setKelvin(2700, this)">2700K</button>
-                        <button class="preset-btn active" onclick="setKelvin(3200, this)">3200K</button>
-                        <button class="preset-btn" onclick="setKelvin(4300, this)">4300K</button>
-                        <button class="preset-btn" onclick="setKelvin(5600, this)">5600K</button>
-                        <button class="preset-btn" onclick="setKelvin(6500, this)">6500K</button>
+                        <button class="preset-btn k2700" onclick="setKelvin(2700, this)">2700K</button>
+                        <button class="preset-btn k3200 active" onclick="setKelvin(3200, this)">3200K</button>
+                        <button class="preset-btn k4300" onclick="setKelvin(4300, this)">4300K</button>
+                        <button class="preset-btn k5600" onclick="setKelvin(5600, this)">5600K</button>
+                        <button class="preset-btn k6500" onclick="setKelvin(6500, this)">6500K</button>
                     </div>
                 </div>
                 <div class="control-group" style="margin-top:15px;">
@@ -394,7 +363,7 @@
                     <div class="label-row"><span>SPEED</span><input type="number" class="lcd-input" id="val-speed-input" value="4" min="1" max="100"></div>
                     <input type="range" min="1" max="100" value="4" id="input-speed">
                 </div>
-                <div class="label-row" style="margin-top:2px;"><span>COLOR OVERRIDE (FROM MEMORIES)</span></div>
+                <div class="label-row" style="margin-top:2px;"><span>COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
                 <div class="palette-container" id="palette-fx"></div>
                 <div class="fx-grid" id="cinema-grid" style="margin-top:5px;"></div>
             </div>
@@ -404,7 +373,7 @@
                     <div class="label-row"><span>SPEED</span><input type="number" class="lcd-input" id="val-speed-shnopia-input" value="50" min="1" max="100"></div>
                     <input type="range" min="1" max="100" value="50" id="input-speed-shnopia">
                 </div>
-                <div class="label-row" style="margin-top:2px;"><span>COLOR OVERRIDE (FROM MEMORIES)</span></div>
+                <div class="label-row" style="margin-top:2px;"><span>COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
                 <div class="palette-container" id="palette-shnopia"></div>
                 <div class="fx-grid" id="shnopia-grid" style="margin-top:5px;"></div>
             </div>
@@ -505,7 +474,6 @@
             textOn: false, textString: "Shnopia Light Engine enhances your set", textSize: 50, textSpeed: 5, textColor: "#ffffff", textPos: 0, textFont: "'Roboto Mono', monospace", textEffect: "NONE", textFxLvl: 50,
             gridActive: true, gridLevel: 1, warpActive: false, warpLevel: 0, noiseActive: false, noiseLevel: 0,
             whiteRgb: {r:255, g:255, b:255}, savedColors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF'], paletteActive: [false, false, false, false, false],
-            imageMode: 'COLOR', imageContrast: 100, loadedImage: null
         };
 
         const MAPS = [
@@ -543,7 +511,8 @@
             const container = document.getElementById(targetId); container.innerHTML = '';
             state.savedColors.forEach((col, i) => {
                 const item = document.createElement('div'); item.className = 'palette-item';
-                const toggle = document.createElement('div'); toggle.className = 'palette-toggle'; toggle.onclick = () => { state.paletteActive[i] = !state.paletteActive[i]; updatePaletteUI(); };
+                item.onclick = () => { state.paletteActive[i] = !state.paletteActive[i]; updatePaletteUI(); };
+                const toggle = document.createElement('div'); toggle.className = 'palette-toggle'; 
                 const display = document.createElement('div'); display.className = 'palette-display'; display.style.backgroundColor = col;
                 item.appendChild(toggle); item.appendChild(display); container.appendChild(item);
             });
@@ -562,42 +531,6 @@
                 });
             });
         }
-
-        // --- IMAGE HANDLING ---
-        function handleImageUpload(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var img = new Image();
-                    img.onload = function() {
-                        state.loadedImage = img;
-                        document.getElementById('preview-img-elem').src = e.target.result;
-                        document.getElementById('preview-img-elem').style.display = 'block';
-                        activateStatic('IMAGE');
-                    }
-                    img.src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        
-        window.setImageMode = (mode) => {
-            state.imageMode = mode;
-            document.getElementById('btn-img-color').classList.remove('active');
-            document.getElementById('btn-img-mask').classList.remove('active');
-            if(mode === 'COLOR') document.getElementById('btn-img-color').classList.add('active');
-            else document.getElementById('btn-img-mask').classList.add('active');
-            activateStatic('IMAGE');
-        }
-        
-        window.updateImageContrast = (el) => {
-            state.imageContrast = parseInt(el.value);
-            document.getElementById('val-img-contrast').value = state.imageContrast;
-        }
-        
-        linkInputRange('val-img-contrast', 'input-img-contrast', () => { 
-            state.imageContrast = parseInt(document.getElementById('input-img-contrast').value);
-        });
 
         // --- LIVE PAD SYSTEM ---
         const LIVE_SLOTS = 16;
@@ -620,32 +553,34 @@
         function saveLive(index) {
             if(isRecording) return;
             isRecording = true;
-            const btn = document.getElementById(`save-btn-${index}`); btn.innerText = "REC..."; btn.classList.add('recording');
             
-            // Save state including image reference (note: reloading page loses image obj if not persisted properly, simple var here)
-            liveMemory[index] = { ...state }; // Shallow copy sufficient for current struct
+            const btn = document.getElementById(`save-btn-${index}`);
+            btn.classList.add('saving-red');
+            setTimeout(() => { btn.classList.remove('saving-red'); }, 1000);
             
-            const stream = canvas.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); const chunks = [];
+            liveMemory[index] = JSON.parse(JSON.stringify(state));
+            
+            const stream = canvas.captureStream(30); 
+            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); 
+            const chunks = [];
             recorder.ondataavailable = (e) => { if(e.data.size > 0) chunks.push(e.data); };
             recorder.onstop = () => {
                 const blob = new Blob(chunks, { type: 'video/webm' }); const url = URL.createObjectURL(blob);
                 const pad = document.getElementById(`live-pad-${index}`); pad.innerHTML = '';
                 const video = document.createElement('video'); video.className = 'pad-video'; video.src = url; video.muted = true; video.loop = true; video.autoplay = true; video.playsInline = true;
                 pad.appendChild(video); video.play();
-                btn.innerText = "SAVE"; btn.classList.remove('recording'); isRecording = false;
+                isRecording = false;
             };
-            recorder.start(); setTimeout(() => { recorder.stop(); }, 3000);
+            recorder.start(); 
+            setTimeout(() => { recorder.stop(); }, 2000); 
         }
 
         function recallLive(index) {
             if(!liveMemory[index]) return;
-            const mem = liveMemory[index];
-            state = { ...mem }; // Restore state
-            // UI updates
+            state = JSON.parse(JSON.stringify(liveMemory[index]));
+            
+            // FORCE UPDATE MATRIX UI & SLIDERS
             syncUI();
-            setImageMode(state.imageMode);
-            // Re-assign loaded image if it exists in memory but not active
-            if(mem.loadedImage) state.loadedImage = mem.loadedImage;
             
             document.querySelectorAll('.live-pad').forEach(p => p.classList.remove('active-preset'));
             document.getElementById(`live-pad-${index}`).classList.add('active-preset');
@@ -666,35 +601,175 @@
         }
         updateMemoriesUI();
 
-        // --- UPDATED HELP (V5.12) ---
+        // --- FULL MANUAL CONTENT (V6.1) ---
         const TRANSLATIONS = {
             FR: `
-                <div class="help-signature">Développé par Shnopia par amour du cinéma</div>
-                <div class="help-section"><div class="help-title">INTRODUCTION</div><div class="help-text">Shnopia Light Engine V5.12 transforme votre écran en éclairage cinéma interactif.</div></div>
-                <div class="help-section"><div class="help-title">1. IMAGE (NOUVEAU)</div><div class="help-text">Chargez une image pour la transformer en texture Pixel Art. <br><strong>COLOR MODE :</strong> Affiche l'image originale pixelisée.<br><strong>MASK MODE :</strong> Utilise l'image comme masque (N&B) pour teinter la lumière avec la couleur choisie dans l'onglet Color.</div></div>
-                <div class="help-section"><div class="help-title">2. LIVE</div><div class="help-text">Grille de 16 pads. <strong>SAVE</strong> enregistre une boucle vidéo de 3 secondes et l'état actuel (y compris l'image chargée).</div></div>
-                <div class="help-section"><div class="help-title">3. COLOR</div><div class="help-text">Roue et Sliders RGB interactifs. Les valeurs sont éditables au clavier.</div></div>
-                <div class="help-section"><div class="help-title">4. WHITE</div><div class="help-text">CCT de 1750K à 10000K avec correction de teinte.</div></div>
-                <div class="help-section"><div class="help-title">5. FX</div><div class="help-text">Effets dynamiques. Le bouton <strong>STATIC</strong> revient à la couleur manuelle (ou à l'image si active).</div></div>
+                <div class="help-signature">MANUEL UTILISATEUR COMPLET</div>
+                <div class="help-section">
+                    <div class="help-title">1. ONGLET LIVE (PATCHES & PERFORMANCE)</div>
+                    <div class="help-text">
+                        Cet onglet est le cœur du système pour le live. Il vous permet de sauvegarder et de rappeler instantanément des "Patches" (configurations complètes).<br><br>
+                        <strong>ENREGISTRER UN PATCH :</strong><br>
+                        1. Configurez votre lumière (Couleur, FX, Matrix, Texte...) dans les autres onglets.<br>
+                        2. Allez dans l'onglet LIVE.<br>
+                        3. Cliquez sur le bouton <strong>SAVE</strong> sous un pad (vide ou déjà utilisé).<br>
+                        4. Le bouton clignote en ROUGE pendant 1 seconde pour confirmer la sauvegarde.<br>
+                        5. En arrière-plan, le logiciel enregistre une boucle vidéo de 2 secondes de votre effet pour vous servir d'aperçu.<br><br>
+                        <strong>RAPPELER UN PATCH :</strong><br>
+                        Cliquez simplement sur un pad. Tous les paramètres (y compris la résolution Matrix, les effets, le texte) sont rappelés instantanément.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">2. ONGLET COLOR (MODE MANUEL)</div>
+                    <div class="help-text">
+                        Contrôle précis de la couleur.<br>
+                        <strong>ROUE CHROMATIQUE :</strong> Cliquez ou glissez pour choisir la teinte et la saturation.<br>
+                        <strong>SLIDERS RVB :</strong> Ajustez les niveaux de Rouge, Vert et Bleu. Vous pouvez cliquer sur le nombre vert au-dessus de chaque slider pour entrer une valeur précise (0-255) avec votre clavier.<br>
+                        <strong>MÉMOIRES :</strong> 5 emplacements en bas de page.
+                        - Cliquez sur la case de couleur pour charger la mémoire.
+                        - Cliquez sur le bouton SAVE en dessous pour enregistrer la couleur actuelle dans cet emplacement.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">3. ONGLET WHITE (CCT)</div>
+                    <div class="help-text">
+                        Gestion de la température de blanc (Correlated Color Temperature).<br>
+                        <strong>KELVIN :</strong> Curseur de 1750K (très chaud) à 10000K (très froid).<br>
+                        <strong>TINT :</strong> Correction de la teinte (Vert/Magenta). Utile pour s'accorder avec d'autres sources lumineuses.<br>
+                        <strong>PRESETS :</strong> 5 boutons rapides (2700K, 3200K, 4300K, 5600K, 6500K). Le bouton actif est entouré d'un halo vert lumineux.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">4. ONGLET FX (CINEMA & SHNOPIA)</div>
+                    <div class="help-text">
+                        Générateur d'effets dynamiques.<br>
+                        <strong>SÉLECTION :</strong> Cliquez sur une case pour lancer l'effet (ex: Police, Fire, TV...).<br>
+                        <strong>SPEED :</strong> Règle la vitesse de l'animation.<br>
+                        <strong>COLOR OVERRIDE (IMPORTANT) :</strong> En haut de la page, vous retrouvez vos 5 mémoires de couleur. Cliquez sur une case (ou sa petite LED) pour l'activer.
+                        - Si aucune couleur n'est active : L'effet joue ses couleurs par défaut (ex: Police = Bleu/Rouge).
+                        - Si des couleurs sont actives : Elles <strong>REMPLACENT</strong> les couleurs de l'effet. Si vous sélectionnez plusieurs couleurs, l'effet les mélangera de manière artistique.
+                        <br>
+                        <strong>STATIC :</strong> Le bouton "Static" ou "0" désactive les effets et revient au mode manuel (Color ou White).
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">5. ONGLET MATRIX</div>
+                    <div class="help-text">
+                        Simule la résolution en pixels de votre source lumineuse.<br>
+                        <strong>PRESETS :</strong> Choisissez le format correspondant à votre appareil (ex: "Titan 8x16" pour un tube Astera, "1x1" pour un panneau standard).<br>
+                        <strong>MODIFIERS :</strong>
+                        - <strong>GRID :</strong> Multiplie la grille de pixels.
+                        - <strong>WARP :</strong> Déforme l'image (effet liquide/psychédélique).
+                        - <strong>NOISE :</strong> Ajoute du grain aléatoire pour un rendu plus organique.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">6. ONGLET TEXT</div>
+                    <div class="help-text">
+                        Affiche un message défilant par-dessus la lumière.<br>
+                        1. Tapez votre texte.<br>
+                        2. Cliquez sur "TEXTE: OFF" pour l'activer (devient ON).<br>
+                        3. Réglez la taille, la vitesse, la couleur et choisissez un effet (Neon, Glitch...).
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">7. CONTRÔLES GLOBAUX (FOOTER)</div>
+                    <div class="help-text">
+                        Ces contrôles sont toujours visibles en bas.<br>
+                        <strong>INTENSITÉ :</strong> Master dimmer général de 0% à 100%.<br>
+                        <strong>BLACKOUT :</strong> Coupe instantanément toute sortie lumineuse (le bouton clignote rouge quand actif).<br>
+                        <strong>FULL SCREEN :</strong> Passe l'application en plein écran pour une immersion totale.
+                    </div>
+                </div>
             `,
             EN: `
-                <div class="help-signature">Developed by Shnopia for the love of cinema</div>
-                <div class="help-section"><div class="help-title">INTRODUCTION</div><div class="help-text">Shnopia Light Engine V5.12 turns your screen into an interactive cinema light.</div></div>
-                <div class="help-section"><div class="help-title">1. IMAGE (NEW)</div><div class="help-text">Load an image to turn it into a Pixel Art texture. <br><strong>COLOR MODE:</strong> Displays original pixelated image.<br><strong>MASK MODE:</strong> Uses image as B&W mask to filter the active color set in Color tab.</div></div>
-                <div class="help-section"><div class="help-title">2. LIVE</div><div class="help-text">16 pads grid. <strong>SAVE</strong> records a 3s video loop and current state (including loaded image).</div></div>
-                <div class="help-section"><div class="help-title">3. COLOR</div><div class="help-text">Wheel and interactive RGB sliders. Values are typeable.</div></div>
+                <div class="help-signature">FULL USER MANUAL</div>
+                <div class="help-section">
+                    <div class="help-title">1. LIVE TAB (PATCHES & PERFORMANCE)</div>
+                    <div class="help-text">
+                        The heart of the live system. Save and recall full configurations (Patches).<br><br>
+                        <strong>SAVE:</strong> Click <strong>SAVE</strong> under any pad. The button flashes RED for 1 second. This saves all current settings (Color, FX, Matrix...) AND records a 2-second video loop background.<br>
+                        <strong>RECALL:</strong> Click any pad to instantly recall the scene.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">2. COLOR TAB</div>
+                    <div class="help-text">
+                        Precise manual color control.<br>
+                        <strong>WHEEL:</strong> Hue and Saturation.<br>
+                        <strong>RGB SLIDERS:</strong> Fine tune Red, Green, Blue. Click the green numbers to type specific values.<br>
+                        <strong>MEMORIES:</strong> Click the colored box to LOAD. Click SAVE button below to STORE.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">3. WHITE TAB (CCT)</div>
+                    <div class="help-text">
+                        White balance control.<br>
+                        <strong>KELVIN:</strong> 1750K to 10000K.<br>
+                        <strong>TINT:</strong> Green/Magenta correction.<br>
+                        <strong>PRESETS:</strong> Quick access buttons. Active button has a green glow.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">4. FX TABS</div>
+                    <div class="help-text">
+                        Procedural effects.<br>
+                        <strong>COLOR OVERRIDE:</strong> Toggle the memory color boxes at the top. Active colors <strong>REPLACE</strong> the original effect colors. Multiple active colors create a dynamic blend.<br>
+                        <strong>STATIC:</strong> Returns to manual mode.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">5. MATRIX TAB</div>
+                    <div class="help-text">
+                        Pixel resolution simulation.<br>
+                        <strong>PRESETS:</strong> Select your fixture format (e.g., Titan 8x16).<br>
+                        <strong>MODIFIERS:</strong> Grid (multiply), Warp (distort), Noise (grain).
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">6. TEXT TAB</div>
+                    <div class="help-text">
+                        Scrolling text layer. Type message, toggle ON, select font/effect.
+                    </div>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">7. GLOBAL CONTROLS</div>
+                    <div class="help-text">
+                        <strong>DIMMER:</strong> Master intensity.<br>
+                        <strong>BLACKOUT:</strong> Instant off.<br>
+                        <strong>FULL SCREEN:</strong> Toggle fullscreen mode.
+                    </div>
+                </div>
             `,
             ES: `
-                <div class="help-signature">Desarrollado por Shnopia por amor al cine</div>
-                <div class="help-section"><div class="help-title">1. IMAGEN (NUEVO)</div><div class="help-text">Carga una imagen para textura Pixel Art. <strong>MASK MODE</strong> usa la imagen como máscara para el color activo.</div></div>
+                <div class="help-signature">MANUAL DE USUARIO COMPLETO</div>
+                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Guarda y recupera "Patches". Clic en <strong>SAVE</strong> para guardar (flash rojo). Clic en el pad para cargar. Incluye video preview de 2s.</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">Control RGB y Rueda. Haz clic en los números para escribir valores. Memorias abajo.</div></div>
+                <div class="help-section"><div class="help-title">3. WHITE</div><div class="help-text">Control CCT (Kelvin) y Tinte. Botones rápidos.</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Efectos dinámicos. Activa las casillas de color arriba para <strong>REEMPLAZAR</strong> los colores del efecto.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Resolución de píxeles (Titan, Matrix...). Modificadores: Grid, Warp, Noise.</div></div>
+                <div class="help-section"><div class="help-title">6. TEXTO</div><div class="help-text">Texto desplazable con efectos.</div></div>
+                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Dimmer maestro, Blackout y Pantalla completa.</div></div>
             `,
             RU: `
-                <div class="help-signature">Разработано Shnopia с любовью к кино</div>
-                <div class="help-section"><div class="help-title">1. ИЗОБРАЖЕНИЕ (NEW)</div><div class="help-text">Загрузите изображение для пиксель-арта. <strong>MASK MODE</strong> использует изображение как маску для активного цвета.</div></div>
+                <div class="help-signature">ПОЛНОЕ РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ</div>
+                <div class="help-section"><div class="help-title">1. LIVE (ЖИВОЙ РЕЖИМ)</div><div class="help-text">Сохранение и вызов патчей. Нажмите <strong>SAVE</strong> (красная вспышка) для сохранения настроек и 2-сек видео. Нажмите пэд для вызова.</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR (ЦВЕТ)</div><div class="help-text">Колесо и RGB слайдеры. Нажмите на цифры для ввода значений. Память внизу.</div></div>
+                <div class="help-section"><div class="help-title">3. WHITE (БЕЛЫЙ)</div><div class="help-text">CCT (Кельвин) и Оттенок. Быстрые пресеты.</div></div>
+                <div class="help-section"><div class="help-title">4. FX (ЭФФЕКТЫ)</div><div class="help-text">Активируйте цвета памяти сверху, чтобы <strong>ЗАМЕНИТЬ</strong> цвета эффекта.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Разрешение пикселей. Модификаторы: Сетка, Искажение, Шум.</div></div>
+                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">Бегущая строка с эффектами.</div></div>
+                <div class="help-section"><div class="help-title">7. ОБЩЕЕ</div><div class="help-text">Диммер, Blackout (Затемнение), Полный экран.</div></div>
             `,
             JP: `
-                <div class="help-signature">映画愛のためにShnopiaによって開発されました</div>
-                <div class="help-section"><div class="help-title">1. 画像 (NEW)</div><div class="help-text">画像を読み込んでピクセルアートテクスチャにします。<strong>MASK MODE</strong>は、画像をマスクとして使用し、現在のアクティブカラーをフィルタリングします。</div></div>
+                <div class="help-signature">完全なユーザーマニュアル</div>
+                <div class="help-section"><div class="help-title">1. LIVE (ライブ)</div><div class="help-text">設定（パッチ）の保存と呼び出し。<strong>SAVE</strong>をクリックして保存します（赤いフラッシュ）。パッドをクリックして呼び出します。</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR (カラー)</div><div class="help-text">ホイールとRGBスライダー。数値を入力するには数字をクリックします。</div></div>
+                <div class="help-section"><div class="help-title">3. WHITE (ホワイト)</div><div class="help-text">色温度 (CCT) とティント。</div></div>
+                <div class="help-section"><div class="help-title">4. FX (エフェクト)</div><div class="help-text">上部のメモリカラーをアクティブにして、エフェクトの色を<strong>置換</strong>します。</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">ピクセル解像度設定。</div></div>
+                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">スクロールテキストレイヤー。</div></div>
+                <div class="help-section"><div class="help-title">7. 全体</div><div class="help-text">調光 (Dimmer)、ブラックアウト、フルスクリーン。</div></div>
             `
         };
         function setLang(lang, btn) { document.getElementById('help-content').innerHTML = TRANSLATIONS[lang] || TRANSLATIONS['FR']; document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); }
@@ -713,129 +788,110 @@
 
             if(state.blackout) { ctx.fillStyle = "black"; ctx.fillRect(0, 0, targetW, targetH); textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height); requestAnimationFrame(render); return; }
 
-            // IMAGE RENDERING
-            if(state.mode === 'IMAGE' && state.loadedImage) {
-                // Clear background
-                ctx.fillStyle = "black"; ctx.fillRect(0, 0, targetW, targetH);
+            const imgData = ctx.createImageData(targetW, targetH); const data = imgData.data;
+            let currentSpeed = state.fxMode <= 20 ? state.speedCinema : state.speedShnopia;
+            state.time += (currentSpeed / 50) * 0.05; 
+            const t = state.time; const w = targetW; const h = targetH;
+
+            if(state.fxMode === 8) { if(Math.random() > 0.98) stormFlash = 1; else stormFlash *= 0.85; if(stormFlash < 0.01) stormFlash = 0.02; }
+
+            // ACTIVE COLORS REPLACEMENT LOGIC V6.0
+            const activeColors = state.savedColors.filter((c, i) => state.paletteActive[i]).map(hex => hexToRgb(hex)); 
+            const usePalette = activeColors.length > 0 && state.fxMode !== 0;
+            
+            let rB, gB, bB;
+            if (state.mode === 'WHEEL') { const rgb = hsvToRgb(state.hue, state.sat, state.val); rB=rgb[0]; gB=rgb[1]; bB=rgb[2]; } 
+            else if (state.mode === 'CCT') { rB=state.whiteRgb.r; gB=state.whiteRgb.g; bB=state.whiteRgb.b; } 
+            else { rB=0; gB=0; bB=0; }
+
+            // Internal Pixel Function
+            const p = (idx, r,g,b, i=1, x, y) => { 
+                // Modifiers
+                if(state.warpActive && state.warpLevel > 0) { let offset = Math.sin(y * 0.1 * state.warpLevel + t) * (state.warpLevel * 2); i *= (0.5 + 0.5 * Math.sin(offset)); }
+                if(state.noiseActive && state.noiseLevel > 0) { if(Math.random() < state.noiseLevel * 0.05) { r=255; g=255; b=255; } else { let grain = (Math.random()-0.5) * state.noiseLevel * 20; r+=grain; g+=grain; b+=grain; } }
                 
-                // Draw image stretched to matrix size (creates pixelation naturally)
-                ctx.drawImage(state.loadedImage, 0, 0, targetW, targetH);
-                
-                // If in Mask mode, we need to process pixels
-                if(state.imageMode === 'MASK' || state.imageContrast !== 100) {
-                    let imgData = ctx.getImageData(0, 0, targetW, targetH);
-                    let d = imgData.data;
+                // --- COLOR OVERRIDE LOGIC V6.0 ---
+                if(usePalette) { 
+                    // Determine if pixel is lit in original effect
+                    let luma = 0.299*r + 0.587*g + 0.114*b;
                     
-                    // Get Active Color
-                    let activeR = 255, activeG = 255, activeB = 255;
-                    // We use the color from the wheel state
-                    const rgb = hsvToRgb(state.hue, state.sat, state.val);
-                    activeR = rgb[0]; activeG = rgb[1]; activeB = rgb[2];
-
-                    let contrastFactor = (state.imageContrast * 255) / 100; // approximation
-                    let intercept = 128 * (1 - state.imageContrast/100);
-
-                    for(let i=0; i<d.length; i+=4) {
-                        let r = d[i]; let g = d[i+1]; let b = d[i+2];
+                    if (luma > 10) {
+                        // REPLACE MODE: Pick color from active slots
+                        // Cycle based on Time + Space relative to number of active colors
+                        let cycle = Math.floor(t * 5 + (x/w)*2 + (y/h)*2); 
+                        let colIndex = cycle % activeColors.length;
+                        if (colIndex < 0) colIndex = 0;
                         
-                        // Contrast
-                        if(state.imageContrast !== 100) {
-                            r = (r - 128) * (state.imageContrast/100) + 128;
-                            g = (g - 128) * (state.imageContrast/100) + 128;
-                            b = (b - 128) * (state.imageContrast/100) + 128;
-                        }
-
-                        if(state.imageMode === 'MASK') {
-                            // Luminance
-                            let lum = 0.299*r + 0.587*g + 0.114*b;
-                            // Apply color
-                            d[i] = (activeR * lum) / 255;
-                            d[i+1] = (activeG * lum) / 255;
-                            d[i+2] = (activeB * lum) / 255;
-                        } else {
-                            // Just contrast applied
-                            d[i] = r; d[i+1] = g; d[i+2] = b;
-                        }
+                        let targetCol = activeColors[colIndex];
+                        
+                        // Apply target color, using original intensity (luma/255) and multiplier i
+                        let intensity = (luma/255) * i;
+                        
+                        data[idx] = targetCol.r * intensity;
+                        data[idx+1] = targetCol.g * intensity;
+                        data[idx+2] = targetCol.b * intensity;
+                        data[idx+3] = 255;
+                    } else {
+                        data[idx]=0; data[idx+1]=0; data[idx+2]=0; data[idx+3]=255;
                     }
-                    ctx.putImageData(imgData, 0, 0);
+                } 
+                else { 
+                    // Standard Render
+                    data[idx]=r*i; data[idx+1]=g*i; data[idx+2]=b*i; data[idx+3]=255; 
                 }
             }
-            else {
-                // STANDARD PROCEDURAL RENDERING
-                const imgData = ctx.createImageData(targetW, targetH); const data = imgData.data;
-                let currentSpeed = state.fxMode <= 20 ? state.speedCinema : state.speedShnopia;
-                state.time += (currentSpeed / 50) * 0.05; 
-                const t = state.time; const w = targetW; const h = targetH;
+            const hsl = (idx, hVal, sVal, lVal, x, y) => { const rgb=hslToRgb(hVal,sVal,lVal); p(idx, rgb[0],rgb[1],rgb[2], 1, x, y); }
 
-                if(state.fxMode === 8) { if(Math.random() > 0.98) stormFlash = 1; else stormFlash *= 0.85; if(stormFlash < 0.01) stormFlash = 0.02; }
-
-                const activeColors = state.savedColors.filter((c, i) => state.paletteActive[i]).map(hex => hexToRgb(hex)); 
-                const usePalette = activeColors.length > 0 && state.fxMode !== 0;
-                let rB, gB, bB;
-                
-                if (state.mode === 'WHEEL') { const rgb = hsvToRgb(state.hue, state.sat, state.val); rB=rgb[0]; gB=rgb[1]; bB=rgb[2]; } 
-                else if (state.mode === 'CCT') { rB=state.whiteRgb.r; gB=state.whiteRgb.g; bB=state.whiteRgb.b; } 
-                else { rB=0; gB=0; bB=0; } // FX Base
-
-                const p = (idx, r,g,b, i=1, x, y) => { 
-                    if(state.warpActive && state.warpLevel > 0) { let offset = Math.sin(y * 0.1 * state.warpLevel + t) * (state.warpLevel * 2); i *= (0.5 + 0.5 * Math.sin(offset)); }
-                    if(state.noiseActive && state.noiseLevel > 0) { if(Math.random() < state.noiseLevel * 0.05) { r=255; g=255; b=255; } else { let grain = (Math.random()-0.5) * state.noiseLevel * 20; r+=grain; g+=grain; b+=grain; } }
-                    if(usePalette) { let lum = (0.299*r + 0.587*g + 0.114*b) * i; let colIdx = Math.floor((x + y + t*2) % activeColors.length); if (colIdx < 0 || isNaN(colIdx)) colIdx = 0; let col = activeColors[colIdx]; data[idx]=col.r * (lum/255); data[idx+1]=col.g * (lum/255); data[idx+2]=col.b * (lum/255); data[idx+3]=255; } 
-                    else { data[idx]=r*i; data[idx+1]=g*i; data[idx+2]=b*i; data[idx+3]=255; }
-                }
-                const hsl = (idx, hVal, sVal, lVal, x, y) => { const rgb=hslToRgb(hVal,sVal,lVal); p(idx, rgb[0],rgb[1],rgb[2], 1, x, y); }
-
-                for(let y=0; y<h; y++) {
-                    for(let x=0; x<w; x++) {
-                        const idx = (y*w+x)*4; const u = (x + 0.5) / w; const v = (y + 0.5) / h; const rnd = Math.random();
-                        switch(state.fxMode) {
-                            case 0: p(idx, rB,gB,bB, 1, x, y); break;
-                            case 1: p(idx,(Math.floor(t*6)%2 ? (u<0.5?0:255) : (u<0.5?255:0)), 0, (Math.floor(t*6)%2 ? (u<0.5?255:0) : (u<0.5?0:255)), (Math.floor(t*20)%2?1:0), x, y); break;
-                            case 2: { const n=(Math.sin(t*10 + u*10) + Math.sin(t*20 + v*10))/2 + 0.5; p(idx,255, 50+n*100, 0, 0.5+n*0.5, x, y); break; }
-                            case 3: p(idx,255,255,255, rnd>0.96?1:0, x, y); break;
-                            case 4: { let i=0.5+rnd*0.5; if((y+Math.floor(t*10))%5===0)i*=0.8; p(idx,200,220,255,i, x, y); break; }
-                            case 5: p(idx,200,230,255, (Math.sin(t*3)>0.9 && rnd>0.5)?1:0.05, x, y); break;
-                            case 6: p(idx,255,180,100, Math.max(0, 1 - Math.abs(u - ((t*0.5)%1)) * 5), x, y); break;
-                            case 7: p(idx,220,255,220, (rnd>0.9 || Math.sin(t)>0.8)?0.2:1, x, y); break;
-                            case 8: p(idx,255,255,255, stormFlash, x, y); break;
-                            case 9: { let f=Math.sin(t*10)+Math.sin(t*23); p(idx,255,150,50, 0.6+f*0.1, x, y); break; }
-                            case 10: p(idx,255,255,255, Math.floor(t*30)%2?1:0, x, y); break;
-                            case 11: { let tr=t%3; p(idx,255, (tr<0.2)?255:100, (tr<0.2)?255:0, (tr<1)?(tr<0.2?1:1-(tr-0.2)):0, x, y); break; }
-                            case 12: hsl(idx, (t*50)%360, 100, 50, x, y); break;
-                            case 13: hsl(idx, rnd*360, 100, rnd>0.96?50:0, x, y); break;
-                            case 14: p(idx,200,255,220, (t%2<0.1 || rnd>0.95)?0:1, x, y); break;
-                            case 15: { let rot = (Math.atan2(v-0.5, u-0.5) + t*5) % (Math.PI*2); p(idx,255, rot>0?150:0, 0, 1, x, y); break; }
-                            case 16: if(rnd>0.99) hsl(idx,rnd*360,100,50, x, y); else p(idx,0,0,0,0.9, x, y); break;
-                            case 17: { let bang = t%1; p(idx,255,200,150, bang<0.05?1:0, x, y); break; }
-                            case 18: p(idx,255,0,0, 0.5+Math.sin(t*5)*0.5, x, y); break;
-                            case 19: p(idx,255,200,150, (v + t*0.5)%1 < 0.2 ? 1 : 0, x, y); break;
-                            case 20: { let flicker=rnd>0.9?0:1; p(idx,50,100,50, flicker*0.5, x, y); break; }
-                            case 21: hsl(idx, 140+Math.max(0,50-Math.abs(v-(0.5+Math.sin(u*5+t)*0.1))*100), 100, 50, x, y); break;
-                            case 22: { let r=(v + t)%1; hsl(idx, 120, 100, (Math.abs(v-r)<0.1 && rnd>0.8)?50:0, x, y); break; }
-                            case 23: hsl(idx, ((u+v)%0.2 < 0.1)?300:180, 100, 30+Math.sin(t*5)*20, x, y); break;
-                            case 24: hsl(idx, (Math.sin(u*5+t)+Math.sin(v*5+t))*40%360, 100, 50, x, y); break;
-                            case 25: hsl(idx, 200+Math.sin(u*10+t)*10, 80, 40, x, y); break;
-                            case 26: { let n=Math.sin(u*4+t)+Math.cos(v*4+t); hsl(idx, 10+n*10, 100, 40+n*20, x, y); break; }
-                            case 27: hsl(idx, (t*40+u*100)%360, 100, 50, x, y); break;
-                            case 28: hsl(idx, 280-v*60, 80, 50, x, y); break;
-                            case 29: { let noise = Math.sin(u*5)*Math.cos(v*5+t); hsl(idx, 260+noise*30, 80, 20+noise*20, x, y); break; }
-                            case 30: hsl(idx, u*360 + t*50, 100, 50, x, y); break;
-                            case 31: p(idx,255,0,0, Math.abs(u - (Math.sin(t)*0.4 + 0.5)) < 0.05 ? 1 : 0, x, y); break;
-                            case 32: { let dist=Math.sqrt((u-0.5)**2+(v-0.5)**2); hsl(idx, 200, 100, Math.sin(dist*10 - t*5)*50+50, x, y); break; }
-                            case 33: p(idx,255,255,255, rnd>0.95?1:0, x, y); break;
-                            case 34: if(rnd>0.9) hsl(idx, rnd*360, 100, 50, x, y); else p(idx,0,0,0, 1, x, y); break;
-                            case 35: p(idx,0,255,0, (Math.floor(u*10+v*10+t)%2)?1:0, x, y); break;
-                            case 36: p(idx,255,0,0, Math.pow(Math.sin(t*5), 10), x, y); break;
-                            case 37: hsl(idx, 100, 100, 20+Math.sin(u*10+t)*20, x, y); break;
-                            case 38: p(idx,255,255,255, (Math.abs(u-0.5)<v)?1:0, x, y); break;
-                            case 39: hsl(idx, 220, 100, rnd>0.9 ? 80 : 0, x, y); break;
-                            case 40: { let ang=Math.atan2(v-0.5, u-0.5)+t; hsl(idx, ang*50, 100, 50, x, y); break; }
-                            case 41: { let mx=Math.abs(u-0.5), my=Math.abs(v-0.5); hsl(idx, (mx*my*100+t*100)%360, 100, 50, x, y); break; }
-                        }
+            for(let y=0; y<h; y++) {
+                for(let x=0; x<w; x++) {
+                    const idx = (y*w+x)*4; const u = (x + 0.5) / w; const v = (y + 0.5) / h; const rnd = Math.random();
+                    switch(state.fxMode) {
+                        case 0: p(idx, rB,gB,bB, 1, x, y); break;
+                        case 1: p(idx,(Math.floor(t*6)%2 ? (u<0.5?0:255) : (u<0.5?255:0)), 0, (Math.floor(t*6)%2 ? (u<0.5?255:0) : (u<0.5?0:255)), (Math.floor(t*20)%2?1:0), x, y); break;
+                        case 2: { const n=(Math.sin(t*10 + u*10) + Math.sin(t*20 + v*10))/2 + 0.5; p(idx,255, 50+n*100, 0, 0.5+n*0.5, x, y); break; }
+                        case 3: p(idx,255,255,255, rnd>0.96?1:0, x, y); break;
+                        case 4: { let i=0.5+rnd*0.5; if((y+Math.floor(t*10))%5===0)i*=0.8; p(idx,200,220,255,i, x, y); break; }
+                        case 5: p(idx,200,230,255, (Math.sin(t*3)>0.9 && rnd>0.5)?1:0.05, x, y); break;
+                        case 6: p(idx,255,180,100, Math.max(0, 1 - Math.abs(u - ((t*0.5)%1)) * 5), x, y); break;
+                        case 7: p(idx,220,255,220, (rnd>0.9 || Math.sin(t)>0.8)?0.2:1, x, y); break;
+                        case 8: p(idx,255,255,255, stormFlash, x, y); break;
+                        case 9: { let f=Math.sin(t*10)+Math.sin(t*23); p(idx,255,150,50, 0.6+f*0.1, x, y); break; }
+                        case 10: p(idx,255,255,255, Math.floor(t*30)%2?1:0, x, y); break;
+                        case 11: { let tr=t%3; p(idx,255, (tr<0.2)?255:100, (tr<0.2)?255:0, (tr<1)?(tr<0.2?1:1-(tr-0.2)):0, x, y); break; }
+                        case 12: hsl(idx, (t*50)%360, 100, 50, x, y); break;
+                        case 13: hsl(idx, rnd*360, 100, rnd>0.96?50:0, x, y); break;
+                        case 14: p(idx,200,255,220, (t%2<0.1 || rnd>0.95)?0:1, x, y); break;
+                        case 15: { let rot = (Math.atan2(v-0.5, u-0.5) + t*5) % (Math.PI*2); p(idx,255, rot>0?150:0, 0, 1, x, y); break; }
+                        case 16: if(rnd>0.99) hsl(idx,rnd*360,100,50, x, y); else p(idx,0,0,0,0.9, x, y); break;
+                        case 17: { let bang = t%1; p(idx,255,200,150, bang<0.05?1:0, x, y); break; }
+                        case 18: p(idx,255,0,0, 0.5+Math.sin(t*5)*0.5, x, y); break;
+                        case 19: p(idx,255,200,150, (v + t*0.5)%1 < 0.2 ? 1 : 0, x, y); break;
+                        case 20: { let flicker=rnd>0.9?0:1; p(idx,50,100,50, flicker*0.5, x, y); break; }
+                        case 21: hsl(idx, 140+Math.max(0,50-Math.abs(v-(0.5+Math.sin(u*5+t)*0.1))*100), 100, 50, x, y); break;
+                        case 22: { let r=(v + t)%1; hsl(idx, 120, 100, (Math.abs(v-r)<0.1 && rnd>0.8)?50:0, x, y); break; }
+                        case 23: hsl(idx, ((u+v)%0.2 < 0.1)?300:180, 100, 30+Math.sin(t*5)*20, x, y); break;
+                        case 24: hsl(idx, (Math.sin(u*5+t)+Math.sin(v*5+t))*40%360, 100, 50, x, y); break;
+                        case 25: hsl(idx, 200+Math.sin(u*10+t)*10, 80, 40, x, y); break;
+                        case 26: { let n=Math.sin(u*4+t)+Math.cos(v*4+t); hsl(idx, 10+n*10, 100, 40+n*20, x, y); break; }
+                        case 27: hsl(idx, (t*40+u*100)%360, 100, 50, x, y); break;
+                        case 28: hsl(idx, 280-v*60, 80, 50, x, y); break;
+                        case 29: { let noise = Math.sin(u*5)*Math.cos(v*5+t); hsl(idx, 260+noise*30, 80, 20+noise*20, x, y); break; }
+                        case 30: hsl(idx, u*360 + t*50, 100, 50, x, y); break;
+                        case 31: p(idx,255,0,0, Math.abs(u - (Math.sin(t)*0.4 + 0.5)) < 0.05 ? 1 : 0, x, y); break;
+                        case 32: { let dist=Math.sqrt((u-0.5)**2+(v-0.5)**2); hsl(idx, 200, 100, Math.sin(dist*10 - t*5)*50+50, x, y); break; }
+                        case 33: p(idx,255,255,255, rnd>0.95?1:0, x, y); break;
+                        case 34: if(rnd>0.9) hsl(idx, rnd*360, 100, 50, x, y); else p(idx,0,0,0, 1, x, y); break;
+                        case 35: p(idx,0,255,0, (Math.floor(u*10+v*10+t)%2)?1:0, x, y); break;
+                        case 36: p(idx,255,0,0, Math.pow(Math.sin(t*5), 10), x, y); break;
+                        case 37: hsl(idx, 100, 100, 20+Math.sin(u*10+t)*20, x, y); break;
+                        case 38: p(idx,255,255,255, (Math.abs(u-0.5)<v)?1:0, x, y); break;
+                        case 39: hsl(idx, 220, 100, rnd>0.9 ? 80 : 0, x, y); break;
+                        case 40: { let ang=Math.atan2(v-0.5, u-0.5)+t; hsl(idx, ang*50, 100, 50, x, y); break; }
+                        case 41: { let mx=Math.abs(u-0.5), my=Math.abs(v-0.5); hsl(idx, (mx*my*100+t*100)%360, 100, 50, x, y); break; }
                     }
                 }
-                ctx.putImageData(imgData, 0, 0);
             }
+            ctx.putImageData(imgData, 0, 0);
             
             if(state.dimmer < 100) { ctx.fillStyle=`rgba(0,0,0, ${1-state.dimmer/100})`; ctx.fillRect(0,0,w,h); }
 
@@ -867,11 +923,7 @@
         window.switchTab = (id, btn) => { document.querySelectorAll('.panel-content').forEach(e => e.classList.remove('visible')); document.getElementById(id).classList.add('visible'); document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active')); if(btn) btn.classList.add('active'); };
         
         window.setEffect = (id, el) => { 
-            if (id === 0) { 
-                // Return to previous mode or Wheel default
-                if(state.mode === 'IMAGE') activateStatic('IMAGE');
-                else activateStatic('WHEEL'); 
-            } 
+            if (id === 0) { activateStatic('WHEEL'); } 
             else { state.fxMode = id; state.mode = 'FX'; document.querySelectorAll('.fx-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
         };
         
@@ -1072,11 +1124,27 @@
             const rgb = hsvToRgb(state.hue, state.sat, 100); updateRGBInputs(rgb);
             const wRgb = applyTint(kelvinToRgb(state.kelvin), state.tint); updateWhiteUI(wRgb);
 
-            updateGridSlider(document.getElementById('input-grid-lvl'));
-            updateWarpSlider(document.getElementById('input-warp-lvl'));
-            updateNoiseSlider(document.getElementById('input-noise-lvl'));
-            updateTextSlider();
+            // Matrix Sync
+            const gridInput = document.getElementById('input-grid-lvl'); gridInput.value = state.gridLevel; updateGridSlider(gridInput);
+            const warpInput = document.getElementById('input-warp-lvl'); warpInput.value = state.warpLevel; updateWarpSlider(warpInput);
+            const noiseInput = document.getElementById('input-noise-lvl'); noiseInput.value = state.noiseLevel; updateNoiseSlider(noiseInput);
             
+            // Matrix Buttons Sync
+            document.querySelectorAll('.map-btn').forEach((btn, index) => {
+                if(index === state.mapMode) btn.classList.add('active-map');
+                else btn.classList.remove('active-map');
+            });
+
+            // Text Sync
+            document.getElementById('text-content').value = state.textString;
+            document.getElementById('input-text-color').value = state.textColor;
+            document.getElementById('input-text-font').value = state.textFont;
+            document.getElementById('input-text-effect').value = state.textEffect;
+            const textLvlInput = document.getElementById('input-text-fx-lvl'); textLvlInput.value = state.textFxLvl; updateTextSlider();
+            const textToggle = document.getElementById('btn-text-toggle');
+            if(state.textOn) { textToggle.innerText = "TEXTE: ON"; textToggle.classList.add('active'); } 
+            else { textToggle.innerText = "TEXTE: OFF"; textToggle.classList.remove('active'); }
+
             if (document.fullscreenElement) document.querySelector('.fullscreen-btn').classList.add('active');
             setTimeout(updateCursorVisuals, 100);
         }
