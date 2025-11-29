@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shnopia Light Engine V6.10 Beta</title>
+    <title>Shnopia Light Engine V7.0 Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&family=Pacifico&family=Bangers&family=Creepster&family=Monoton&family=Audiowide&family=Black+Ops+One&family=Syncopate&family=VT323&family=Righteous&family=Fredoka+One&family=Luckiest+Guy&family=Russo+One&family=Special+Elite&family=Wallpoet&display=swap" rel="stylesheet">
     <style>
         /* --- CORE --- */
@@ -25,24 +25,42 @@
         #text-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; pointer-events: auto; }
 
-        /* --- STARTUP OVERLAY (UPDATED) --- */
+        /* --- STARTUP OVERLAY (V7 FINAL) --- */
         #startup-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 10000;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             cursor: pointer; transition: opacity 0.5s ease-out; backdrop-filter: blur(10px);
         }
-        /* Same dimensions as .control-panel */
+        
+        /* Language Bar above Intro Box */
+        .intro-lang-bar {
+            display: flex; gap: 15px; margin-bottom: 20px; z-index: 10001;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .intro-lang-btn {
+            font-family: 'Orbitron'; font-size: 14px; color: #004400; 
+            border: 1px solid #004400; background: #001100; padding: 5px 10px; 
+            cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold;
+        }
+        .intro-lang-btn:hover { color: #fff; border-color: #fff; transform: scale(1.1); }
+        .intro-lang-btn.active { color: var(--lcd-on); border-color: var(--lcd-on); box-shadow: 0 0 10px var(--lcd-on); background: #002200; }
+
+        /* Exact Mirror of .control-panel */
         .startup-box {
-            background: var(--panel-bg);
-            border: 2px solid var(--lcd-on);
-            border-radius: 12px;
+            background: var(--panel-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid #333; border-radius: 12px;
             width: 95%; max-width: 600px; height: 95vh; max-height: 950px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             padding: 40px; text-align: center;
-            box-shadow: 0 0 50px rgba(51, 255, 51, 0.2);
-            pointer-events: none; 
+            box-shadow: 0 40px 100px #000;
+            pointer-events: none; /* Events pass to overlay for click-to-start */
+            position: relative;
         }
+        /* Visual decorative elements to match panel feel */
+        .startup-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #004400, var(--lcd-on), #004400); opacity: 0.5; }
+        .startup-box::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: #004400; }
+
         .startup-title {
             font-family: 'Orbitron'; font-size: 24px; color: var(--lcd-on);
             margin-bottom: 30px; font-weight: 900; letter-spacing: 2px;
@@ -51,6 +69,7 @@
         .startup-text {
             font-family: 'Roboto Mono'; font-size: 14px; color: #e0e0e0;
             line-height: 1.8; margin-bottom: 50px; text-align: justify;
+            max-width: 90%;
         }
         .startup-hint {
             font-family: 'Orbitron'; font-size: 12px; color: #888;
@@ -76,6 +95,7 @@
             .startup-box { padding: 20px; }
             .startup-title { font-size: 20px; }
             .startup-text { font-size: 12px; }
+            .intro-lang-bar { margin-top: 20px; }
         }
 
         /* --- SCROLLBAR --- */
@@ -302,12 +322,21 @@
 <body>
 
     <div id="startup-overlay">
+        <div class="intro-lang-bar" id="intro-lang-bar">
+            <div class="intro-lang-btn active" onclick="setIntroLang('FR', event)">FR</div>
+            <div class="intro-lang-btn" onclick="setIntroLang('EN', event)">EN</div>
+            <div class="intro-lang-btn" onclick="setIntroLang('ES', event)">ES</div>
+            <div class="intro-lang-btn" onclick="setIntroLang('RU', event)">RU</div>
+            <div class="intro-lang-btn" onclick="setIntroLang('JP', event)">JP</div>
+            <div class="intro-lang-btn" onclick="setIntroLang('PL', event)">PL</div>
+        </div>
+
         <div class="startup-box">
-            <div class="startup-title">INTRODUCTION</div>
-            <div class="startup-text">
+            <div class="startup-title" id="intro-title">INTRODUCTION</div>
+            <div class="startup-text" id="intro-text">
                 Shnopia Light Engine est une interface web universelle conçue pour transformer instantanément n'importe quel écran (ordinateur, tablette, smartphone) en source lumineuse professionnelle. Elle contrôle votre écran comme un projecteur de cinéma entièrement ajustable, sans aucune installation.
             </div>
-            <div class="startup-hint">CLIQUEZ POUR CONTINUER</div>
+            <div class="startup-hint" id="intro-hint">CLIQUEZ POUR CONTINUER</div>
         </div>
     </div>
 
@@ -336,7 +365,7 @@
         <div class="control-panel" id="main-panel" onclick="event.stopPropagation()">
             <div class="drag-bar" id="drag-handle"><div class="grip-lines"></div></div>
             <div class="panel-header">
-                <span class="app-title">Shnopia Light Engine V6.10 Beta</span>
+                <span class="app-title">Shnopia Light Engine V7.0 Final</span>
                 
                 <div class="header-controls">
                     <span class="lang-icon" onclick="toggleLangMenu(event)">🌍</span>
@@ -532,32 +561,12 @@
     </div>
 
     <script>
-        // --- STARTUP LOGIC ---
-        const overlay = document.getElementById('startup-overlay');
-        overlay.addEventListener('click', () => {
-            // 1. Fade out overlay
-            overlay.style.opacity = '0';
-            setTimeout(() => { overlay.style.display = 'none'; }, 500);
-            
-            // 2. Trigger Fullscreen (Browser requires gesture)
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log("Fullscreen attempt blocked or cancelled by user.");
-                });
-            }
-
-            // 3. Blink Full Screen Button (Visual Feedback)
-            const fsBtn = document.querySelector('.fullscreen-btn');
-            fsBtn.classList.add('blink-trigger');
-            setTimeout(() => {
-                fsBtn.classList.remove('blink-trigger');
-                // Ensure active class is set by the event listener later
-            }, 1200); // 3 blinks * 0.4s = 1.2s
-        });
-
         // --- TRANSLATION DICTIONARY ---
         const DICT = {
             FR: {
+                INTRO_TITLE: "INTRODUCTION",
+                INTRO_TEXT: "Shnopia Light Engine est une interface web universelle conçue pour transformer instantanément n'importe quel écran (ordinateur, tablette, smartphone) en source lumineuse professionnelle. Elle contrôle votre écran comme un projecteur de cinéma entièrement ajustable, sans aucune installation.",
+                INTRO_HINT: "CLIQUEZ POUR CONTINUER",
                 PREVIEW: "APERÇU", HIDE: "CACHER", LIVE: "LIVE", COLOR: "COULEUR", WHITE: "BLANC", CINEMA: "CINEMA FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIX", TEXT: "TEXTE", HELP: "AIDE",
                 SATURATION: "SATURATION", RED: "ROUGE", GREEN: "VERT", BLUE: "BLEU", RECALL_WHITE: "RAPPELER RÉGLAGE BLANC", ACTIVATE_COLOR: "ACTIVER LA COULEUR", MEMORIES: "MÉMOIRES (HAUT: CHARGER / BAS: SAUVER)",
                 KELVIN: "TEMPERATURE (KELVIN)", TINT: "TEINTE (G/M)", MANUAL_WHITE: "BLANC MANUEL", ACTIVATE_WHITE: "ACTIVER LE BLANC",
@@ -603,11 +612,14 @@
                 `
             },
             EN: {
+                INTRO_TITLE: "INTRODUCTION",
+                INTRO_TEXT: "Shnopia Light Engine is a universal web interface designed to instantly transform any screen (computer, tablet, smartphone) into a professional light source. It controls your screen like a fully adjustable cinema fixture, without any installation.",
+                INTRO_HINT: "CLICK TO CONTINUE",
                 PREVIEW: "PREVIEW", HIDE: "HIDE", LIVE: "LIVE", COLOR: "COLOR", WHITE: "WHITE", CINEMA: "CINEMA FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIX", TEXT: "TEXT", HELP: "HOW TO USE",
                 SATURATION: "SATURATION", RED: "RED", GREEN: "GREEN", BLUE: "BLUE", RECALL_WHITE: "RECALL WHITE SETTINGS", ACTIVATE_COLOR: "ACTIVATE COLOR", MEMORIES: "MEMORIES (TOP: LOAD / BOT: SAVE)",
                 KELVIN: "TEMPERATURE (KELVIN)", TINT: "TINT (G/M)", MANUAL_WHITE: "MANUAL WHITE", ACTIVATE_WHITE: "ACTIVATE WHITE",
                 SPEED: "SPEED", COLOR_OVERRIDE: "COLOR OVERRIDE (CLICK TO REPLACE)", PRESETS: "PRESETS", MODIFIERS: "MODIFIERS",
-                MESSAGE: "MESSAGE", FONT: "FONT", EFFECT: "EFFECT", INTENSITY: "INTENSITY", SIZE: "SIZE", TEXT_OFF: "TEXT: OFF", TEXT_ON: "TEXT: ON",
+                MESSAGE: "MESSAGE", FONT: "FONT", EFFECT: "EFFECT", INTENSITY: "INTENSIDAD", SIZE: "SIZE", TEXT_OFF: "TEXT: OFF", TEXT_ON: "TEXT: ON",
                 DIMMER: "INTENSITY", FULLSCREEN: "FULL SCREEN",
                 HELP_CONTENT: `
                 <div class="help-signature">FULL USER MANUAL</div>
@@ -637,6 +649,9 @@
                 `
             },
             ES: {
+                INTRO_TITLE: "INTRODUCCIÓN",
+                INTRO_TEXT: "Shnopia Light Engine es una interfaz web universal diseñada para transformar instantáneamente cualquier pantalla en una fuente de luz profesional. Controla tu pantalla como un proyector de cine totalmente ajustable, sin necesidad de instalación.",
+                INTRO_HINT: "CLIC PARA CONTINUAR",
                 PREVIEW: "VISTA", HIDE: "OCULTAR", LIVE: "VIVO", COLOR: "COLOR", WHITE: "BLANCO", CINEMA: "CINE FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIZ", TEXT: "TEXTO", HELP: "AYUDA",
                 SATURATION: "SATURACION", RED: "ROJO", GREEN: "VERDE", BLUE: "AZUL", RECALL_WHITE: "RECUPERAR BLANCO", ACTIVATE_COLOR: "ACTIVAR COLOR", MEMORIES: "MEMORIAS (ARRIBA: CARGAR / ABAJO: GUARDAR)",
                 KELVIN: "TEMPERATURA (KELVIN)", TINT: "TINTE (G/M)", MANUAL_WHITE: "BLANCO MANUAL", ACTIVATE_WHITE: "ACTIVAR BLANCO",
@@ -655,6 +670,9 @@
                 `
             },
             RU: {
+                INTRO_TITLE: "ВВЕДЕНИЕ",
+                INTRO_TEXT: "Shnopia Light Engine — это универсальный веб-интерфейс, превращающий любой экран в профессиональный источник света. Управляйте экраном как кинопроектором без установки программ.",
+                INTRO_HINT: "НАЖМИТЕ ДЛЯ ПРОДОЛЖЕНИЯ",
                 PREVIEW: "ПРЕВЬЮ", HIDE: "СКРЫТЬ", LIVE: "LIVE", COLOR: "ЦВЕТ", WHITE: "БЕЛЫЙ", CINEMA: "КИНО FX", SHNOPIA: "SHNOPIA FX", MATRIX: "МАТРИЦА", TEXT: "ТЕКСТ", HELP: "ПОМОЩЬ",
                 SATURATION: "НАСЫЩЕННОСТЬ", RED: "КРАСНЫЙ", GREEN: "ЗЕЛЕНЫЙ", BLUE: "СИНИЙ", RECALL_WHITE: "ВЕРНУТЬ БЕЛЫЙ", ACTIVATE_COLOR: "АКТИВИРОВАТЬ ЦВЕТ", MEMORIES: "ПАМЯТЬ (ВЕРХ: ЗАГР / НИЗ: СОХР)",
                 KELVIN: "ТЕМПЕРАТУРА (K)", TINT: "ОТТЕНОК", MANUAL_WHITE: "РУЧНОЙ БЕЛЫЙ", ACTIVATE_WHITE: "АКТИВИРОВАТЬ БЕЛЫЙ",
@@ -673,6 +691,9 @@
                 `
             },
             JP: {
+                INTRO_TITLE: "はじめに",
+                INTRO_TEXT: "Shnopia Light Engineは、あらゆる画面（PC、タブレット、スマホ）を瞬時にプロ仕様の光源に変えるユニバーサルWebインターフェースです。インストール不要で、映画撮影用照明のように画面を完全に制御できます。",
+                INTRO_HINT: "クリックして続行",
                 PREVIEW: "プレビュー", HIDE: "隠す", LIVE: "ライブ", COLOR: "カラー", WHITE: "ホワイト", CINEMA: "シネマ FX", SHNOPIA: "SHNOPIA FX", MATRIX: "マトリックス", TEXT: "テキスト", HELP: "ヘルプ",
                 SATURATION: "彩度", RED: "赤", GREEN: "緑", BLUE: "青", RECALL_WHITE: "ホワイト設定呼出", ACTIVATE_COLOR: "カラー有効化", MEMORIES: "メモリ (上:読込 / 下:保存)",
                 KELVIN: "色温度 (K)", TINT: "色合い", MANUAL_WHITE: "手動ホワイト", ACTIVATE_WHITE: "ホワイト有効化",
@@ -691,6 +712,9 @@
                 `
             },
             PL: {
+                INTRO_TITLE: "WPROWADZENIE",
+                INTRO_TEXT: "Shnopia Light Engine to uniwersalny interfejs, który zmienia każdy ekran w profesjonalne źródło światła. Kontroluj swój ekran jak reflektor filmowy, w pełni regulowany i bez instalacji.",
+                INTRO_HINT: "KLIKNIJ, ABY KONTYNUOWAĆ",
                 PREVIEW: "PODGLĄD", HIDE: "UKRYJ", LIVE: "LIVE", COLOR: "KOLOR", WHITE: "BIAŁY", CINEMA: "KINO FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRYCA", TEXT: "TEKST", HELP: "POMOC",
                 SATURATION: "NASYCENIE", RED: "CZERWONY", GREEN: "ZIELONY", BLUE: "NIEBIESKI", RECALL_WHITE: "PRZYWOŁAJ BIEL", ACTIVATE_COLOR: "AKTYWUJ KOLOR", MEMORIES: "PAMIĘĆ (GÓRA: ŁADUJ / DÓŁ: ZAPISZ)",
                 KELVIN: "TEMPERATURA (K)", TINT: "ODCIEŃ (G/M)", MANUAL_WHITE: "MANUALNA BIEL", ACTIVATE_WHITE: "AKTYWUJ BIEL",
@@ -709,6 +733,54 @@
                 `
             }
         };
+    
+        // --- STARTUP LOGIC (V7 FINAL) ---
+        let currentIntroLang = 'FR';
+        const overlay = document.getElementById('startup-overlay');
+        const langBtns = document.querySelectorAll('.intro-lang-btn');
+
+        // Function to update Intro Text without closing overlay
+        function setIntroLang(lang, event) {
+            if(event) event.stopPropagation(); // Don't close overlay when clicking lang
+            currentIntroLang = lang;
+            
+            // Visual Active State
+            langBtns.forEach(b => b.classList.remove('active'));
+            if(event) event.target.classList.add('active');
+
+            // Update Text
+            const d = DICT[lang];
+            document.getElementById('intro-title').innerText = d.INTRO_TITLE;
+            document.getElementById('intro-text').innerText = d.INTRO_TEXT;
+            document.getElementById('intro-hint').innerText = d.INTRO_HINT;
+        }
+
+        // Main Start Logic (Click anywhere on overlay except lang buttons)
+        overlay.addEventListener('click', () => {
+            // 1. Set global app language to match what was selected in Intro
+            setLangGlobal(currentIntroLang);
+
+            // 2. Open Color Tab by default
+            switchTab('tab-wheel', document.querySelector('.tab-btn:nth-child(2)')); // Index 2 is Color Tab
+
+            // 3. Fade out
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 500);
+            
+            // 4. Trigger Fullscreen
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Fullscreen attempt blocked or cancelled by user.");
+                });
+            }
+
+            // 5. Blink Full Screen Button (Visual Feedback)
+            const fsBtn = document.querySelector('.fullscreen-btn');
+            fsBtn.classList.add('blink-trigger');
+            setTimeout(() => {
+                fsBtn.classList.remove('blink-trigger');
+            }, 1200);
+        });
 
         // --- UTILS ---
         function hexToRgb(hex) { var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : {r:0,g:0,b:0}; }
@@ -810,8 +882,7 @@
             if(state.textOn) txtBtn.innerText = d.TEXT_ON; else txtBtn.innerText = d.TEXT_OFF;
             document.getElementById('help-content').innerHTML = d.HELP_CONTENT;
         }
-        setLangGlobal('FR');
-
+        
         // --- LIVE PAD SYSTEM ---
         const LIVE_SLOTS = 16;
         let liveMemory = new Array(LIVE_SLOTS).fill(null);
