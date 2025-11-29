@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shnopia Light Engine V6.1 Beta</title>
+    <title>Shnopia Light Engine V6.3 Beta</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&display=swap" rel="stylesheet">
     <style>
         /* --- CORE --- */
@@ -46,6 +46,21 @@
         .grip-lines { width: 50px; height: 100%; background-image: repeating-linear-gradient(90deg, transparent, transparent 2px, #005500 2px, #005500 3px); opacity: 0.5; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #051105; border-bottom: 1px solid #004400; flex-shrink: 0; height: 50px; }
         .app-title { font-family: 'Orbitron'; font-weight: 900; font-size: 14px; letter-spacing: 1px; color: var(--lcd-on); text-shadow: 0 0 5px var(--lcd-on); margin-right: auto; }
+        
+        .header-controls { display: flex; align-items: center; }
+        .lang-icon { font-size: 18px; margin-right: 10px; cursor: pointer; text-shadow: 0 0 5px #0f0; transition: transform 0.2s; position: relative; }
+        .lang-icon:hover { transform: scale(1.2); }
+        
+        /* Language Menu Popup */
+        #lang-menu {
+            position: absolute; top: 40px; right: 100px; background: #002200; border: 1px solid #0f0; 
+            border-radius: 4px; display: none; flex-direction: column; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        }
+        #lang-menu.show { display: flex; }
+        .lang-option { padding: 8px 15px; color: #fff; font-family: 'Orbitron'; font-size: 10px; cursor: pointer; border-bottom: 1px solid #004400; text-align: left; }
+        .lang-option:hover { background: #004400; color: #0f0; }
+        .lang-option:last-child { border-bottom: none; }
+
         .header-preview-box { width: 50px; height: 28px; background: #000; border: 1px solid #00ff00; border-radius: 3px; margin-right: 10px; cursor: pointer; overflow: hidden; }
         #preview-canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
         .preview-container { display: flex; align-items: center; margin-right: 10px; }
@@ -62,7 +77,7 @@
         .panel-content { flex: 1; padding: 15px; display: none; flex-direction: column; overflow-y: auto; background: #020a02; min-height: 0; }
         .panel-content.visible { display: flex; }
 
-        /* --- LCD INPUTS & SLIDERS --- */
+        /* --- LCD INPUTS & SLIDERS (UPDATED FOR FILL) --- */
         .control-group { margin-bottom: 12px; flex-shrink: 0; }
         .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 9px; color: #00aa00; font-weight: bold; font-family: 'Orbitron'; }
         
@@ -82,21 +97,33 @@
         .color-g { color: #33ff33 !important; border-color: #33ff33 !important; text-shadow: 0 0 2px #050; }
         .color-b { color: #3388ff !important; border-color: #3388ff !important; text-shadow: 0 0 2px #005; }
 
-        /* SLIDERS STYLING */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 0; touch-action: none; display: block; height: 24px; cursor: pointer; border: 1px solid var(--lcd-on); background: var(--lcd-bg); border-radius: 2px; box-shadow: 0 0 5px rgba(51, 255, 51, 0.1); padding: 0 2px; }
+        /* SLIDERS STYLING WITH PROGRESS BAR LOGIC */
+        input[type=range] { 
+            -webkit-appearance: none; width: 100%; background: transparent; margin: 0; touch-action: none; display: block; height: 24px; cursor: pointer; 
+            border: 1px solid var(--lcd-on); background-color: var(--lcd-bg); border-radius: 2px; box-shadow: 0 0 5px rgba(51, 255, 51, 0.1); padding: 0; 
+            background-repeat: no-repeat; /* Vital for progress bar illusion */
+        }
         input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 2px; background: #004400; border: none; border-radius: 0; margin-top: 10px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 10px; background: var(--lcd-on); border: none; border-radius: 1px; margin-top: -7px; box-shadow: 0 0 8px var(--lcd-on); }
+        
+        /* The Track is effectively invisible now, handled by background-image in JS */
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 100%; background: transparent; border: none; }
+        
+        /* Thumb styling */
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; height: 100%; width: 10px; background: var(--lcd-on); border: 1px solid #fff; 
+            border-radius: 1px; margin-top: 0; box-shadow: 0 0 8px var(--lcd-on); 
+        }
 
-        /* Specific Colors for Sliders */
-        #input-r { border-color: #ff3333; } #input-r::-webkit-slider-runnable-track { background: #440000; } #input-r::-webkit-slider-thumb { background: #ff3333; box-shadow: 0 0 8px #ff3333; }
-        #input-g { border-color: #33ff33; } #input-g::-webkit-slider-runnable-track { background: #004400; } #input-g::-webkit-slider-thumb { background: #33ff33; box-shadow: 0 0 8px #33ff33; }
-        #input-b { border-color: #3388ff; } #input-b::-webkit-slider-runnable-track { background: #000044; } #input-b::-webkit-slider-thumb { background: #3388ff; box-shadow: 0 0 8px #3388ff; }
+        /* Specific Colors for Sliders (Thumb & Border) */
+        #input-r { border-color: #ff3333; } #input-r::-webkit-slider-thumb { background: #ff3333; box-shadow: 0 0 8px #ff3333; }
+        #input-g { border-color: #33ff33; } #input-g::-webkit-slider-thumb { background: #33ff33; box-shadow: 0 0 8px #33ff33; }
+        #input-b { border-color: #3388ff; } #input-b::-webkit-slider-thumb { background: #3388ff; box-shadow: 0 0 8px #3388ff; }
         #input-white-r { border-color: #ff3333; } #input-white-r::-webkit-slider-thumb { background: #ff3333; box-shadow: 0 0 8px #ff3333; }
         #input-white-g { border-color: #33ff33; } #input-white-g::-webkit-slider-thumb { background: #33ff33; box-shadow: 0 0 8px #33ff33; }
         #input-white-b { border-color: #3388ff; } #input-white-b::-webkit-slider-thumb { background: #3388ff; box-shadow: 0 0 8px #3388ff; }
         
-        .modifier-slider.active input[type=range] { background: #002200; box-shadow: 0 0 10px var(--lcd-on); }
+        /* Standard Green Sliders */
+        .modifier-slider.active input[type=range] { box-shadow: 0 0 10px var(--lcd-on); }
 
         /* --- BUTTON STYLES --- */
         .momentary-btn {
@@ -211,9 +238,7 @@
         .help-title { color: #fff; font-family: 'Orbitron'; font-size: 12px; margin-bottom: 5px; font-weight: bold; }
         .help-text { font-size: 10px; color: #00aa00; line-height: 1.5; text-align: justify; }
         
-        .lang-selector { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap; }
-        .lang-btn { background: #002200; border: 1px solid #004400; color: #008800; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .lang-btn.active { background: var(--lcd-on); color: #000; border-color: var(--lcd-on); box-shadow: 0 0 5px var(--lcd-on); }
+        .lang-selector { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap; display: none; } /* Hidden, now in header */
 
         .rossignol-box { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px; padding: 10px; background: #001a00; border-radius: 6px; border: 1px solid #003300; }
         .rossignol-brand { font-family: 'Orbitron'; font-size: 11px; color: #0f0; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
@@ -268,20 +293,33 @@
         <div class="control-panel" id="main-panel" onclick="event.stopPropagation()">
             <div class="drag-bar" id="drag-handle"><div class="grip-lines"></div></div>
             <div class="panel-header">
-                <span class="app-title">Shnopia Light Engine V6.1 Beta</span>
-                <div class="preview-container"><span class="preview-label">PREVIEW</span><div class="header-preview-box" onclick="togglePreviewFS()"><canvas id="preview-canvas"></canvas></div></div>
-                <button class="hide-btn" onclick="minimizePanel()">HIDE ME</button>
+                <span class="app-title">Shnopia Light Engine V6.3 Beta</span>
+                
+                <div class="header-controls">
+                    <span class="lang-icon" onclick="toggleLangMenu(event)">🌍</span>
+                    <div id="lang-menu">
+                        <div class="lang-option" onclick="setLangGlobal('FR')">FRANÇAIS</div>
+                        <div class="lang-option" onclick="setLangGlobal('EN')">ENGLISH</div>
+                        <div class="lang-option" onclick="setLangGlobal('ES')">ESPAÑOL</div>
+                        <div class="lang-option" onclick="setLangGlobal('RU')">PУССКИЙ</div>
+                        <div class="lang-option" onclick="setLangGlobal('JP')">日本語</div>
+                        <div class="lang-option" onclick="setLangGlobal('PL')">POLSKI</div>
+                    </div>
+
+                    <div class="preview-container"><span class="preview-label" data-tr="PREVIEW">PREVIEW</span><div class="header-preview-box" onclick="togglePreviewFS()"><canvas id="preview-canvas"></canvas></div></div>
+                    <button class="hide-btn" onclick="minimizePanel()" data-tr="HIDE">HIDE ME</button>
+                </div>
             </div>
 
             <div class="tabs">
-                <button class="tab-btn" onclick="switchTab('tab-live', this)">LIVE</button>
-                <button class="tab-btn active" onclick="switchTab('tab-wheel', this)">COLOR</button>
-                <button class="tab-btn" onclick="switchTab('tab-cct', this)">WHITE</button>
-                <button class="tab-btn" onclick="switchTab('tab-fx', this)">CINEMA FX</button>
-                <button class="tab-btn" onclick="switchTab('tab-custom', this)">SHNOPIA FX</button>
-                <button class="tab-btn" onclick="switchTab('tab-matrix', this)">MATRIX</button>
-                <button class="tab-btn" onclick="switchTab('tab-text', this)">TEXT</button>
-                <button class="tab-btn" onclick="switchTab('tab-help', this)">HOW TO USE</button>
+                <button class="tab-btn" onclick="switchTab('tab-live', this)" data-tr="LIVE">LIVE</button>
+                <button class="tab-btn active" onclick="switchTab('tab-wheel', this)" data-tr="COLOR">COLOR</button>
+                <button class="tab-btn" onclick="switchTab('tab-cct', this)" data-tr="WHITE">WHITE</button>
+                <button class="tab-btn" onclick="switchTab('tab-fx', this)" data-tr="CINEMA">CINEMA FX</button>
+                <button class="tab-btn" onclick="switchTab('tab-custom', this)" data-tr="SHNOPIA">SHNOPIA FX</button>
+                <button class="tab-btn" onclick="switchTab('tab-matrix', this)" data-tr="MATRIX">MATRIX</button>
+                <button class="tab-btn" onclick="switchTab('tab-text', this)" data-tr="TEXT">TEXT</button>
+                <button class="tab-btn" onclick="switchTab('tab-help', this)" data-tr="HELP">HOW TO USE</button>
             </div>
 
             <div id="tab-live" class="panel-content">
@@ -292,38 +330,38 @@
             <div id="tab-wheel" class="panel-content visible">
                 <div class="wheel-wrapper"><div class="wheel-container" id="color-wheel"><div class="wheel-cursor" id="wheel-cursor"></div></div></div>
                 <div class="control-group">
-                    <div class="label-row"><span>SATURATION</span><input type="number" class="lcd-input" id="val-sat-input" value="100" min="0" max="100"></div>
+                    <div class="label-row"><span data-tr="SATURATION">SATURATION</span><input type="number" class="lcd-input" id="val-sat-input" value="100" min="0" max="100"></div>
                     <input type="range" min="0" max="100" value="100" id="input-sat">
                 </div>
                 <input type="text" class="hex-input" id="hex-input" value="#FF0000" maxlength="7">
                 
                 <div class="rgb-section">
                     <div class="control-group">
-                        <div class="label-row color-r"><span>RED</span><input type="number" class="lcd-input color-r" id="val-r-input" value="255" min="0" max="255"></div>
+                        <div class="label-row color-r"><span data-tr="RED">RED</span><input type="number" class="lcd-input color-r" id="val-r-input" value="255" min="0" max="255"></div>
                         <input type="range" id="input-r" min="0" max="255" value="255">
                     </div>
                     <div class="control-group">
-                        <div class="label-row color-g"><span>GREEN</span><input type="number" class="lcd-input color-g" id="val-g-input" value="0" min="0" max="255"></div>
+                        <div class="label-row color-g"><span data-tr="GREEN">GREEN</span><input type="number" class="lcd-input color-g" id="val-g-input" value="0" min="0" max="255"></div>
                         <input type="range" id="input-g" min="0" max="255" value="0">
                     </div>
                     <div class="control-group">
-                        <div class="label-row color-b"><span>BLUE</span><input type="number" class="lcd-input color-b" id="val-b-input" value="0" min="0" max="255"></div>
+                        <div class="label-row color-b"><span data-tr="BLUE">BLUE</span><input type="number" class="lcd-input color-b" id="val-b-input" value="0" min="0" max="255"></div>
                         <input type="range" id="input-b" min="0" max="255" value="0">
                     </div>
                 </div>
 
-                <button class="recall-btn momentary-btn" onclick="recallWhite()">RECALL WHITE SETTINGS</button>
-                <button class="activate-btn momentary-btn" onclick="activateStatic('WHEEL')">ACTIVER LA COULEUR</button>
+                <button class="recall-btn momentary-btn" onclick="recallWhite()" data-tr="RECALL_WHITE">RECALL WHITE SETTINGS</button>
+                <button class="activate-btn momentary-btn" onclick="activateStatic('WHEEL')" data-tr="ACTIVATE_COLOR">ACTIVER LA COULEUR</button>
                 
                 <div class="memory-section">
-                    <div class="memory-label">MÉMOIRES (HAUT: CHARGER / BAS: SAUVER)</div>
+                    <div class="memory-label" data-tr="MEMORIES">MÉMOIRES (HAUT: CHARGER / BAS: SAUVER)</div>
                     <div class="memory-row" id="color-memories"></div>
                 </div>
             </div>
 
             <div id="tab-cct" class="panel-content">
                 <div class="control-group">
-                    <div class="label-row"><span>TEMPERATURE (KELVIN)</span><span id="val-kelvin">3200K</span></div>
+                    <div class="label-row"><span data-tr="KELVIN">TEMPERATURE (KELVIN)</span><span id="val-kelvin">3200K</span></div>
                     <input type="range" min="1750" max="10000" value="3200" id="input-kelvin">
                     <div class="presets-row">
                         <button class="preset-btn k2700" onclick="setKelvin(2700, this)">2700K</button>
@@ -334,53 +372,53 @@
                     </div>
                 </div>
                 <div class="control-group" style="margin-top:15px;">
-                    <div class="label-row"><span>TINT (G/M)</span><span id="val-tint">0</span></div>
+                    <div class="label-row"><span data-tr="TINT">TINT (G/M)</span><span id="val-tint">0</span></div>
                     <input type="range" min="-50" max="50" value="0" id="input-tint">
                 </div>
-                <div class="label-row" style="margin-top:15px;"><span>MANUEL BLANC</span></div>
+                <div class="label-row" style="margin-top:15px;"><span data-tr="MANUAL_WHITE">MANUEL BLANC</span></div>
                 <input type="text" class="hex-input" id="hex-input-white" value="#FFFFFF" maxlength="7">
                 
                 <div class="rgb-section">
                     <div class="control-group">
-                        <div class="label-row color-r"><span>RED</span><input type="number" class="lcd-input color-r" id="val-white-r-input" value="255" min="0" max="255"></div>
+                        <div class="label-row color-r"><span data-tr="RED">RED</span><input type="number" class="lcd-input color-r" id="val-white-r-input" value="255" min="0" max="255"></div>
                         <input type="range" id="input-white-r" min="0" max="255" value="255">
                     </div>
                     <div class="control-group">
-                        <div class="label-row color-g"><span>GREEN</span><input type="number" class="lcd-input color-g" id="val-white-g-input" value="255" min="0" max="255"></div>
+                        <div class="label-row color-g"><span data-tr="GREEN">GREEN</span><input type="number" class="lcd-input color-g" id="val-white-g-input" value="255" min="0" max="255"></div>
                         <input type="range" id="input-white-g" min="0" max="255" value="255">
                     </div>
                     <div class="control-group">
-                        <div class="label-row color-b"><span>BLUE</span><input type="number" class="lcd-input color-b" id="val-white-b-input" value="255" min="0" max="255"></div>
+                        <div class="label-row color-b"><span data-tr="BLUE">BLUE</span><input type="number" class="lcd-input color-b" id="val-white-b-input" value="255" min="0" max="255"></div>
                         <input type="range" id="input-white-b" min="0" max="255" value="255">
                     </div>
                 </div>
                 
-                <button class="activate-btn momentary-btn" onclick="activateStatic('CCT')">ACTIVER LE BLANC</button>
+                <button class="activate-btn momentary-btn" onclick="activateStatic('CCT')" data-tr="ACTIVATE_WHITE">ACTIVER LE BLANC</button>
             </div>
 
             <div id="tab-fx" class="panel-content">
                 <div class="control-group">
-                    <div class="label-row"><span>SPEED</span><input type="number" class="lcd-input" id="val-speed-input" value="4" min="1" max="100"></div>
+                    <div class="label-row"><span data-tr="SPEED">SPEED</span><input type="number" class="lcd-input" id="val-speed-input" value="4" min="1" max="100"></div>
                     <input type="range" min="1" max="100" value="4" id="input-speed">
                 </div>
-                <div class="label-row" style="margin-top:2px;"><span>COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
+                <div class="label-row" style="margin-top:2px;"><span data-tr="COLOR_OVERRIDE">COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
                 <div class="palette-container" id="palette-fx"></div>
                 <div class="fx-grid" id="cinema-grid" style="margin-top:5px;"></div>
             </div>
 
             <div id="tab-custom" class="panel-content">
                 <div class="control-group">
-                    <div class="label-row"><span>SPEED</span><input type="number" class="lcd-input" id="val-speed-shnopia-input" value="50" min="1" max="100"></div>
+                    <div class="label-row"><span data-tr="SPEED">SPEED</span><input type="number" class="lcd-input" id="val-speed-shnopia-input" value="50" min="1" max="100"></div>
                     <input type="range" min="1" max="100" value="50" id="input-speed-shnopia">
                 </div>
-                <div class="label-row" style="margin-top:2px;"><span>COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
+                <div class="label-row" style="margin-top:2px;"><span data-tr="COLOR_OVERRIDE">COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
                 <div class="palette-container" id="palette-shnopia"></div>
                 <div class="fx-grid" id="shnopia-grid" style="margin-top:5px;"></div>
             </div>
 
             <div id="tab-matrix" class="panel-content">
                 <div class="matrix-section" style="height:auto; flex:1;">
-                    <div class="label-row">PRESETS</div>
+                    <div class="label-row" data-tr="PRESETS">PRESETS</div>
                     <div class="mapping-list" style="grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(5, 1fr);">
                         <div class="map-btn active-map" onclick="setMapMode(0, this)"><span>Titan</span><span>8x16</span></div>
                         <div class="map-btn" onclick="setMapMode(1, this)"><span>Matrix</span><span>60x30</span></div>
@@ -400,7 +438,7 @@
                         <div class="map-btn" id="btn-set" onclick="showCustomMatrixModal()"><span>SET</span><span id="set-display" class="map-set-display">--x--</span></div>
                     </div>
                     
-                    <div class="label-row" style="margin-top:15px;">MODIFIERS</div>
+                    <div class="label-row" style="margin-top:15px;" data-tr="MODIFIERS">MODIFIERS</div>
                     <div class="modifiers-container">
                         <div class="control-group modifier-slider" id="grp-grid">
                             <div class="label-row"><span>MULTIPLIER</span><span id="val-grid-lvl">x1</span></div>
@@ -419,20 +457,19 @@
             </div>
 
             <div id="tab-text" class="panel-content">
-                <div class="control-group"><div class="label-row"><span>MESSAGE</span></div><div class="text-input-wrapper"><input type="text" id="text-content" placeholder="TAPEZ ICI" value="Shnopia Light Engine enhances your set"></div></div>
-                <button class="text-toggle-btn momentary-btn" id="btn-text-toggle" onclick="toggleText()">TEXTE: OFF</button>
+                <div class="control-group"><div class="label-row"><span data-tr="MESSAGE">MESSAGE</span></div><div class="text-input-wrapper"><input type="text" id="text-content" placeholder="TAPEZ ICI" value="Shnopia Light Engine enhances your set"></div></div>
+                <button class="text-toggle-btn momentary-btn" id="btn-text-toggle" onclick="toggleText()" data-tr="TEXT_OFF">TEXTE: OFF</button>
                 <div style="margin-top: 10px;">
-                    <div class="control-group"><div class="label-row"><span>POLICE</span></div><select id="input-text-font" class="dropdown"><option value="'Roboto Mono', monospace">Standard Tech</option><option value="'Bebas Neue', sans-serif">Cinéma</option><option value="'Press Start 2P', cursive">Pixel</option><option value="'Lobster', cursive">Manuscrit</option><option value="'Orbitron', sans-serif">Futuriste</option></select></div>
-                    <div class="control-group"><div class="label-row"><span>EFFET</span></div><select id="input-text-effect" class="dropdown"><option value="NONE">Aucun</option><option value="NEON">Neon</option><option value="GLITCH">Glitch</option><option value="WAVE">Wave</option><option value="TYPE">Typewriter</option><option value="STROKE">Outline</option></select></div>
-                    <div class="control-group modifier-slider" id="grp-text-fx"><div class="label-row"><span>INTENSITÉ</span><span id="val-text-fx-lvl">50%</span></div><input type="range" min="0" max="100" value="50" id="input-text-fx-lvl" oninput="updateTextSlider()"></div>
-                    <div class="control-group"><div class="label-row"><span>TAILLE</span><span id="val-text-size">50%</span></div><input type="range" min="5" max="100" value="50" id="input-text-size"></div>
-                    <div class="control-group"><div class="label-row"><span>VITESSE</span><span id="val-text-speed">5</span></div><input type="range" min="0" max="30" value="5" id="input-text-speed"></div>
-                    <div class="control-group"><div class="label-row"><span>COULEUR</span></div><input type="color" id="input-text-color" value="#ffffff" style="width:100%; height:30px; border:none; padding: 0;"></div>
+                    <div class="control-group"><div class="label-row"><span data-tr="FONT">POLICE</span></div><select id="input-text-font" class="dropdown"><option value="'Roboto Mono', monospace">Standard Tech</option><option value="'Bebas Neue', sans-serif">Cinéma</option><option value="'Press Start 2P', cursive">Pixel</option><option value="'Lobster', cursive">Manuscrit</option><option value="'Orbitron', sans-serif">Futuriste</option></select></div>
+                    <div class="control-group"><div class="label-row"><span data-tr="EFFECT">EFFET</span></div><select id="input-text-effect" class="dropdown"><option value="NONE">Aucun</option><option value="NEON">Neon</option><option value="GLITCH">Glitch</option><option value="WAVE">Wave</option><option value="TYPE">Typewriter</option><option value="STROKE">Outline</option></select></div>
+                    <div class="control-group modifier-slider" id="grp-text-fx"><div class="label-row"><span data-tr="INTENSITY">INTENSITÉ</span><span id="val-text-fx-lvl">50%</span></div><input type="range" min="0" max="100" value="50" id="input-text-fx-lvl" oninput="updateTextSlider()"></div>
+                    <div class="control-group"><div class="label-row"><span data-tr="SIZE">TAILLE</span><span id="val-text-size">50%</span></div><input type="range" min="5" max="100" value="50" id="input-text-size"></div>
+                    <div class="control-group"><div class="label-row"><span data-tr="SPEED">VITESSE</span><span id="val-text-speed">5</span></div><input type="range" min="0" max="30" value="5" id="input-text-speed"></div>
+                    <div class="control-group"><div class="label-row"><span data-tr="COLOR">COULEUR</span></div><input type="color" id="input-text-color" value="#ffffff" style="width:100%; height:30px; border:none; padding: 0;"></div>
                 </div>
             </div>
             
             <div id="tab-help" class="panel-content">
-                <div class="lang-selector"><button class="lang-btn active" onclick="setLang('FR', this)">FR</button><button class="lang-btn" onclick="setLang('EN', this)">EN</button><button class="lang-btn" onclick="setLang('ES', this)">ES</button><button class="lang-btn" onclick="setLang('RU', this)">RU</button><button class="lang-btn" onclick="setLang('JP', this)">JP</button></div>
                 <div class="rossignol-box">
                     <span class="rossignol-brand"><span class="rossignol-icon">🐦</span> Rossignol Grip Vibe Coding</span>
                     <a href="mailto:rossignol.p@gmail.com" class="contact-link">Contact: rossignol.p@gmail.com</a>
@@ -441,10 +478,10 @@
             </div>
 
             <div class="panel-footer">
-                <div><div class="label-row"><span>INTENSITÉ</span><input type="number" class="lcd-input" id="val-dimmer-input" value="100" min="0" max="100"></div><input type="range" min="0" max="100" value="100" id="input-dimmer"></div>
+                <div><div class="label-row"><span data-tr="DIMMER">INTENSITÉ</span><input type="number" class="lcd-input" id="val-dimmer-input" value="100" min="0" max="100"></div><input type="range" min="0" max="100" value="100" id="input-dimmer"></div>
                 <div class="footer-buttons">
                     <button class="led-btn blackout-btn" id="btn-blackout" onclick="toggleBlackout()">BLACKOUT</button>
-                    <button class="led-btn fullscreen-btn momentary-btn" onclick="toggleFS()">FULL SCREEN</button>
+                    <button class="led-btn fullscreen-btn momentary-btn" onclick="toggleFS()" data-tr="FULLSCREEN">FULL SCREEN</button>
                 </div>
                 <div class="signature">Développé par Shnopia par amour du cinéma</div>
             </div>
@@ -452,6 +489,114 @@
     </div>
 
     <script>
+        // --- TRANSLATION DICTIONARY ---
+        const DICT = {
+            FR: {
+                PREVIEW: "APERÇU", HIDE: "CACHER", LIVE: "LIVE", COLOR: "COULEUR", WHITE: "BLANC", CINEMA: "CINEMA FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIX", TEXT: "TEXTE", HELP: "AIDE",
+                SATURATION: "SATURATION", RED: "ROUGE", GREEN: "VERT", BLUE: "BLEU", RECALL_WHITE: "RAPPELER RÉGLAGE BLANC", ACTIVATE_COLOR: "ACTIVER LA COULEUR", MEMORIES: "MÉMOIRES (HAUT: CHARGER / BAS: SAUVER)",
+                KELVIN: "TEMPERATURE (KELVIN)", TINT: "TEINTE (G/M)", MANUAL_WHITE: "BLANC MANUEL", ACTIVATE_WHITE: "ACTIVER LE BLANC",
+                SPEED: "VITESSE", COLOR_OVERRIDE: "REMPLACEMENT COULEURS (CLIC)", PRESETS: "PRESETS", MODIFIERS: "MODIFIEURS",
+                MESSAGE: "MESSAGE", FONT: "POLICE", EFFECT: "EFFET", INTENSITY: "INTENSITÉ", SIZE: "TAILLE", TEXT_OFF: "TEXTE: OFF", TEXT_ON: "TEXTE: ON",
+                DIMMER: "INTENSITÉ", FULLSCREEN: "PLEIN ÉCRAN",
+                HELP_CONTENT: `
+                <div class="help-signature">MANUEL UTILISATEUR COMPLET</div>
+                <div class="help-section"><div class="help-title">1. ONGLET LIVE (PATCHES & PERFORMANCE)</div><div class="help-text">Le cœur du système. <strong>ENREGISTRER :</strong> Cliquez sur <strong>SAVE</strong>. Le bouton flashe ROUGE. Tous les réglages + boucle vidéo 2s sont sauvés. <strong>RAPPELER :</strong> Cliquez sur un pad.</div></div>
+                <div class="help-section"><div class="help-title">2. ONGLET COLOR</div><div class="help-text">Contrôle manuel. Roue et Sliders RVB. Cliquez sur les nombres verts pour taper une valeur. Mémoires en bas.</div></div>
+                <div class="help-section"><div class="help-title">3. ONGLET WHITE</div><div class="help-text">Température (CCT) et Teinte. Presets rapides avec retour visuel.</div></div>
+                <div class="help-section"><div class="help-title">4. FX (CINEMA & SHNOPIA)</div><div class="help-text">Effets dynamiques. <strong>COLOR OVERRIDE :</strong> Cliquez sur une couleur mémoire en haut pour <strong>REMPLACER</strong> les couleurs de l'effet.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Résolution pixels. Modifieurs : Grid, Warp, Noise.</div></div>
+                <div class="help-section"><div class="help-title">6. TEXTE</div><div class="help-text">Message défilant. Tapez le texte, activez-le, choisissez effet et vitesse.</div></div>
+                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Intensité générale, Blackout, Plein écran.</div></div>
+                `
+            },
+            EN: {
+                PREVIEW: "PREVIEW", HIDE: "HIDE", LIVE: "LIVE", COLOR: "COLOR", WHITE: "WHITE", CINEMA: "CINEMA FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIX", TEXT: "TEXT", HELP: "HOW TO USE",
+                SATURATION: "SATURATION", RED: "RED", GREEN: "GREEN", BLUE: "BLUE", RECALL_WHITE: "RECALL WHITE SETTINGS", ACTIVATE_COLOR: "ACTIVATE COLOR", MEMORIES: "MEMORIES (TOP: LOAD / BOT: SAVE)",
+                KELVIN: "TEMPERATURE (KELVIN)", TINT: "TINT (G/M)", MANUAL_WHITE: "MANUAL WHITE", ACTIVATE_WHITE: "ACTIVATE WHITE",
+                SPEED: "SPEED", COLOR_OVERRIDE: "COLOR OVERRIDE (CLICK TO REPLACE)", PRESETS: "PRESETS", MODIFIERS: "MODIFIERS",
+                MESSAGE: "MESSAGE", FONT: "FONT", EFFECT: "EFFECT", INTENSITY: "INTENSITY", SIZE: "SIZE", TEXT_OFF: "TEXT: OFF", TEXT_ON: "TEXT: ON",
+                DIMMER: "INTENSITY", FULLSCREEN: "FULL SCREEN",
+                HELP_CONTENT: `
+                <div class="help-signature">FULL USER MANUAL</div>
+                <div class="help-section"><div class="help-title">1. LIVE TAB</div><div class="help-text">The core system. <strong>SAVE:</strong> Click <strong>SAVE</strong>. Red flash confirms. Stores settings + 2s video loop. <strong>RECALL:</strong> Click pad.</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR TAB</div><div class="help-text">Manual control. Wheel & RGB Sliders. Click green numbers to type. Memories at bottom.</div></div>
+                <div class="help-section"><div class="help-title">3. WHITE TAB</div><div class="help-text">CCT & Tint. Quick presets with visual feedback.</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Dynamic effects. <strong>COLOR OVERRIDE:</strong> Toggle memory colors at top to <strong>REPLACE</strong> effect colors.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Pixel resolution. Modifiers: Grid, Warp, Noise.</div></div>
+                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">Scrolling text. Type message, toggle ON, select settings.</div></div>
+                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Master Dimmer, Blackout, Full Screen.</div></div>
+                `
+            },
+            ES: {
+                PREVIEW: "VISTA", HIDE: "OCULTAR", LIVE: "VIVO", COLOR: "COLOR", WHITE: "BLANCO", CINEMA: "CINE FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIZ", TEXT: "TEXTO", HELP: "AYUDA",
+                SATURATION: "SATURACION", RED: "ROJO", GREEN: "VERDE", BLUE: "AZUL", RECALL_WHITE: "RECUPERAR BLANCO", ACTIVATE_COLOR: "ACTIVAR COLOR", MEMORIES: "MEMORIAS (ARRIBA: CARGAR / ABAJO: GUARDAR)",
+                KELVIN: "TEMPERATURA (KELVIN)", TINT: "TINTE (G/M)", MANUAL_WHITE: "BLANCO MANUAL", ACTIVATE_WHITE: "ACTIVAR BLANCO",
+                SPEED: "VELOCIDAD", COLOR_OVERRIDE: "REEMPLAZO DE COLOR (CLICK)", PRESETS: "AJUSTES", MODIFIERS: "MODIFICADORES",
+                MESSAGE: "MENSAJE", FONT: "FUENTE", EFFECT: "EFECTO", INTENSITY: "INTENSIDAD", SIZE: "TAMAÑO", TEXT_OFF: "TEXTO: OFF", TEXT_ON: "TEXTO: ON",
+                DIMMER: "INTENSIDAD", FULLSCREEN: "PANTALLA COMPLETA",
+                HELP_CONTENT: `
+                <div class="help-signature">MANUAL DE USUARIO</div>
+                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Sistema central. <strong>SAVE:</strong> Clic en <strong>SAVE</strong>. Flash rojo confirma. Guarda ajustes + video 2s. <strong>RECALL:</strong> Clic en pad.</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">Control manual. Rueda y Sliders RGB. Clic en números para escribir.</div></div>
+                <div class="help-section"><div class="help-title">3. BLANCO</div><div class="help-text">CCT y Tinte. Presets rápidos.</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Efectos. <strong>COLOR OVERRIDE:</strong> Activa colores arriba para <strong>REEMPLAZAR</strong> los colores del efecto.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIZ</div><div class="help-text">Resolución de píxeles.</div></div>
+                <div class="help-section"><div class="help-title">6. TEXTO</div><div class="help-text">Texto desplazable. Escribe, activa, ajusta.</div></div>
+                `
+            },
+            RU: {
+                PREVIEW: "ПРЕВЬЮ", HIDE: "СКРЫТЬ", LIVE: "LIVE", COLOR: "ЦВЕТ", WHITE: "БЕЛЫЙ", CINEMA: "КИНО FX", SHNOPIA: "SHNOPIA FX", MATRIX: "МАТРИЦА", TEXT: "ТЕКСТ", HELP: "ПОМОЩЬ",
+                SATURATION: "НАСЫЩЕННОСТЬ", RED: "КРАСНЫЙ", GREEN: "ЗЕЛЕНЫЙ", BLUE: "СИНИЙ", RECALL_WHITE: "ВЕРНУТЬ БЕЛЫЙ", ACTIVATE_COLOR: "АКТИВИРОВАТЬ ЦВЕТ", MEMORIES: "ПАМЯТЬ (ВЕРХ: ЗАГР / НИЗ: СОХР)",
+                KELVIN: "ТЕМПЕРАТУРА (K)", TINT: "ОТТЕНОК", MANUAL_WHITE: "РУЧНОЙ БЕЛЫЙ", ACTIVATE_WHITE: "АКТИВИРОВАТЬ БЕЛЫЙ",
+                SPEED: "СКОРОСТЬ", COLOR_OVERRIDE: "ЗАМЕНА ЦВЕТА (КЛИК)", PRESETS: "ПРЕСЕТЫ", MODIFIERS: "МОДИФИКАТОРЫ",
+                MESSAGE: "СООБЩЕНИЕ", FONT: "ШРИФТ", EFFECT: "ЭФФЕКТ", INTENSITY: "ИНТЕНСИВНОСТЬ", SIZE: "РАЗМЕР", TEXT_OFF: "ТЕКСТ: ВЫКЛ", TEXT_ON: "ТЕКСТ: ВКЛ",
+                DIMMER: "ЯРКОСТЬ", FULLSCREEN: "ПОЛНЫЙ ЭКРАН",
+                HELP_CONTENT: `
+                <div class="help-signature">РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ</div>
+                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Главная панель. <strong>SAVE:</strong> Сохраняет настройки и 2с видео (красная вспышка). <strong>RECALL:</strong> Нажмите пэд для вызова.</div></div>
+                <div class="help-section"><div class="help-title">2. ЦВЕТ</div><div class="help-text">Ручное управление. Колесо и RGB слайдеры. Нажмите цифры для ввода.</div></div>
+                <div class="help-section"><div class="help-title">3. БЕЛЫЙ</div><div class="help-text">CCT и Оттенок. Быстрые пресеты.</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Эффекты. <strong>COLOR OVERRIDE:</strong> Нажмите цвета сверху для <strong>ЗАМЕНЫ</strong> цветов эффекта.</div></div>
+                <div class="help-section"><div class="help-title">5. МАТРИЦА</div><div class="help-text">Разрешение пикселей.</div></div>
+                <div class="help-section"><div class="help-title">6. ТЕКСТ</div><div class="help-text">Бегущая строка.</div></div>
+                `
+            },
+            JP: {
+                PREVIEW: "プレビュー", HIDE: "隠す", LIVE: "ライブ", COLOR: "カラー", WHITE: "ホワイト", CINEMA: "シネマ FX", SHNOPIA: "SHNOPIA FX", MATRIX: "マトリックス", TEXT: "テキスト", HELP: "ヘルプ",
+                SATURATION: "彩度", RED: "赤", GREEN: "緑", BLUE: "青", RECALL_WHITE: "ホワイト設定呼出", ACTIVATE_COLOR: "カラー有効化", MEMORIES: "メモリ (上:読込 / 下:保存)",
+                KELVIN: "色温度 (K)", TINT: "色合い", MANUAL_WHITE: "手動ホワイト", ACTIVATE_WHITE: "ホワイト有効化",
+                SPEED: "速度", COLOR_OVERRIDE: "色置換 (クリック)", PRESETS: "プリセット", MODIFIERS: "修飾子",
+                MESSAGE: "メッセージ", FONT: "フォント", EFFECT: "効果", INTENSITY: "強度", SIZE: "サイズ", TEXT_OFF: "テキスト: OFF", TEXT_ON: "テキスト: ON",
+                DIMMER: "調光", FULLSCREEN: "全画面",
+                HELP_CONTENT: `
+                <div class="help-signature">ユーザーマニュアル</div>
+                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">メインパネル。<strong>SAVE:</strong> 設定と2秒動画を保存（赤フラッシュ）。<strong>RECALL:</strong> パッドをクリックして呼び出し。</div></div>
+                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">手動制御。ホイールとRGBスライダー。数値入力可能。</div></div>
+                <div class="help-section"><div class="help-title">3. WHITE</div><div class="help-text">CCTと色合い。クイックプリセット。</div></div>
+                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">動的効果。<strong>COLOR OVERRIDE:</strong> 上部の色をクリックして効果の色を<strong>置換</strong>します。</div></div>
+                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">ピクセル解像度設定。</div></div>
+                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">スクロールテキスト。</div></div>
+                `
+            },
+            PL: {
+                PREVIEW: "PODGLĄD", HIDE: "UKRYJ", LIVE: "LIVE", COLOR: "KOLOR", WHITE: "BIAŁY", CINEMA: "KINO FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRYCA", TEXT: "TEKST", HELP: "POMOC",
+                SATURATION: "NASYCENIE", RED: "CZERWONY", GREEN: "ZIELONY", BLUE: "NIEBIESKI", RECALL_WHITE: "PRZYWOŁAJ BIEL", ACTIVATE_COLOR: "AKTYWUJ KOLOR", MEMORIES: "PAMIĘĆ (GÓRA: ŁADUJ / DÓŁ: ZAPISZ)",
+                KELVIN: "TEMPERATURA (K)", TINT: "ODCIEŃ (G/M)", MANUAL_WHITE: "MANUALNA BIEL", ACTIVATE_WHITE: "AKTYWUJ BIEL",
+                SPEED: "PRĘDKOŚĆ", COLOR_OVERRIDE: "ZAMIANA KOLORÓW (KLIKNIJ)", PRESETS: "PRESETY", MODIFIERS: "MODYFIKATORY",
+                MESSAGE: "WIADOMOŚĆ", FONT: "CZCIONKA", EFFECT: "EFEKT", INTENSITY: "INTENSYWNOŚĆ", SIZE: "ROZMIAR", TEXT_OFF: "TEKST: WYŁ", TEXT_ON: "TEKST: WŁ",
+                DIMMER: "INTENSYWNOŚĆ", FULLSCREEN: "PEŁNY EKRAN",
+                HELP_CONTENT: `
+                <div class="help-signature">OPRACOWANE PRZEZ SHNOPIA Z MIŁOŚCI DO KINA</div>
+                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Siatka 16 padów. Kliknij <strong>SAVE</strong> (czerwony błysk), aby zapisać ustawienia i 2-sekundową pętlę wideo. Kliknij pad, aby przywołać.</div></div>
+                <div class="help-section"><div class="help-title">2. KOLOR</div><div class="help-text">Koło i suwaki RGB. Kliknij zielone liczby, aby wpisać wartości.</div></div>
+                <div class="help-section"><div class="help-title">3. BIAŁY</div><div class="help-text">CCT i Odcień. Szybkie presety.</div></div>
+                <div class="help-section"><div class="help-title">4. FX OVERRIDE</div><div class="help-text">W zakładkach FX kliknij kolor pamięci, aby go aktywować. Aktywne kolory <strong>ZASTĘPUJĄ</strong> oryginalne kolory efektu.</div></div>
+                <div class="help-section"><div class="help-title">5. MATRYCA</div><div class="help-text">Rozdzielczość pikseli.</div></div>
+                <div class="help-section"><div class="help-title">6. TEKST</div><div class="help-text">Przewijany tekst.</div></div>
+                `
+            }
+        };
+
         // --- UTILS ---
         function hexToRgb(hex) { var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : {r:0,g:0,b:0}; }
         function rgbToHex(r,g,b) { return "#" + ((1<<24)+(Math.round(r)<<16)+(Math.round(g)<<8)+Math.round(b)).toString(16).slice(1).toUpperCase(); }
@@ -466,6 +611,8 @@
         const textCanvas = document.getElementById('text-canvas'); const textCtx = textCanvas.getContext('2d');
         const previewCanvas = document.getElementById('preview-canvas'); const previewCtx = previewCanvas.getContext('2d');
         
+        let CURRENT_LANG = 'FR';
+
         // --- STATE ---
         let state = {
             mode: 'WHEEL', kelvin: 3200, tint: 0, hue: 0, sat: 100, val: 100,
@@ -531,6 +678,33 @@
                 });
             });
         }
+
+        // --- LANGUAGE SYSTEM ---
+        function toggleLangMenu(e) {
+            e.stopPropagation();
+            document.getElementById('lang-menu').classList.toggle('show');
+        }
+        
+        function setLangGlobal(lang) {
+            CURRENT_LANG = lang;
+            document.getElementById('lang-menu').classList.remove('show');
+            const d = DICT[lang];
+            
+            // Translate elements with data-tr attribute
+            document.querySelectorAll('[data-tr]').forEach(el => {
+                const key = el.getAttribute('data-tr');
+                if(d[key]) el.innerText = d[key];
+            });
+            
+            // Update Toggle Button Text logic
+            const txtBtn = document.getElementById('btn-text-toggle');
+            if(state.textOn) txtBtn.innerText = d.TEXT_ON; else txtBtn.innerText = d.TEXT_OFF;
+            
+            // Update Help Content
+            document.getElementById('help-content').innerHTML = d.HELP_CONTENT;
+        }
+        // Initialize Language
+        setLangGlobal('FR');
 
         // --- LIVE PAD SYSTEM ---
         const LIVE_SLOTS = 16;
@@ -600,180 +774,6 @@
             updateFromRGB(); activateStatic('WHEEL');
         }
         updateMemoriesUI();
-
-        // --- FULL MANUAL CONTENT (V6.1) ---
-        const TRANSLATIONS = {
-            FR: `
-                <div class="help-signature">MANUEL UTILISATEUR COMPLET</div>
-                <div class="help-section">
-                    <div class="help-title">1. ONGLET LIVE (PATCHES & PERFORMANCE)</div>
-                    <div class="help-text">
-                        Cet onglet est le cœur du système pour le live. Il vous permet de sauvegarder et de rappeler instantanément des "Patches" (configurations complètes).<br><br>
-                        <strong>ENREGISTRER UN PATCH :</strong><br>
-                        1. Configurez votre lumière (Couleur, FX, Matrix, Texte...) dans les autres onglets.<br>
-                        2. Allez dans l'onglet LIVE.<br>
-                        3. Cliquez sur le bouton <strong>SAVE</strong> sous un pad (vide ou déjà utilisé).<br>
-                        4. Le bouton clignote en ROUGE pendant 1 seconde pour confirmer la sauvegarde.<br>
-                        5. En arrière-plan, le logiciel enregistre une boucle vidéo de 2 secondes de votre effet pour vous servir d'aperçu.<br><br>
-                        <strong>RAPPELER UN PATCH :</strong><br>
-                        Cliquez simplement sur un pad. Tous les paramètres (y compris la résolution Matrix, les effets, le texte) sont rappelés instantanément.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">2. ONGLET COLOR (MODE MANUEL)</div>
-                    <div class="help-text">
-                        Contrôle précis de la couleur.<br>
-                        <strong>ROUE CHROMATIQUE :</strong> Cliquez ou glissez pour choisir la teinte et la saturation.<br>
-                        <strong>SLIDERS RVB :</strong> Ajustez les niveaux de Rouge, Vert et Bleu. Vous pouvez cliquer sur le nombre vert au-dessus de chaque slider pour entrer une valeur précise (0-255) avec votre clavier.<br>
-                        <strong>MÉMOIRES :</strong> 5 emplacements en bas de page.
-                        - Cliquez sur la case de couleur pour charger la mémoire.
-                        - Cliquez sur le bouton SAVE en dessous pour enregistrer la couleur actuelle dans cet emplacement.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">3. ONGLET WHITE (CCT)</div>
-                    <div class="help-text">
-                        Gestion de la température de blanc (Correlated Color Temperature).<br>
-                        <strong>KELVIN :</strong> Curseur de 1750K (très chaud) à 10000K (très froid).<br>
-                        <strong>TINT :</strong> Correction de la teinte (Vert/Magenta). Utile pour s'accorder avec d'autres sources lumineuses.<br>
-                        <strong>PRESETS :</strong> 5 boutons rapides (2700K, 3200K, 4300K, 5600K, 6500K). Le bouton actif est entouré d'un halo vert lumineux.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">4. ONGLET FX (CINEMA & SHNOPIA)</div>
-                    <div class="help-text">
-                        Générateur d'effets dynamiques.<br>
-                        <strong>SÉLECTION :</strong> Cliquez sur une case pour lancer l'effet (ex: Police, Fire, TV...).<br>
-                        <strong>SPEED :</strong> Règle la vitesse de l'animation.<br>
-                        <strong>COLOR OVERRIDE (IMPORTANT) :</strong> En haut de la page, vous retrouvez vos 5 mémoires de couleur. Cliquez sur une case (ou sa petite LED) pour l'activer.
-                        - Si aucune couleur n'est active : L'effet joue ses couleurs par défaut (ex: Police = Bleu/Rouge).
-                        - Si des couleurs sont actives : Elles <strong>REMPLACENT</strong> les couleurs de l'effet. Si vous sélectionnez plusieurs couleurs, l'effet les mélangera de manière artistique.
-                        <br>
-                        <strong>STATIC :</strong> Le bouton "Static" ou "0" désactive les effets et revient au mode manuel (Color ou White).
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">5. ONGLET MATRIX</div>
-                    <div class="help-text">
-                        Simule la résolution en pixels de votre source lumineuse.<br>
-                        <strong>PRESETS :</strong> Choisissez le format correspondant à votre appareil (ex: "Titan 8x16" pour un tube Astera, "1x1" pour un panneau standard).<br>
-                        <strong>MODIFIERS :</strong>
-                        - <strong>GRID :</strong> Multiplie la grille de pixels.
-                        - <strong>WARP :</strong> Déforme l'image (effet liquide/psychédélique).
-                        - <strong>NOISE :</strong> Ajoute du grain aléatoire pour un rendu plus organique.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">6. ONGLET TEXT</div>
-                    <div class="help-text">
-                        Affiche un message défilant par-dessus la lumière.<br>
-                        1. Tapez votre texte.<br>
-                        2. Cliquez sur "TEXTE: OFF" pour l'activer (devient ON).<br>
-                        3. Réglez la taille, la vitesse, la couleur et choisissez un effet (Neon, Glitch...).
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">7. CONTRÔLES GLOBAUX (FOOTER)</div>
-                    <div class="help-text">
-                        Ces contrôles sont toujours visibles en bas.<br>
-                        <strong>INTENSITÉ :</strong> Master dimmer général de 0% à 100%.<br>
-                        <strong>BLACKOUT :</strong> Coupe instantanément toute sortie lumineuse (le bouton clignote rouge quand actif).<br>
-                        <strong>FULL SCREEN :</strong> Passe l'application en plein écran pour une immersion totale.
-                    </div>
-                </div>
-            `,
-            EN: `
-                <div class="help-signature">FULL USER MANUAL</div>
-                <div class="help-section">
-                    <div class="help-title">1. LIVE TAB (PATCHES & PERFORMANCE)</div>
-                    <div class="help-text">
-                        The heart of the live system. Save and recall full configurations (Patches).<br><br>
-                        <strong>SAVE:</strong> Click <strong>SAVE</strong> under any pad. The button flashes RED for 1 second. This saves all current settings (Color, FX, Matrix...) AND records a 2-second video loop background.<br>
-                        <strong>RECALL:</strong> Click any pad to instantly recall the scene.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">2. COLOR TAB</div>
-                    <div class="help-text">
-                        Precise manual color control.<br>
-                        <strong>WHEEL:</strong> Hue and Saturation.<br>
-                        <strong>RGB SLIDERS:</strong> Fine tune Red, Green, Blue. Click the green numbers to type specific values.<br>
-                        <strong>MEMORIES:</strong> Click the colored box to LOAD. Click SAVE button below to STORE.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">3. WHITE TAB (CCT)</div>
-                    <div class="help-text">
-                        White balance control.<br>
-                        <strong>KELVIN:</strong> 1750K to 10000K.<br>
-                        <strong>TINT:</strong> Green/Magenta correction.<br>
-                        <strong>PRESETS:</strong> Quick access buttons. Active button has a green glow.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">4. FX TABS</div>
-                    <div class="help-text">
-                        Procedural effects.<br>
-                        <strong>COLOR OVERRIDE:</strong> Toggle the memory color boxes at the top. Active colors <strong>REPLACE</strong> the original effect colors. Multiple active colors create a dynamic blend.<br>
-                        <strong>STATIC:</strong> Returns to manual mode.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">5. MATRIX TAB</div>
-                    <div class="help-text">
-                        Pixel resolution simulation.<br>
-                        <strong>PRESETS:</strong> Select your fixture format (e.g., Titan 8x16).<br>
-                        <strong>MODIFIERS:</strong> Grid (multiply), Warp (distort), Noise (grain).
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">6. TEXT TAB</div>
-                    <div class="help-text">
-                        Scrolling text layer. Type message, toggle ON, select font/effect.
-                    </div>
-                </div>
-                <div class="help-section">
-                    <div class="help-title">7. GLOBAL CONTROLS</div>
-                    <div class="help-text">
-                        <strong>DIMMER:</strong> Master intensity.<br>
-                        <strong>BLACKOUT:</strong> Instant off.<br>
-                        <strong>FULL SCREEN:</strong> Toggle fullscreen mode.
-                    </div>
-                </div>
-            `,
-            ES: `
-                <div class="help-signature">MANUAL DE USUARIO COMPLETO</div>
-                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Guarda y recupera "Patches". Clic en <strong>SAVE</strong> para guardar (flash rojo). Clic en el pad para cargar. Incluye video preview de 2s.</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">Control RGB y Rueda. Haz clic en los números para escribir valores. Memorias abajo.</div></div>
-                <div class="help-section"><div class="help-title">3. WHITE</div><div class="help-text">Control CCT (Kelvin) y Tinte. Botones rápidos.</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Efectos dinámicos. Activa las casillas de color arriba para <strong>REEMPLAZAR</strong> los colores del efecto.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Resolución de píxeles (Titan, Matrix...). Modificadores: Grid, Warp, Noise.</div></div>
-                <div class="help-section"><div class="help-title">6. TEXTO</div><div class="help-text">Texto desplazable con efectos.</div></div>
-                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Dimmer maestro, Blackout y Pantalla completa.</div></div>
-            `,
-            RU: `
-                <div class="help-signature">ПОЛНОЕ РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ</div>
-                <div class="help-section"><div class="help-title">1. LIVE (ЖИВОЙ РЕЖИМ)</div><div class="help-text">Сохранение и вызов патчей. Нажмите <strong>SAVE</strong> (красная вспышка) для сохранения настроек и 2-сек видео. Нажмите пэд для вызова.</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR (ЦВЕТ)</div><div class="help-text">Колесо и RGB слайдеры. Нажмите на цифры для ввода значений. Память внизу.</div></div>
-                <div class="help-section"><div class="help-title">3. WHITE (БЕЛЫЙ)</div><div class="help-text">CCT (Кельвин) и Оттенок. Быстрые пресеты.</div></div>
-                <div class="help-section"><div class="help-title">4. FX (ЭФФЕКТЫ)</div><div class="help-text">Активируйте цвета памяти сверху, чтобы <strong>ЗАМЕНИТЬ</strong> цвета эффекта.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">Разрешение пикселей. Модификаторы: Сетка, Искажение, Шум.</div></div>
-                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">Бегущая строка с эффектами.</div></div>
-                <div class="help-section"><div class="help-title">7. ОБЩЕЕ</div><div class="help-text">Диммер, Blackout (Затемнение), Полный экран.</div></div>
-            `,
-            JP: `
-                <div class="help-signature">完全なユーザーマニュアル</div>
-                <div class="help-section"><div class="help-title">1. LIVE (ライブ)</div><div class="help-text">設定（パッチ）の保存と呼び出し。<strong>SAVE</strong>をクリックして保存します（赤いフラッシュ）。パッドをクリックして呼び出します。</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR (カラー)</div><div class="help-text">ホイールとRGBスライダー。数値を入力するには数字をクリックします。</div></div>
-                <div class="help-section"><div class="help-title">3. WHITE (ホワイト)</div><div class="help-text">色温度 (CCT) とティント。</div></div>
-                <div class="help-section"><div class="help-title">4. FX (エフェクト)</div><div class="help-text">上部のメモリカラーをアクティブにして、エフェクトの色を<strong>置換</strong>します。</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">ピクセル解像度設定。</div></div>
-                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">スクロールテキストレイヤー。</div></div>
-                <div class="help-section"><div class="help-title">7. 全体</div><div class="help-text">調光 (Dimmer)、ブラックアウト、フルスクリーン。</div></div>
-            `
-        };
-        function setLang(lang, btn) { document.getElementById('help-content').innerHTML = TRANSLATIONS[lang] || TRANSLATIONS['FR']; document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); }
-        setLang('FR', document.querySelector('.lang-btn.active'));
 
         // --- RENDER LOOP ---
         let stormFlash = 0;
@@ -953,23 +953,42 @@
             updateFromRGB(); activateStatic('WHEEL');
         };
 
-        function updateRangeStyle(input, active) {
-            if (active) input.classList.add('active'); else input.classList.remove('active');
-            if (active) input.parentElement.classList.add('active'); else input.parentElement.classList.remove('active');
+        // --- SLIDER TRACK PROGRESS UPDATE (NEW) ---
+        function updateRangeStyle(input) {
+            const val = (input.value - input.min) / (input.max - input.min) * 100;
+            // Get slider color dynamically or standard green
+            let color = 'var(--lcd-on)';
+            if(input.id.includes('-r')) color = '#ff3333';
+            else if(input.id.includes('-g')) color = '#33ff33';
+            else if(input.id.includes('-b')) color = '#3388ff';
+            
+            // Set gradient background
+            input.style.backgroundImage = `linear-gradient(to right, ${color} 0%, ${color} ${val}%, #004400 ${val}%, #004400 100%)`;
         }
 
-        window.updateGridSlider = (el) => { state.gridLevel = parseInt(el.value); state.gridActive = (state.gridLevel > 1); document.getElementById('val-grid-lvl').innerText = `x${state.gridLevel}`; updateRangeStyle(el, state.gridActive); };
-        window.updateWarpSlider = (el) => { state.warpLevel = parseInt(el.value); state.warpActive = (state.warpLevel > 0); document.getElementById('val-warp-lvl').innerText = state.warpLevel; updateRangeStyle(el, state.warpActive); };
-        window.updateNoiseSlider = (el) => { state.noiseLevel = parseInt(el.value); state.noiseActive = (state.noiseLevel > 0); document.getElementById('val-noise-lvl').innerText = state.noiseLevel; updateRangeStyle(el, state.noiseActive); };
-        window.updateTextSlider = () => { const val = parseInt(document.getElementById('input-text-fx-lvl').value); state.textFxLvl = val; document.getElementById('val-text-fx-lvl').innerText = val + "%"; updateRangeStyle(document.getElementById('input-text-fx-lvl'), val > 0); };
+        window.updateGridSlider = (el) => { state.gridLevel = parseInt(el.value); state.gridActive = (state.gridLevel > 1); document.getElementById('val-grid-lvl').innerText = `x${state.gridLevel}`; updateRangeStyle(el); };
+        window.updateWarpSlider = (el) => { state.warpLevel = parseInt(el.value); state.warpActive = (state.warpLevel > 0); document.getElementById('val-warp-lvl').innerText = state.warpLevel; updateRangeStyle(el); };
+        window.updateNoiseSlider = (el) => { state.noiseLevel = parseInt(el.value); state.noiseActive = (state.noiseLevel > 0); document.getElementById('val-noise-lvl').innerText = state.noiseLevel; updateRangeStyle(el); };
+        window.updateTextSlider = () => { const val = parseInt(document.getElementById('input-text-fx-lvl').value); state.textFxLvl = val; document.getElementById('val-text-fx-lvl').innerText = val + "%"; updateRangeStyle(document.getElementById('input-text-fx-lvl')); };
+        
         window.toggleBlackout = () => { state.blackout = !state.blackout; const btn = document.getElementById('btn-blackout'); if(state.blackout) btn.classList.add('active'); else btn.classList.remove('active'); };
         window.toggleFS = () => { !document.fullscreenElement ? document.documentElement.requestFullscreen() : document.exitFullscreen(); };
         window.togglePreviewFS = () => { minimizePanel(); if(!document.fullscreenElement) document.documentElement.requestFullscreen(); };
         document.addEventListener("fullscreenchange", () => { const btn = document.querySelector('.fullscreen-btn'); if (document.fullscreenElement) btn.classList.add('active'); else btn.classList.remove('active'); });
-        window.toggleText = () => { state.textOn = !state.textOn; const btn = document.getElementById('btn-text-toggle'); if(state.textOn) { btn.innerText = "TEXTE: ON"; btn.classList.add('active'); state.textPos = textCanvas.width; } else { btn.innerText = "TEXTE: OFF"; btn.classList.remove('active'); } };
+        window.toggleText = () => { 
+            state.textOn = !state.textOn; 
+            const d = DICT[CURRENT_LANG];
+            const btn = document.getElementById('btn-text-toggle'); 
+            if(state.textOn) { btn.innerText = d.TEXT_ON; btn.classList.add('active'); state.textPos = textCanvas.width; } else { btn.innerText = d.TEXT_OFF; btn.classList.remove('active'); } 
+        };
         window.minimizePanel = () => { document.getElementById('main-panel').classList.add('hidden'); };
         window.restorePanel = () => { document.getElementById('main-panel').classList.remove('hidden'); };
-        function handleGlobalClick(e) { const panel = document.getElementById('main-panel'); if (panel.classList.contains('hidden')) { restorePanel(); } else { if (e.target.id !== 'modal-overlay') { minimizePanel(); if (!document.fullscreenElement) document.documentElement.requestFullscreen(); } } }
+        function handleGlobalClick(e) { 
+            const panel = document.getElementById('main-panel'); 
+            const langMenu = document.getElementById('lang-menu');
+            if(langMenu.classList.contains('show') && e.target.className !== 'lang-icon') langMenu.classList.remove('show');
+            if (panel.classList.contains('hidden')) { restorePanel(); } else { if (e.target.id !== 'modal-overlay') { minimizePanel(); if (!document.fullscreenElement) document.documentElement.requestFullscreen(); } } 
+        }
         window.showCustomMatrixModal = () => { document.getElementById('modal-overlay').style.display = 'flex'; };
         window.closeModalOnOutside = (e) => { if(e.target.id === 'modal-overlay') document.getElementById('modal-overlay').style.display = 'none'; };
         
@@ -981,8 +1000,8 @@
 
         // Standard inputs
         document.getElementById('text-content').oninput = e => state.textString = e.target.value;
-        document.getElementById('input-text-size').oninput = e => { state.textSize = parseInt(e.target.value); document.getElementById('val-text-size').innerText = state.textSize + "%"; };
-        document.getElementById('input-text-speed').oninput = e => { state.textSpeed = parseInt(e.target.value); document.getElementById('val-text-speed').innerText = state.textSpeed; };
+        document.getElementById('input-text-size').oninput = e => { state.textSize = parseInt(e.target.value); document.getElementById('val-text-size').innerText = state.textSize + "%"; updateRangeStyle(e.target); };
+        document.getElementById('input-text-speed').oninput = e => { state.textSpeed = parseInt(e.target.value); document.getElementById('val-text-speed').innerText = state.textSpeed; updateRangeStyle(e.target); };
         document.getElementById('input-text-color').oninput = e => state.textColor = e.target.value;
         document.getElementById('input-text-font').onchange = e => state.textFont = e.target.value;
         document.getElementById('input-text-effect').onchange = e => state.textEffect = e.target.value;
@@ -994,7 +1013,9 @@
             input.addEventListener('change', () => { 
                 let val = parseInt(input.value); 
                 if(isNaN(val)) val = 0; if(val < 0) val = 0; if(val > parseInt(input.max)) val = parseInt(input.max);
-                input.value = val; range.value = val; updateFunc(); 
+                input.value = val; range.value = val; 
+                updateRangeStyle(range);
+                updateFunc(); 
             });
         }
         
@@ -1017,18 +1038,19 @@
         linkInputRange('val-speed-shnopia-input', 'input-speed-shnopia', () => { state.speedShnopia = parseInt(document.getElementById('input-speed-shnopia').value); });
         
         // SLIDERS
-        document.getElementById('input-dimmer').oninput = e => { state.dimmer = parseInt(e.target.value); document.getElementById('val-dimmer-input').value = state.dimmer; };
-        document.getElementById('input-speed').oninput = e => { state.speedCinema = parseInt(e.target.value); document.getElementById('val-speed-input').value = state.speedCinema; };
-        document.getElementById('input-speed-shnopia').oninput = e => { state.speedShnopia = parseInt(e.target.value); document.getElementById('val-speed-shnopia-input').value = state.speedShnopia; };
+        document.getElementById('input-dimmer').oninput = e => { state.dimmer = parseInt(e.target.value); document.getElementById('val-dimmer-input').value = state.dimmer; updateRangeStyle(e.target); };
+        document.getElementById('input-speed').oninput = e => { state.speedCinema = parseInt(e.target.value); document.getElementById('val-speed-input').value = state.speedCinema; updateRangeStyle(e.target); };
+        document.getElementById('input-speed-shnopia').oninput = e => { state.speedShnopia = parseInt(e.target.value); document.getElementById('val-speed-shnopia-input').value = state.speedShnopia; updateRangeStyle(e.target); };
         
         document.getElementById('input-sat').oninput = e => { 
             state.sat = e.target.value; state.val = 100; document.getElementById('val-sat-input').value = state.sat; 
             const rgb = hsvToRgb(state.hue, state.sat, state.val); document.getElementById('hex-input').value = rgbToHex(rgb[0], rgb[1], rgb[2]); updateRGBInputs(rgb);
             updateCursorVisuals(); activateStatic('WHEEL');
+            updateRangeStyle(e.target);
         };
         
-        document.getElementById('input-kelvin').oninput = e => { state.kelvin = parseInt(e.target.value); updateCCT(); };
-        document.getElementById('input-tint').oninput = e => { state.tint = e.target.value; updateCCT(); };
+        document.getElementById('input-kelvin').oninput = e => { state.kelvin = parseInt(e.target.value); updateCCT(); updateRangeStyle(e.target); };
+        document.getElementById('input-tint').oninput = e => { state.tint = e.target.value; updateCCT(); updateRangeStyle(e.target); };
         
         function updateCCT() {
            const k = state.kelvin; const t = state.tint; document.getElementById('val-kelvin').innerText = k + "K"; document.getElementById('val-tint').innerText = t;
@@ -1036,34 +1058,41 @@
         }
         function updateWhiteUI(rgb) {
             state.whiteRgb = rgb;
-            document.getElementById('input-white-r').value = Math.round(rgb.r); document.getElementById('val-white-r-input').value = Math.round(rgb.r);
-            document.getElementById('input-white-g').value = Math.round(rgb.g); document.getElementById('val-white-g-input').value = Math.round(rgb.g);
-            document.getElementById('input-white-b').value = Math.round(rgb.b); document.getElementById('val-white-b-input').value = Math.round(rgb.b);
+            document.getElementById('input-white-r').value = Math.round(rgb.r); document.getElementById('val-white-r-input').value = Math.round(rgb.r); updateRangeStyle(document.getElementById('input-white-r'));
+            document.getElementById('input-white-g').value = Math.round(rgb.g); document.getElementById('val-white-g-input').value = Math.round(rgb.g); updateRangeStyle(document.getElementById('input-white-g'));
+            document.getElementById('input-white-b').value = Math.round(rgb.b); document.getElementById('val-white-b-input').value = Math.round(rgb.b); updateRangeStyle(document.getElementById('input-white-b'));
             document.getElementById('hex-input-white').value = rgbToHex(rgb.r, rgb.g, rgb.b);
         }
         function updateFromWhiteRGB() {
             const r = parseInt(document.getElementById('input-white-r').value); const g = parseInt(document.getElementById('input-white-g').value); const b = parseInt(document.getElementById('input-white-b').value);
             document.getElementById('val-white-r-input').value = r; document.getElementById('val-white-g-input').value = g; document.getElementById('val-white-b-input').value = b;
             state.whiteRgb = {r:r, g:g, b:b}; document.getElementById('hex-input-white').value = rgbToHex(r, g, b); activateStatic('CCT');
+            updateRangeStyle(document.getElementById('input-white-r'));
+            updateRangeStyle(document.getElementById('input-white-g'));
+            updateRangeStyle(document.getElementById('input-white-b'));
         }
         ['input-white-r', 'input-white-g', 'input-white-b'].forEach(id => document.getElementById(id).addEventListener('input', updateFromWhiteRGB));
         document.getElementById('hex-input-white').addEventListener('change', e => { let hex = e.target.value; if(!hex.startsWith('#')) hex='#'+hex; const rgb = hexToRgb(hex); state.whiteRgb = rgb; updateWhiteUI(rgb); activateStatic('CCT'); });
 
         function updateRGBInputs(rgb) { 
             const r = Math.round(rgb[0] || rgb.r); const g = Math.round(rgb[1] || rgb.g); const b = Math.round(rgb[2] || rgb.b);
-            document.getElementById('input-r').value = r; document.getElementById('val-r-input').value = r;
-            document.getElementById('input-g').value = g; document.getElementById('val-g-input').value = g;
-            document.getElementById('input-b').value = b; document.getElementById('val-b-input').value = b;
+            document.getElementById('input-r').value = r; document.getElementById('val-r-input').value = r; updateRangeStyle(document.getElementById('input-r'));
+            document.getElementById('input-g').value = g; document.getElementById('val-g-input').value = g; updateRangeStyle(document.getElementById('input-g'));
+            document.getElementById('input-b').value = b; document.getElementById('val-b-input').value = b; updateRangeStyle(document.getElementById('input-b'));
         }
         
         function updateFromRGB() {
              const r = parseInt(document.getElementById('input-r').value); const g = parseInt(document.getElementById('input-g').value); const b = parseInt(document.getElementById('input-b').value);
              document.getElementById('val-r-input').value = r; document.getElementById('val-g-input').value = g; document.getElementById('val-b-input').value = b;
+             updateRangeStyle(document.getElementById('input-r'));
+             updateRangeStyle(document.getElementById('input-g'));
+             updateRangeStyle(document.getElementById('input-b'));
              
              const hex = rgbToHex(r, g, b); const hsv = rgbToHsv(r, g, b);
              state.hue = hsv.h; state.sat = hsv.s; state.val = hsv.v;
              
              document.getElementById('hex-input').value = hex; document.getElementById('input-sat').value = state.sat; document.getElementById('val-sat-input').value = Math.round(state.sat);
+             updateRangeStyle(document.getElementById('input-sat'));
              updateCursorVisuals();
         }
         
@@ -1087,7 +1116,7 @@
             let ang = Math.atan2(dy, dx) * (180 / Math.PI); if(ang < 0) ang += 360;
             
             state.hue = (ang + 90) % 360; state.sat = (dist / radius) * 100; state.val = 100;
-            document.getElementById('input-sat').value = state.sat; document.getElementById('val-sat-input').value = Math.round(state.sat);
+            document.getElementById('input-sat').value = state.sat; document.getElementById('val-sat-input').value = Math.round(state.sat); updateRangeStyle(document.getElementById('input-sat'));
             updateCursorVisuals(); 
             const rgb = hsvToRgb(state.hue, state.sat, 100); hexInput.value = rgbToHex(rgb[0], rgb[1], rgb[2]); updateRGBInputs(rgb); 
         }
@@ -1111,6 +1140,11 @@
         handle.addEventListener('mousedown', e => { isDrag=true; startX=e.clientX; startY=e.clientY; const r=panel.getBoundingClientRect(); panel.style.transform='none'; panel.style.left=r.left+'px'; panel.style.top=r.top+'px'; initL=r.left; initT=r.top; });
         window.addEventListener('mousemove', e => { if(isDrag){ panel.style.left=(initL+(e.clientX-startX))+'px'; panel.style.top=(initT+(e.clientY-startY))+'px'; }});
         window.addEventListener('mouseup', ()=>isDrag=false);
+
+        // --- INIT ALL SLIDER STYLES ON LOAD ---
+        function initSliderStyles() {
+            document.querySelectorAll('input[type=range]').forEach(el => updateRangeStyle(el));
+        }
 
         function syncUI() {
             document.getElementById('val-sat-input').value = Math.round(state.sat); document.getElementById('val-kelvin').innerText = state.kelvin + "K"; document.getElementById('val-tint').innerText = state.tint;
@@ -1142,12 +1176,18 @@
             document.getElementById('input-text-effect').value = state.textEffect;
             const textLvlInput = document.getElementById('input-text-fx-lvl'); textLvlInput.value = state.textFxLvl; updateTextSlider();
             const textToggle = document.getElementById('btn-text-toggle');
-            if(state.textOn) { textToggle.innerText = "TEXTE: ON"; textToggle.classList.add('active'); } 
-            else { textToggle.innerText = "TEXTE: OFF"; textToggle.classList.remove('active'); }
+            if(state.textOn) { textToggle.innerText = DICT[CURRENT_LANG].TEXT_ON; textToggle.classList.add('active'); } 
+            else { textToggle.innerText = DICT[CURRENT_LANG].TEXT_OFF; textToggle.classList.remove('active'); }
 
             if (document.fullscreenElement) document.querySelector('.fullscreen-btn').classList.add('active');
+            
+            // Refresh visual sliders
+            initSliderStyles();
+            
             setTimeout(updateCursorVisuals, 100);
         }
+        
+        initSliderStyles();
         syncUI();
         requestAnimationFrame(render);
     </script>
