@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shnopia Light Engine V6.5 Beta</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&display=swap" rel="stylesheet">
+    <title>Shnopia Light Engine V6.10 Beta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&family=Pacifico&family=Bangers&family=Creepster&family=Monoton&family=Audiowide&family=Black+Ops+One&family=Syncopate&family=VT323&family=Righteous&family=Fredoka+One&family=Luckiest+Guy&family=Russo+One&family=Special+Elite&family=Wallpoet&display=swap" rel="stylesheet">
     <style>
         /* --- CORE --- */
         :root { 
@@ -14,7 +14,7 @@
             --danger: #ff0000; 
             --success: #00ff00; 
             --lcd-bg: #001100; 
-            --lcd-off: #003300;
+            --lcd-off: #003300; 
             --lcd-on: #33ff33; 
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,6 +25,39 @@
         #text-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; pointer-events: auto; }
 
+        /* --- STARTUP OVERLAY (UPDATED) --- */
+        #startup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 10000;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: opacity 0.5s ease-out; backdrop-filter: blur(10px);
+        }
+        /* Same dimensions as .control-panel */
+        .startup-box {
+            background: var(--panel-bg);
+            border: 2px solid var(--lcd-on);
+            border-radius: 12px;
+            width: 95%; max-width: 600px; height: 95vh; max-height: 950px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 40px; text-align: center;
+            box-shadow: 0 0 50px rgba(51, 255, 51, 0.2);
+            pointer-events: none; 
+        }
+        .startup-title {
+            font-family: 'Orbitron'; font-size: 24px; color: var(--lcd-on);
+            margin-bottom: 30px; font-weight: 900; letter-spacing: 2px;
+            text-shadow: 0 0 15px var(--lcd-on); text-transform: uppercase;
+        }
+        .startup-text {
+            font-family: 'Roboto Mono'; font-size: 14px; color: #e0e0e0;
+            line-height: 1.8; margin-bottom: 50px; text-align: justify;
+        }
+        .startup-hint {
+            font-family: 'Orbitron'; font-size: 12px; color: #888;
+            animation: pulse 1s infinite alternate; letter-spacing: 1px;
+            border: 1px solid #444; padding: 10px 20px; border-radius: 4px; background: #000;
+        }
+
         /* --- PANEL --- */
         .control-panel {
             position: absolute; pointer-events: auto; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -33,14 +66,19 @@
             display: flex; flex-direction: column; box-shadow: 0 40px 100px #000; overflow: hidden; transition: opacity 0.3s, transform 0.3s; z-index: 2000;
         }
         .control-panel.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(0.9); }
+        
         @media (max-width: 768px) {
             .control-panel { width: 100%; height: 100dvh; max-width: none; max-height: none; top: 0; left: 0; transform: none; border-radius: 0; border: none; }
+            .startup-box { width: 100%; height: 100dvh; max-width: none; max-height: none; border-radius: 0; border: none; border-bottom: 2px solid var(--lcd-on); }
             .control-panel.hidden { transform: translateY(100%); opacity: 0; }
             .drag-bar { display: none !important; }
             .panel-header { padding: 5px 10px; height: 45px; }
+            .startup-box { padding: 20px; }
+            .startup-title { font-size: 20px; }
+            .startup-text { font-size: 12px; }
         }
 
-        /* --- SCROLLBAR CUSTOMIZATION --- */
+        /* --- SCROLLBAR --- */
         .panel-content::-webkit-scrollbar { width: 8px; }
         .panel-content::-webkit-scrollbar-track { background: #0a1a0a; border-left: 1px solid #333; }
         .panel-content::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; border: 1px solid #000; }
@@ -57,14 +95,10 @@
         .lang-icon { font-size: 18px; margin-right: 10px; cursor: pointer; text-shadow: 0 0 5px #0f0; transition: transform 0.2s; position: relative; }
         .lang-icon:hover { transform: scale(1.2); }
         
-        #lang-menu {
-            position: absolute; top: 40px; right: 100px; background: #002200; border: 1px solid #0f0; 
-            border-radius: 4px; display: none; flex-direction: column; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
-        }
+        #lang-menu { position: absolute; top: 40px; right: 100px; background: #002200; border: 1px solid #0f0; border-radius: 4px; display: none; flex-direction: column; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
         #lang-menu.show { display: flex; }
         .lang-option { padding: 8px 15px; color: #fff; font-family: 'Orbitron'; font-size: 10px; cursor: pointer; border-bottom: 1px solid #004400; text-align: left; }
         .lang-option:hover { background: #004400; color: #0f0; }
-        .lang-option:last-child { border-bottom: none; }
 
         .header-preview-box { width: 50px; height: 28px; background: #000; border: 1px solid #00ff00; border-radius: 3px; margin-right: 10px; cursor: pointer; overflow: hidden; }
         #preview-canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
@@ -155,27 +189,31 @@
         .recall-btn { width: 100%; padding: 6px; margin-top: 8px; font-size: 10px; flex-shrink: 0; }
         .memory-save-btn { flex: 1; font-size: 8px; }
         .live-save-btn { flex: 1; font-size: 8px; transition: background 0.1s; }
-        /* RED FLASH STATE */
         .live-save-btn.saving-red { background: #ff0000 !important; color: #fff !important; box-shadow: 0 0 15px #ff0000 !important; border-color: #fff !important; }
-
         .blackout-btn { background: #300; color: #700; border: 1px solid #500; flex: 1.2; }
         .blackout-btn.active { background: var(--danger); color: white; border-color: #fff; box-shadow: 0 0 10px var(--danger); animation: pulse 0.5s infinite alternate; }
+        
         .fullscreen-btn { background: #002200; color: #050; border: 2px solid #050; flex: 1; transition: background 0.2s, color 0.2s; }
         .fullscreen-btn.active { background: #006600 !important; color: #fff !important; border-color: #00ff00 !important; box-shadow: 0 0 15px #00ff00; text-shadow: 0 0 5px #fff; }
         
+        /* BLINK ANIMATION FOR FULLSCREEN BUTTON */
+        @keyframes blink-3-times {
+            0%, 100% { background-color: #002200; border-color: #050; color: #050; }
+            50% { background-color: #00ff00; border-color: #fff; color: #000; box-shadow: 0 0 20px #00ff00; }
+        }
+        .blink-trigger { animation: blink-3-times 0.4s 3 forwards; }
+
         .presets-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.7; } }
 
-        /* --- COLOR WHEEL --- */
+        /* --- MODULES --- */
         .wheel-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 140px; }
         .wheel-container { position: relative; width: min(200px, 35vh); height: min(200px, 35vh); border-radius: 50%; background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red); box-shadow: inset 0 0 30px rgba(0,0,0,0.4), 0 0 10px #000; cursor: crosshair; touch-action: none; border: 2px solid #333; }
         .wheel-container::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; border-radius: 50%; background: radial-gradient(circle, white 0%, transparent 70%); pointer-events: none; }
         .wheel-cursor { position: absolute; width: 14px; height: 14px; border: 2px solid #000; background: rgba(255,255,255,0.8); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 5px #000; }
-        
         .rgb-section { margin-top: 10px; }
         .hex-input { width: 100%; text-align: center; font-family: 'Roboto Mono'; font-weight: bold; font-size: 14px; background: #002200; color: var(--lcd-on); padding: 6px; margin-top: 4px; border-radius: 2px; border: 1px solid #005500; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
-        /* --- MEMORIES --- */
         .memory-section { margin-top: auto; padding-top: 10px; flex-shrink: 0; }
         .memory-label { font-size: 8px; color: #008800; text-align: center; margin-bottom: 4px; font-family: 'Orbitron'; }
         .memory-row { display: flex; gap: 6px; justify-content: space-between; height: 60px; }
@@ -193,19 +231,18 @@
         .pad-video { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; pointer-events: none; }
         .empty-pad-text { font-size: 8px; color: #003300; font-family: 'Orbitron'; pointer-events: none; }
 
-        /* --- FX GRIDS (BIGGER TEXT) --- */
+        /* --- FX GRIDS --- */
         .fx-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; overflow-y: auto; padding-right: 2px; align-content: start; min-height: 0; }
         .fx-card { background: #001a00; border: 1px solid #003300; border-radius: 4px; padding: 0; text-align: center; cursor: pointer; height: 35px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #008800; }
         .fx-card span { font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1; pointer-events: none; }
         .fx-card.active { background: var(--lcd-on); color: #000; border-color: var(--lcd-on); box-shadow: 0 0 10px var(--lcd-on); }
-        
         .palette-container { display: flex; gap: 4px; justify-content: space-between; background: #051105; padding: 4px; border-radius: 4px; border: 1px solid #004400; margin-top: 4px; flex-shrink: 0; }
         .palette-item { display: flex; flex-direction: column; gap: 2px; align-items: center; flex: 1; cursor: pointer; }
         .palette-toggle { width: 100%; height: 6px; background: #002200; border: 1px solid #004400; border-radius: 2px; pointer-events: none; }
         .palette-toggle.active { background: #0f0; border-color: #0f0; box-shadow: 0 0 4px #0f0; }
         .palette-display { width: 100%; height: 16px; border-radius: 2px; border: 1px solid #004400; pointer-events: none; }
 
-        /* --- MATRIX (BIGGER TEXT) --- */
+        /* --- MATRIX --- */
         .matrix-section { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; background: #051105; border: 1px solid #004400; border-radius: 4px; padding: 10px; }
         .mapping-list { flex: 1.5; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(5, 1fr); gap: 5px; overflow-y: auto; }
         .map-btn { background: #002200; border: 1px solid #004400; color: #008800; padding: 0 5px; border-radius: 3px; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -214,19 +251,20 @@
         .map-set-display { font-family: 'Orbitron'; color: #0f0; font-size: 9px; margin-top: 2px; }
         .modifiers-container { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; border-top: 1px solid #004400; padding-top: 5px; }
 
-        /* --- FOOTER --- */
-        .panel-footer { padding: 10px 15px; background: #051105; border-top: 1px solid #004400; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-        .footer-buttons { display: flex; gap: 8px; height: 36px; }
-        .led-btn { flex: 1; border-radius: 4px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; text-align: center; }
-        
-        .signature { text-align: center; font-size: 8px; color: #004400; margin-top: 2px; font-family: 'Orbitron'; opacity: 0.8; }
-        
+        /* --- TEXT --- */
         .text-input-wrapper { background: #fff; padding: 5px; border-radius: 4px; border: 1px solid #000; }
         #text-content { width: 100%; border: none; outline: none; font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: bold; color: #000; background: transparent; text-transform: uppercase; }
         .text-toggle-btn { width: 100%; padding: 10px; margin-top:10px; border-radius: 6px; background: #002200; color: #008800; border: 2px solid #004400; font-weight: bold; font-family: 'Orbitron'; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .text-toggle-btn.active { background: #004400; color: #0f0; border-color: #0f0; box-shadow: 0 0 10px rgba(0,255,0,0.5); }
         .dropdown { width: 100%; background: #002200; color: #0f0; border: 1px solid #004400; padding: 5px; font-family: 'Roboto Mono'; font-size: 11px; border-radius: 3px; margin-top: 2px; }
         
+        /* --- FOOTER --- */
+        .panel-footer { padding: 10px 15px; background: #051105; border-top: 1px solid #004400; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        .footer-buttons { display: flex; gap: 8px; height: 36px; }
+        .led-btn { flex: 1; border-radius: 4px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; text-align: center; }
+        .signature { text-align: center; font-size: 8px; color: #004400; margin-top: 2px; font-family: 'Orbitron'; opacity: 0.8; }
+        
+        /* HELP STYLES */
         .help-signature { font-family: 'Orbitron'; font-size: 12px; color: var(--lcd-on); text-align: center; margin-bottom: 15px; border-bottom: 1px solid #004400; padding-bottom: 10px; }
         .help-section { margin-bottom: 25px; border-bottom: 1px solid #003300; padding-bottom: 15px; }
         .help-title { color: #fff; font-family: 'Orbitron'; font-size: 12px; margin-bottom: 8px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 5px #005500; }
@@ -263,6 +301,16 @@
 </head>
 <body>
 
+    <div id="startup-overlay">
+        <div class="startup-box">
+            <div class="startup-title">INTRODUCTION</div>
+            <div class="startup-text">
+                Shnopia Light Engine est une interface web universelle conçue pour transformer instantanément n'importe quel écran (ordinateur, tablette, smartphone) en source lumineuse professionnelle. Elle contrôle votre écran comme un projecteur de cinéma entièrement ajustable, sans aucune installation.
+            </div>
+            <div class="startup-hint">CLIQUEZ POUR CONTINUER</div>
+        </div>
+    </div>
+
     <canvas id="light-canvas"></canvas>
     <canvas id="text-canvas"></canvas>
     <div id="cork-icon"></div>
@@ -288,7 +336,7 @@
         <div class="control-panel" id="main-panel" onclick="event.stopPropagation()">
             <div class="drag-bar" id="drag-handle"><div class="grip-lines"></div></div>
             <div class="panel-header">
-                <span class="app-title">Shnopia Light Engine V6.5 Beta</span>
+                <span class="app-title">Shnopia Light Engine V6.10 Beta</span>
                 
                 <div class="header-controls">
                     <span class="lang-icon" onclick="toggleLangMenu(event)">🌍</span>
@@ -484,6 +532,29 @@
     </div>
 
     <script>
+        // --- STARTUP LOGIC ---
+        const overlay = document.getElementById('startup-overlay');
+        overlay.addEventListener('click', () => {
+            // 1. Fade out overlay
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 500);
+            
+            // 2. Trigger Fullscreen (Browser requires gesture)
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Fullscreen attempt blocked or cancelled by user.");
+                });
+            }
+
+            // 3. Blink Full Screen Button (Visual Feedback)
+            const fsBtn = document.querySelector('.fullscreen-btn');
+            fsBtn.classList.add('blink-trigger');
+            setTimeout(() => {
+                fsBtn.classList.remove('blink-trigger');
+                // Ensure active class is set by the event listener later
+            }, 1200); // 3 blinks * 0.4s = 1.2s
+        });
+
         // --- TRANSLATION DICTIONARY ---
         const DICT = {
             FR: {
@@ -546,7 +617,7 @@
                     <strong>RECALL:</strong> Click any pad to instantly recall the scene.
                 </div></div>
                 <div class="help-section"><div class="help-title">2. COLOR TAB</div><div class="help-text">
-                    Manual control. Wheel & RGB Sliders. Click the green numbers to type exact values on keyboard. Memories at bottom (Load/Save).
+                    Manual control. Wheel & RGB Sliders. Click green numbers to type exact values on keyboard. Memories at bottom (Load/Save).
                 </div></div>
                 <div class="help-section"><div class="help-title">3. WHITE TAB</div><div class="help-text">
                     CCT control. Kelvin (1750K-10000K) and Tint (Green/Magenta). Quick presets with visual feedback.
@@ -592,7 +663,7 @@
                 DIMMER: "ЯРКОСТЬ", FULLSCREEN: "ПОЛНЫЙ ЭКРАН",
                 HELP_CONTENT: `
                 <div class="help-signature">РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ</div>
-                <div class="help-section"><div class="help-title">1. LIVE (ЖИВОЙ РЕЖИМ)</div><div class="help-text">Главная панель. <strong>SAVE:</strong> Нажмите (красная вспышка) для сохранения настроек и 2-сек видео. <strong>RECALL:</strong> Нажмите пэд.</div></div>
+                <div class="help-section"><div class="help-title">1. LIVE (ЖИВОЙ РЕЖИМ)</div><div class="help-text">Главная панель. <strong>SAVE:</strong> Нажмите (красная вспышка) для сохранения настроек и 2-сек видео. <strong>RECALL:</strong> Нажмите пэд для вызова.</div></div>
                 <div class="help-section"><div class="help-title">2. ЦВЕТ</div><div class="help-text">Ручное управление. Колесо и RGB слайдеры. Нажмите на зеленые цифры для ввода значений с клавиатуры.</div></div>
                 <div class="help-section"><div class="help-title">3. БЕЛЫЙ</div><div class="help-text">CCT (1750K-10000K) и Оттенок. Быстрые пресеты.</div></div>
                 <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Эффекты. <strong>COLOR OVERRIDE:</strong> Нажмите цвета сверху, чтобы <strong>ЗАМЕНИТЬ</strong> цвета эффекта.</div></div>
