@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shnopia Light Engine V7.0 Final</title>
+    <title>Professional Screen Light | Shnopia V7.2</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&family=Pacifico&family=Bangers&family=Creepster&family=Monoton&family=Audiowide&family=Black+Ops+One&family=Syncopate&family=VT323&family=Righteous&family=Fredoka+One&family=Luckiest+Guy&family=Russo+One&family=Special+Elite&family=Wallpoet&display=swap" rel="stylesheet">
     <style>
         /* --- CORE --- */
@@ -365,7 +365,7 @@
         <div class="control-panel" id="main-panel" onclick="event.stopPropagation()">
             <div class="drag-bar" id="drag-handle"><div class="grip-lines"></div></div>
             <div class="panel-header">
-                <span class="app-title">Shnopia Light Engine V7.0 Final</span>
+                <span class="app-title">Shnopia Light Engine V7.2</span>
                 
                 <div class="header-controls">
                     <span class="lang-icon" onclick="toggleLangMenu(event)">🌍</span>
@@ -949,26 +949,88 @@
         }
         updateMemoriesUI();
 
-        // --- RENDER LOOP ---
+        // --- RENDER LOOP OPTIMISÉ (V7.1 PERFORMANCE) ---
         let stormFlash = 0;
+        
+        // Configuration Performance
+        // 0.15 = 15% de la résolution (Excellent compromis)
+        const RENDER_SCALE = 0.15; 
+        
+        // Buffers réutilisables pour éviter le Garbage Collection
+        let cachedWidth = 0, cachedHeight = 0;
+        let imgData = null;
+        let buf32 = null; // Vue 32-bits du buffer (beaucoup plus rapide)
+
         function render() {
+            // Gestion du Blackout efficace (coupe le calcul)
+            if(state.blackout) { 
+                ctx.fillStyle = "black"; 
+                // On efface juste une fois si nécessaire, pas besoin de loop
+                if(canvas.width > 1) { ctx.fillRect(0, 0, canvas.width, canvas.height); }
+                textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height); 
+                requestAnimationFrame(render); 
+                return; 
+            }
+
+            // 1. Calcul de la résolution interne optimisée
             let baseMap = MAPS[state.mapMode] || MAPS[0]; 
             let multiplier = state.gridActive ? state.gridLevel : 1;
-            let targetW = baseMap.w * multiplier; let targetH = baseMap.h * multiplier;
+            
+            // Si on est en mode "Matrix" (pixels visibles), on garde une résolution liée à la grille
+            // Si on est en mode "FX/Couleur" (lumière), on utilise le RENDER_SCALE pour sauver la batterie
+            let isMatrixMode = state.mapMode !== 0 && state.mode === 'MATRIX';
+            
+            // On détermine la taille physique du canvas HTML
+            let rawW = window.innerWidth;
+            let rawH = window.innerHeight;
+            
+            // Calcul de la résolution de rendu cible
+            let targetW, targetH;
 
-            if(canvas.width !== targetW) canvas.width = targetW;
-            if(canvas.height !== targetH) canvas.height = targetH;
-            if(textCanvas.width !== window.innerWidth || textCanvas.height !== window.innerHeight) { textCanvas.width = window.innerWidth; textCanvas.height = window.innerHeight; }
+            if (state.mapMode !== 0 && state.mapMode !== 14) {
+                 // Mode Matrix Preset: On force la résolution basse du preset (ex: 8x16)
+                 targetW = baseMap.w * multiplier;
+                 targetH = baseMap.h * multiplier;
+            } else {
+                 // Modes fluides (Color, FX, Shnopia)
+                 targetW = Math.floor(rawW * RENDER_SCALE);
+                 targetH = Math.floor(rawH * RENDER_SCALE);
+                 if(targetW < 1) targetW = 1; 
+                 if(targetH < 1) targetH = 1;
+            }
 
-            if(state.blackout) { ctx.fillStyle = "black"; ctx.fillRect(0, 0, targetW, targetH); textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height); requestAnimationFrame(render); return; }
+            // 2. Redimensionnement intelligent (uniquement si changement)
+            if(cachedWidth !== targetW || cachedHeight !== targetH) {
+                canvas.width = targetW;
+                canvas.height = targetH;
+                cachedWidth = targetW;
+                cachedHeight = targetH;
+                
+                // Lissage CSS pour éviter la pixellisation trop visible (sauf si voulu)
+                canvas.style.imageRendering = (isMatrixMode) ? 'pixelated' : 'auto';
 
-            const imgData = ctx.createImageData(targetW, targetH); const data = imgData.data;
+                // Allocation unique du buffer
+                imgData = ctx.createImageData(targetW, targetH);
+                buf32 = new Uint32Array(imgData.data.buffer);
+            }
+
+            // Gestion Text Canvas (Toujours pleine résolution pour la netteté du texte)
+            if(textCanvas.width !== rawW || textCanvas.height !== rawH) { 
+                textCanvas.width = rawW; 
+                textCanvas.height = rawH; 
+            }
+
+            // 3. Boucle de Rendu
             let currentSpeed = state.fxMode <= 20 ? state.speedCinema : state.speedShnopia;
             state.time += (currentSpeed / 50) * 0.05; 
-            const t = state.time; const w = targetW; const h = targetH;
+            const t = state.time; 
+            const w = targetW; 
+            const h = targetH;
 
+            // Logique Storm (Eclairs)
             if(state.fxMode === 8) { if(Math.random() > 0.98) stormFlash = 1; else stormFlash *= 0.85; if(stormFlash < 0.01) stormFlash = 0.02; }
 
+            // Pré-calculs couleurs
             const activeColors = state.savedColors.filter((c, i) => state.paletteActive[i]).map(hex => hexToRgb(hex)); 
             const usePalette = activeColors.length > 0 && state.fxMode !== 0;
             
@@ -977,7 +1039,17 @@
             else if (state.mode === 'CCT') { rB=state.whiteRgb.r; gB=state.whiteRgb.g; bB=state.whiteRgb.b; } 
             else { rB=0; gB=0; bB=0; }
 
-            const p = (idx, r,g,b, i=1, x, y) => { 
+            // --- FONCTION PIXEL OPTIMISÉE (Bitwise) ---
+            // On écrit directement un entier 32 bits (ABGR)
+            const setP = (i, r, g, b) => {
+                r = r < 0 ? 0 : (r > 255 ? 255 : r);
+                g = g < 0 ? 0 : (g > 255 ? 255 : g);
+                b = b < 0 ? 0 : (b > 255 ? 255 : b);
+                buf32[i] = (255 << 24) | (b << 16) | (g << 8) | r;
+            };
+
+            // Version FX Logic Wrapper
+            const p = (idx32, r,g,b, i=1, x, y) => { 
                 if(state.warpActive && state.warpLevel > 0) { let offset = Math.sin(y * 0.1 * state.warpLevel + t) * (state.warpLevel * 2); i *= (0.5 + 0.5 * Math.sin(offset)); }
                 if(state.noiseActive && state.noiseLevel > 0) { if(Math.random() < state.noiseLevel * 0.05) { r=255; g=255; b=255; } else { let grain = (Math.random()-0.5) * state.noiseLevel * 20; r+=grain; g+=grain; b+=grain; } }
                 
@@ -989,69 +1061,81 @@
                         if (colIndex < 0) colIndex = 0;
                         let targetCol = activeColors[colIndex];
                         let intensity = (luma/255) * i;
-                        data[idx] = targetCol.r * intensity; data[idx+1] = targetCol.g * intensity; data[idx+2] = targetCol.b * intensity; data[idx+3] = 255;
-                    } else { data[idx]=0; data[idx+1]=0; data[idx+2]=0; data[idx+3]=255; }
+                        setP(idx32, targetCol.r * intensity, targetCol.g * intensity, targetCol.b * intensity);
+                    } else { setP(idx32, 0,0,0); }
                 } 
-                else { data[idx]=r*i; data[idx+1]=g*i; data[idx+2]=b*i; data[idx+3]=255; }
+                else { setP(idx32, r*i, g*i, b*i); }
             }
-            const hsl = (idx, hVal, sVal, lVal, x, y) => { const rgb=hslToRgb(hVal,sVal,lVal); p(idx, rgb[0],rgb[1],rgb[2], 1, x, y); }
+            
+            const hsl = (idx32, hVal, sVal, lVal, x, y) => { const rgb=hslToRgb(hVal,sVal,lVal); p(idx32, rgb[0],rgb[1],rgb[2], 1, x, y); }
 
+            // --- BOUCLE PRINCIPALE ---
+            let idx32 = 0;
             for(let y=0; y<h; y++) {
+                const v = (y + 0.5) / h; 
                 for(let x=0; x<w; x++) {
-                    const idx = (y*w+x)*4; const u = (x + 0.5) / w; const v = (y + 0.5) / h; const rnd = Math.random();
+                    const u = (x + 0.5) / w; 
+                    const rnd = Math.random();
+                    
                     switch(state.fxMode) {
-                        case 0: p(idx, rB,gB,bB, 1, x, y); break;
-                        case 1: p(idx,(Math.floor(t*6)%2 ? (u<0.5?0:255) : (u<0.5?255:0)), 0, (Math.floor(t*6)%2 ? (u<0.5?255:0) : (u<0.5?0:255)), (Math.floor(t*20)%2?1:0), x, y); break;
-                        case 2: { const n=(Math.sin(t*10 + u*10) + Math.sin(t*20 + v*10))/2 + 0.5; p(idx,255, 50+n*100, 0, 0.5+n*0.5, x, y); break; }
-                        case 3: p(idx,255,255,255, rnd>0.96?1:0, x, y); break;
-                        case 4: { let i=0.5+rnd*0.5; if((y+Math.floor(t*10))%5===0)i*=0.8; p(idx,200,220,255,i, x, y); break; }
-                        case 5: p(idx,200,230,255, (Math.sin(t*3)>0.9 && rnd>0.5)?1:0.05, x, y); break;
-                        case 6: p(idx,255,180,100, Math.max(0, 1 - Math.abs(u - ((t*0.5)%1)) * 5), x, y); break;
-                        case 7: p(idx,220,255,220, (rnd>0.9 || Math.sin(t)>0.8)?0.2:1, x, y); break;
-                        case 8: p(idx,255,255,255, stormFlash, x, y); break;
-                        case 9: { let f=Math.sin(t*10)+Math.sin(t*23); p(idx,255,150,50, 0.6+f*0.1, x, y); break; }
-                        case 10: p(idx,255,255,255, Math.floor(t*30)%2?1:0, x, y); break;
-                        case 11: { let tr=t%3; p(idx,255, (tr<0.2)?255:100, (tr<0.2)?255:0, (tr<1)?(tr<0.2?1:1-(tr-0.2)):0, x, y); break; }
-                        case 12: hsl(idx, (t*50)%360, 100, 50, x, y); break;
-                        case 13: hsl(idx, rnd*360, 100, rnd>0.96?50:0, x, y); break;
-                        case 14: p(idx,200,255,220, (t%2<0.1 || rnd>0.95)?0:1, x, y); break;
-                        case 15: { let rot = (Math.atan2(v-0.5, u-0.5) + t*5) % (Math.PI*2); p(idx,255, rot>0?150:0, 0, 1, x, y); break; }
-                        case 16: if(rnd>0.99) hsl(idx,rnd*360,100,50, x, y); else p(idx,0,0,0,0.9, x, y); break;
-                        case 17: { let bang = t%1; p(idx,255,200,150, bang<0.05?1:0, x, y); break; }
-                        case 18: p(idx,255,0,0, 0.5+Math.sin(t*5)*0.5, x, y); break;
-                        case 19: p(idx,255,200,150, (v + t*0.5)%1 < 0.2 ? 1 : 0, x, y); break;
-                        case 20: { let flicker=rnd>0.9?0:1; p(idx,50,100,50, flicker*0.5, x, y); break; }
-                        case 21: hsl(idx, 140+Math.max(0,50-Math.abs(v-(0.5+Math.sin(u*5+t)*0.1))*100), 100, 50, x, y); break;
-                        case 22: { let r=(v + t)%1; hsl(idx, 120, 100, (Math.abs(v-r)<0.1 && rnd>0.8)?50:0, x, y); break; }
-                        case 23: hsl(idx, ((u+v)%0.2 < 0.1)?300:180, 100, 30+Math.sin(t*5)*20, x, y); break;
-                        case 24: hsl(idx, (Math.sin(u*5+t)+Math.sin(v*5+t))*40%360, 100, 50, x, y); break;
-                        case 25: hsl(idx, 200+Math.sin(u*10+t)*10, 80, 40, x, y); break;
-                        case 26: { let n=Math.sin(u*4+t)+Math.cos(v*4+t); hsl(idx, 10+n*10, 100, 40+n*20, x, y); break; }
-                        case 27: hsl(idx, (t*40+u*100)%360, 100, 50, x, y); break;
-                        case 28: hsl(idx, 280-v*60, 80, 50, x, y); break;
-                        case 29: { let noise = Math.sin(u*5)*Math.cos(v*5+t); hsl(idx, 260+noise*30, 80, 20+noise*20, x, y); break; }
-                        case 30: hsl(idx, u*360 + t*50, 100, 50, x, y); break;
-                        case 31: p(idx,255,0,0, Math.abs(u - (Math.sin(t)*0.4 + 0.5)) < 0.05 ? 1 : 0, x, y); break;
-                        case 32: { let dist=Math.sqrt((u-0.5)**2+(v-0.5)**2); hsl(idx, 200, 100, Math.sin(dist*10 - t*5)*50+50, x, y); break; }
-                        case 33: p(idx,255,255,255, rnd>0.95?1:0, x, y); break;
-                        case 34: if(rnd>0.9) hsl(idx, rnd*360, 100, 50, x, y); else p(idx,0,0,0, 1, x, y); break;
-                        case 35: p(idx,0,255,0, (Math.floor(u*10+v*10+t)%2)?1:0, x, y); break;
-                        case 36: p(idx,255,0,0, Math.pow(Math.sin(t*5), 10), x, y); break;
-                        case 37: hsl(idx, 100, 100, 20+Math.sin(u*10+t)*20, x, y); break;
-                        case 38: p(idx,255,255,255, (Math.abs(u-0.5)<v)?1:0, x, y); break;
-                        case 39: hsl(idx, 220, 100, rnd>0.9 ? 80 : 0, x, y); break;
-                        case 40: { let ang=Math.atan2(v-0.5, u-0.5)+t; hsl(idx, ang*50, 100, 50, x, y); break; }
-                        case 41: { let mx=Math.abs(u-0.5), my=Math.abs(v-0.5); hsl(idx, (mx*my*100+t*100)%360, 100, 50, x, y); break; }
+                        case 0: p(idx32, rB,gB,bB, 1, x, y); break;
+                        case 1: p(idx32,(Math.floor(t*6)%2 ? (u<0.5?0:255) : (u<0.5?255:0)), 0, (Math.floor(t*6)%2 ? (u<0.5?255:0) : (u<0.5?0:255)), (Math.floor(t*20)%2?1:0), x, y); break;
+                        case 2: { const n=(Math.sin(t*10 + u*10) + Math.sin(t*20 + v*10))/2 + 0.5; p(idx32,255, 50+n*100, 0, 0.5+n*0.5, x, y); break; }
+                        case 3: p(idx32,255,255,255, rnd>0.96?1:0, x, y); break;
+                        case 4: { let i=0.5+rnd*0.5; if((y+Math.floor(t*10))%5===0)i*=0.8; p(idx32,200,220,255,i, x, y); break; }
+                        case 5: p(idx32,200,230,255, (Math.sin(t*3)>0.9 && rnd>0.5)?1:0.05, x, y); break;
+                        case 6: p(idx32,255,180,100, Math.max(0, 1 - Math.abs(u - ((t*0.5)%1)) * 5), x, y); break;
+                        case 7: p(idx32,220,255,220, (rnd>0.9 || Math.sin(t)>0.8)?0.2:1, x, y); break;
+                        case 8: p(idx32,255,255,255, stormFlash, x, y); break;
+                        case 9: { let f=Math.sin(t*10)+Math.sin(t*23); p(idx32,255,150,50, 0.6+f*0.1, x, y); break; }
+                        case 10: p(idx32,255,255,255, Math.floor(t*30)%2?1:0, x, y); break;
+                        case 11: { let tr=t%3; p(idx32,255, (tr<0.2)?255:100, (tr<0.2)?255:0, (tr<1)?(tr<0.2?1:1-(tr-0.2)):0, x, y); break; }
+                        case 12: hsl(idx32, (t*50)%360, 100, 50, x, y); break;
+                        case 13: hsl(idx32, rnd*360, 100, rnd>0.96?50:0, x, y); break;
+                        case 14: p(idx32,200,255,220, (t%2<0.1 || rnd>0.95)?0:1, x, y); break;
+                        case 15: { let rot = (Math.atan2(v-0.5, u-0.5) + t*5) % (Math.PI*2); p(idx32,255, rot>0?150:0, 0, 1, x, y); break; }
+                        case 16: if(rnd>0.99) hsl(idx32,rnd*360,100,50, x, y); else p(idx32,0,0,0,0.9, x, y); break;
+                        case 17: { let bang = t%1; p(idx32,255,200,150, bang<0.05?1:0, x, y); break; }
+                        case 18: p(idx32,255,0,0, 0.5+Math.sin(t*5)*0.5, x, y); break;
+                        case 19: p(idx32,255,200,150, (v + t*0.5)%1 < 0.2 ? 1 : 0, x, y); break;
+                        case 20: { let flicker=rnd>0.9?0:1; p(idx32,50,100,50, flicker*0.5, x, y); break; }
+                        case 21: hsl(idx32, 140+Math.max(0,50-Math.abs(v-(0.5+Math.sin(u*5+t)*0.1))*100), 100, 50, x, y); break;
+                        case 22: { let r=(v + t)%1; hsl(idx32, 120, 100, (Math.abs(v-r)<0.1 && rnd>0.8)?50:0, x, y); break; }
+                        case 23: hsl(idx32, ((u+v)%0.2 < 0.1)?300:180, 100, 30+Math.sin(t*5)*20, x, y); break;
+                        case 24: hsl(idx32, (Math.sin(u*5+t)+Math.sin(v*5+t))*40%360, 100, 50, x, y); break;
+                        case 25: hsl(idx32, 200+Math.sin(u*10+t)*10, 80, 40, x, y); break;
+                        case 26: { let n=Math.sin(u*4+t)+Math.cos(v*4+t); hsl(idx32, 10+n*10, 100, 40+n*20, x, y); break; }
+                        case 27: hsl(idx32, (t*40+u*100)%360, 100, 50, x, y); break;
+                        case 28: hsl(idx32, 280-v*60, 80, 50, x, y); break;
+                        case 29: { let noise = Math.sin(u*5)*Math.cos(v*5+t); hsl(idx32, 260+noise*30, 80, 20+noise*20, x, y); break; }
+                        case 30: hsl(idx32, u*360 + t*50, 100, 50, x, y); break;
+                        case 31: p(idx32,255,0,0, Math.abs(u - (Math.sin(t)*0.4 + 0.5)) < 0.05 ? 1 : 0, x, y); break;
+                        case 32: { let dist=Math.sqrt((u-0.5)**2+(v-0.5)**2); hsl(idx32, 200, 100, Math.sin(dist*10 - t*5)*50+50, x, y); break; }
+                        case 33: p(idx32,255,255,255, rnd>0.95?1:0, x, y); break;
+                        case 34: if(rnd>0.9) hsl(idx32, rnd*360, 100, 50, x, y); else p(idx32,0,0,0, 1, x, y); break;
+                        case 35: p(idx32,0,255,0, (Math.floor(u*10+v*10+t)%2)?1:0, x, y); break;
+                        case 36: p(idx32,255,0,0, Math.pow(Math.sin(t*5), 10), x, y); break;
+                        case 37: hsl(idx32, 100, 100, 20+Math.sin(u*10+t)*20, x, y); break;
+                        case 38: p(idx32,255,255,255, (Math.abs(u-0.5)<v)?1:0, x, y); break;
+                        case 39: hsl(idx32, 220, 100, rnd>0.9 ? 80 : 0, x, y); break;
+                        case 40: { let ang=Math.atan2(v-0.5, u-0.5)+t; hsl(idx32, ang*50, 100, 50, x, y); break; }
+                        case 41: { let mx=Math.abs(u-0.5), my=Math.abs(v-0.5); hsl(idx32, (mx*my*100+t*100)%360, 100, 50, x, y); break; }
                     }
+                    
+                    idx32++; // Incrément manuel pour buffer 32 bits
                 }
             }
+            
+            // Push des pixels dans le canvas
             ctx.putImageData(imgData, 0, 0);
             
-            if(state.dimmer < 100) { ctx.fillStyle=`rgba(0,0,0, ${1-state.dimmer/100})`; ctx.fillRect(0,0,w,h); }
+            // Gestion Dimmer Global
+            if(state.dimmer < 100) { 
+                ctx.fillStyle=`rgba(0,0,0, ${1-state.dimmer/100})`; 
+                ctx.fillRect(0,0,w,h); 
+            }
 
-            previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
-            previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
-
+            // --- TEXT RENDER ---
             textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
             if(state.textOn && state.textString) {
                 const fontSize = Math.max(20, textCanvas.height * (state.textSize/100));
@@ -1070,6 +1154,11 @@
                 else if(state.textEffect === "STROKE") { textCtx.lineWidth = 2 + 5*lvl; textCtx.strokeStyle = state.textColor; textCtx.strokeText(state.textString, x, y); }
                 textCtx.globalAlpha = 1;
             }
+            
+            // --- PREVIEW RENDER ---
+            previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
+            previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
+
             requestAnimationFrame(render);
         }
 
@@ -1083,7 +1172,10 @@
         
         window.setKelvin = (k, btn) => { 
             state.kelvin = k; 
-            document.getElementById('input-kelvin').value = k; document.getElementById('val-kelvin').innerText = k + "K";
+            const inputK = document.getElementById('input-kelvin');
+            inputK.value = k;
+            updateRangeStyle(inputK);
+            document.getElementById('val-kelvin').innerText = k + "K";
             const rgb = applyTint(kelvinToRgb(k), state.tint);
             updateWhiteUI(rgb);
             activateStatic('CCT'); 
