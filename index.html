@@ -593,9 +593,12 @@
                     <button class="led-btn blackout-btn" id="btn-blackout" onclick="toggleBlackout()">BLACKOUT</button>
                     <button class="led-btn fullscreen-btn momentary-btn" onclick="toggleFS()" data-tr="FULLSCREEN">FULL SCREEN</button>
                 </div>
-                <div class="signature">Développé par Shnopia par amour du cinéma</div>
-            </div>
-        </div>
+                <div class="signature">
+    Développé par Shnopia par amour du cinéma
+    <div style="margin-top: 4px; font-size: 9px; color: #005500; border-top: 1px solid #002200; padding-top: 2px;">
+        SYSTEM ACCESS: <span id="global-counter" style="color: var(--lcd-on); font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 5px rgba(51, 255, 51, 0.5);">CONNECTING...</span>
+    </div>
+</div>
     </div>
 
     <script>
@@ -1436,6 +1439,34 @@
         initSliderStyles();
         syncUI();
         requestAnimationFrame(render);
+
+// --- GLOBAL COUNTER (shnopia_sle) ---
+        (function() {
+            // Utilisation de l'API CountAPI avec le namespace 'shnopia_sle'
+            fetch('https://api.countapi.xyz/hit/shnopia_sle/visits')
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                // Formatage type "001234"
+                const count = data.value;
+                const formatted = "#" + count.toString().padStart(6, '0');
+                
+                const el = document.getElementById('global-counter');
+                if(el) el.innerText = formatted;
+            })
+            .catch(err => {
+                console.warn("Counter Error:", err);
+                const el = document.getElementById('global-counter');
+                if(el) {
+                    el.innerText = "OFFLINE";
+                    el.style.color = "#444"; // Gris sombre si pas de connexion
+                    el.style.textShadow = "none";
+                }
+            });
+        })();
+
     </script>
 </body>
 </html>
