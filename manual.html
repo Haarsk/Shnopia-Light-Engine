@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manuel Utilisateur | Shnopia Light Engine</title>
+    <title>Manuel Utilisateur | Shnopia Light Engine V7.77</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -23,7 +23,7 @@
         
         /* --- LANG BAR --- */
         .lang-bar {
-            display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
         }
         .lang-link {
             font-family: 'Orbitron'; font-size: 12px; color: var(--dim-accent); 
@@ -33,7 +33,38 @@
         .lang-link:hover { color: #fff; border-color: #fff; transform: scale(1.1); }
         .lang-link.active { color: var(--accent); border-color: var(--accent); background: #002200; box-shadow: 0 0 8px var(--dim-accent); }
 
-        /* --- BRANDING (UPDATED BIGGER) --- */
+        /* --- LAUNCH BUTTON (NEW) --- */
+        .launch-wrapper { text-align: center; margin-bottom: 40px; }
+        .launch-btn {
+            display: inline-block;
+            background: #002200;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 15px 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            text-decoration: none;
+            border-radius: 6px;
+            box-shadow: 0 0 15px rgba(51, 255, 51, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: pulse-green 2s infinite;
+        }
+        .launch-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 30px rgba(51, 255, 51, 0.8);
+            transform: scale(1.05);
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 15px rgba(51, 255, 51, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(51, 255, 51, 0.6); }
+            100% { box-shadow: 0 0 15px rgba(51, 255, 51, 0.3); }
+        }
+
+        /* --- BRANDING --- */
         .rossignol-box { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             margin-bottom: 40px; padding: 30px 20px; background: #001a00; 
@@ -41,17 +72,17 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
         .rossignol-brand { 
-            font-family: 'Orbitron'; font-size: 24px; /* Agrandissement du titre */
+            font-family: 'Orbitron'; font-size: 24px;
             color: var(--accent); 
             display: flex; align-items: center; justify-content: center; gap: 15px; 
             margin-bottom: 10px; font-weight: 900; letter-spacing: 2px;
             width: 100%; text-align: center; flex-wrap: wrap;
             text-shadow: 0 0 10px rgba(51, 255, 51, 0.4);
         }
-        .rossignol-icon { font-size: 32px; /* Agrandissement de l'icone */ }
+        .rossignol-icon { font-size: 32px; }
         
         .contact-link { 
-            font-family: 'Roboto Mono'; font-size: 16px; /* Agrandissement du lien */
+            font-family: 'Roboto Mono'; font-size: 16px;
             color: #00cc00; font-weight: bold;
             text-decoration: none; border-bottom: 1px dotted var(--dim-accent); transition: 0.2s;
             padding-bottom: 2px;
@@ -92,6 +123,12 @@
             <div class="lang-link" onclick="setLang('PL', this)">POLSKI</div>
         </div>
 
+        <div class="launch-wrapper">
+            <a href="https://haarsk.github.io/Shnopia-Light-Engine/" target="_blank" class="launch-btn" id="launch-btn-text">
+                LANCEZ L'INTERFACE MAINTENANT
+            </a>
+        </div>
+
         <div class="rossignol-box">
             <div class="rossignol-brand">
                 <span class="rossignol-icon">🐦</span> Rossignol Grip Vibe Coding
@@ -100,7 +137,7 @@
         </div>
 
         <div id="FR" class="content-block visible">
-            <h1>Manuel Complet V7.7</h1>
+            <h1>Manuel Complet V7.77</h1>
             <p>Bienvenue dans le manuel étendu du Shnopia Light Engine (SLE). Cet outil transforme votre écran (ordinateur, tablette, téléphone) en un panneau d'éclairage LED professionnel et interactif. Il est conçu pour les directeurs de la photographie, vidéastes et créateurs de contenu qui ont besoin d'une source lumineuse contrôlable, dynamique et précise sans matériel supplémentaire.</p>
 
             <h2>1. Prise en Main & Interface</h2>
@@ -150,7 +187,7 @@
             </ul>
 
             <h2>4. Moteur d'Effets (FX)</h2>
-            <p>Le moteur d'effets V7.7 est procédural : il génère les effets mathématiquement en temps réel, ce qui permet une modification fluide sans coupure.</p>
+            <p>Le moteur d'effets V7.77 est procédural : il génère les effets mathématiquement en temps réel, ce qui permet une modification fluide sans coupure. Des préréglages automatiques ajustent désormais la structure et la variation pour chaque effet sélectionné.</p>
 
             <h3>Les Contrôles Paramétriques</h3>
             <p>Chaque effet (dans Cinema FX ou Shnopia FX) est piloté par 3 curseurs :</p>
@@ -192,7 +229,7 @@
         </div>
 
         <div id="EN" class="content-block">
-            <h1>Comprehensive Manual V7.7</h1>
+            <h1>Comprehensive Manual V7.77</h1>
             <p>Welcome to the extended manual for Shnopia Light Engine (SLE). This tool transforms any screen (computer, tablet, phone) into a professional, interactive LED lighting panel. Designed for cinematographers, videographers, and content creators needing a controllable, dynamic light source without extra hardware.</p>
 
             <h2>1. Getting Started & Interface</h2>
@@ -242,7 +279,7 @@
             </ul>
 
             <h2>4. Effects Engine (FX)</h2>
-            <p>The V7.7 effects engine is procedural: it generates effects mathematically in real-time, allowing for fluid modification without stuttering.</p>
+            <p>The V7.77 effects engine is procedural: it generates effects mathematically in real-time, allowing for fluid modification without stuttering. Automatic presets now adjust structure and variation for each selected effect.</p>
 
             <h3>Parametric Controls</h3>
             <p>Each effect (in Cinema FX or Shnopia FX) is driven by 3 sliders:</p>
@@ -284,7 +321,7 @@
         </div>
 
         <div id="ES" class="content-block">
-            <h1>Manual Completo V7.7</h1>
+            <h1>Manual Completo V7.77</h1>
             <p>Bienvenido al manual extendido de Shnopia Light Engine (SLE). Esta herramienta transforma su pantalla (ordenador, tableta, teléfono) en un panel de iluminación LED profesional e interactivo. Está diseñado para directores de fotografía, videógrafos y creadores de contenido que necesitan una fuente de luz controlable, dinámica y precisa sin hardware adicional.</p>
 
             <h2>1. Primeros Pasos e Interfaz</h2>
@@ -334,7 +371,7 @@
             </ul>
 
             <h2>4. Motor de Efectos (FX)</h2>
-            <p>El motor de efectos V7.7 es procedimental: genera los efectos matemáticamente en tiempo real, lo que permite una modificación fluida sin cortes.</p>
+            <p>El motor de efectos V7.77 es procedimental: genera los efectos matemáticamente en tiempo real, lo que permite una modificación fluida sin cortes. Los preajustes automáticos ahora ajustan la estructura y la variación para cada efecto seleccionado.</p>
 
             <h3>Los Controles Paramétricos</h3>
             <p>Cada efecto (en Cinema FX o Shnopia FX) es controlado por 3 cursores:</p>
@@ -376,7 +413,7 @@
         </div>
 
         <div id="RU" class="content-block">
-            <h1>Полное руководство V7.7</h1>
+            <h1>Полное руководство V7.77</h1>
             <p>Добро пожаловать в расширенное руководство пользователя Shnopia Light Engine (SLE). Этот инструмент превращает любой экран (компьютер, планшет, телефон) в профессиональную и интерактивную светодиодную панель. Он создан для операторов-постановщиков, видеографов и создателей контента, которым нужен управляемый, динамичный и точный источник света без дополнительного оборудования.</p>
 
             <h2>1. Начало работы и Интерфейс</h2>
@@ -426,7 +463,7 @@
             </ul>
 
             <h2>4. Движок Эффектов (FX)</h2>
-            <p>Движок эффектов V7.7 является процедурным: он генерирует эффекты математически в реальном времени, что позволяет плавно менять настройки без прерываний.</p>
+            <p>Движок эффектов V7.77 является процедурным: он генерирует эффекты математически в реальном времени, что позволяет плавно менять настройки без прерываний. Автоматические пресеты теперь настраивают структуру и вариацию для каждого выбранного эффекта.</p>
 
             <h3>Параметрическое Управление</h3>
             <p>Каждый эффект (в Cinema FX или Shnopia FX) управляется 3 ползунками:</p>
@@ -468,7 +505,7 @@
         </div>
 
         <div id="JP" class="content-block">
-            <h1>完全マニュアル V7.7</h1>
+            <h1>完全マニュアル V7.77</h1>
             <p>Shnopia Light Engine (SLE) の拡張マニュアルへようこそ。このツールは、あらゆる画面（PC、タブレット、スマートフォン）をプロフェッショナルでインタラクティブなLED照明パネルに変えます。撮影監督、ビデオグラファー、コンテンツクリエイターのために設計されており、追加のハードウェアなしで制御可能でダイナミックな光源を提供します。</p>
 
             <h2>1. はじめに & インターフェース</h2>
@@ -505,7 +542,7 @@
             <p>彩度の高い芸術的な色に最適です。</p>
             <ul>
                 <li><strong>カラーホイール:</strong> カーソルを動かして、色相と彩度を直感的に選択します。</li>
-                <li><strong>RGB スライダー:</strong> 正確な数学的調整用 (0-255)。スライダーの右側にある緑色の数字をクリックして、キーボードで正確な値を入力できます。</li>
+                <li><strong>RGB スライダー:</strong> 正確な数学的調整用 (0-255). スライダーの右側にある緑色の数字をクリックして、キーボードで正確な値を入力できます。</li>
                 <li><strong>クイックメモリ:</strong> ページ下部に5つのカラーメモリスロットがあります。色の付いたボックスをクリックして適用するか、その下の「SAVE」ボタンをクリックして現在の色を保存します。</li>
             </ul>
 
@@ -518,7 +555,7 @@
             </ul>
 
             <h2>4. エフェクトエンジン (FX)</h2>
-            <p>V7.7のエフェクトエンジンはプロシージャルです。リアルタイムで数学的にエフェクトを生成するため、途切れることなくスムーズな変更が可能です。</p>
+            <p>V7.77のエフェクトエンジンはプロシージャルです。リアルタイムで数学的にエフェクトを生成するため、途切れることなくスムーズな変更が可能です。自動プリセットが、選択された各エフェクトの構造とバリエーションを調整します。</p>
 
             <h3>パラメトリックコントロール</h3>
             <p>各エフェクト（Cinema FX または Shnopia FX）は3つのスライダーで制御されます：</p>
@@ -560,7 +597,7 @@
         </div>
 
         <div id="PL" class="content-block">
-            <h1>Pełna Instrukcja V7.7</h1>
+            <h1>Pełna Instrukcja V7.77</h1>
             <p>Witamy w rozszerzonej instrukcji obsługi Shnopia Light Engine (SLE). To narzędzie zmienia każdy ekran (komputer, tablet, telefon) w profesjonalny, interaktywny panel oświetleniowy LED. Zaprojektowany dla operatorów filmowych, wideofilmowców i twórców treści, którzy potrzebują kontrolowanego, dynamicznego i precyzyjnego źródła światła bez dodatkowego sprzętu.</p>
 
             <h2>1. Pierwsze Kroki i Interfejs</h2>
@@ -610,7 +647,7 @@
             </ul>
 
             <h2>4. Silnik Efektów (FX)</h2>
-            <p>Silnik efektów V7.7 jest proceduralny: generuje efekty matematycznie w czasie rzeczywistym, co pozwala na płynną modyfikację bez zacięć.</p>
+            <p>Silnik efektów V7.77 jest proceduralny: generuje efekty matematycznie w czasie rzeczywistym, co pozwala na płynną modyfikację bez zacięć. Automatyczne presety dostosowują teraz strukturę i wariację dla każdego wybranego efektu.</p>
 
             <h3>Sterowanie Parametryczne</h3>
             <p>Każdy efekt (w Cinema FX lub Shnopia FX) jest sterowany przez 3 suwaki:</p>
@@ -652,12 +689,22 @@
         </div>
 
         <div class="footer">
-            Shnopia Light Engine V7.7 - Documentation<br>
+            Shnopia Light Engine V7.77 - Documentation<br>
             Developed by Rossignol Grip Vibe Coding
         </div>
     </div>
 
     <script>
+        // Button translations
+        const btnTexts = {
+            FR: "LANCEZ L'INTERFACE MAINTENANT",
+            EN: "LAUNCH INTERFACE NOW",
+            ES: "INICIAR INTERFAZ AHORA",
+            RU: "ЗАПУСТИТЬ ИНТЕРФЕЙС",
+            JP: "インターフェースを起動",
+            PL: "URUCHOM INTERFEJS TERAZ"
+        };
+
         function setLang(langId, btn) {
             // 1. Masquer tous les contenus
             const contents = document.querySelectorAll('.content-block');
@@ -671,6 +718,12 @@
             const btns = document.querySelectorAll('.lang-link');
             btns.forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
+
+            // 4. Mettre à jour le texte du bouton launch
+            const launchBtn = document.getElementById('launch-btn-text');
+            if(launchBtn && btnTexts[langId]) {
+                launchBtn.innerText = btnTexts[langId];
+            }
         }
     </script>
 
