@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Professional Screen Light | Shnopia V7.2</title>
+    <title>Professional Screen Light | Shnopia V7.77</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@500;900&family=Anton&family=Bebas+Neue&family=Press+Start+2P&family=Lobster&family=Pacifico&family=Bangers&family=Creepster&family=Monoton&family=Audiowide&family=Black+Ops+One&family=Syncopate&family=VT323&family=Righteous&family=Fredoka+One&family=Luckiest+Guy&family=Russo+One&family=Special+Elite&family=Wallpoet&display=swap" rel="stylesheet">
     <style>
         /* --- CORE --- */
@@ -25,7 +25,7 @@
         #text-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; pointer-events: auto; }
 
-        /* --- STARTUP OVERLAY (V7 FINAL) --- */
+        /* --- STARTUP OVERLAY --- */
         #startup-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 10000;
@@ -33,7 +33,6 @@
             cursor: pointer; transition: opacity 0.5s ease-out; backdrop-filter: blur(10px);
         }
         
-        /* Language Bar above Intro Box */
         .intro-lang-bar {
             display: flex; gap: 15px; margin-bottom: 20px; z-index: 10001;
             flex-wrap: wrap; justify-content: center;
@@ -46,7 +45,6 @@
         .intro-lang-btn:hover { color: #fff; border-color: #fff; transform: scale(1.1); }
         .intro-lang-btn.active { color: var(--lcd-on); border-color: var(--lcd-on); box-shadow: 0 0 10px var(--lcd-on); background: #002200; }
 
-        /* Exact Mirror of .control-panel */
         .startup-box {
             background: var(--panel-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border: 1px solid #333; border-radius: 12px;
@@ -54,10 +52,9 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             padding: 40px; text-align: center;
             box-shadow: 0 40px 100px #000;
-            pointer-events: none; /* Events pass to overlay for click-to-start */
+            pointer-events: none; 
             position: relative;
         }
-        /* Visual decorative elements to match panel feel */
         .startup-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #004400, var(--lcd-on), #004400); opacity: 0.5; }
         .startup-box::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: #004400; }
 
@@ -155,7 +152,7 @@
         .color-g { color: #33ff33 !important; border-color: #33ff33 !important; text-shadow: 0 0 2px #050; }
         .color-b { color: #3388ff !important; border-color: #3388ff !important; text-shadow: 0 0 2px #005; }
 
-        /* SLIDERS STYLING WITH PROGRESS BAR LOGIC */
+        /* SLIDERS STYLING */
         input[type=range] { 
             -webkit-appearance: none; width: 100%; background: transparent; margin: 0; touch-action: none; display: block; height: 24px; cursor: pointer; 
             border: 1px solid var(--lcd-on); background-color: var(--lcd-bg); border-radius: 2px; box-shadow: 0 0 5px rgba(51, 255, 51, 0.1); padding: 0; 
@@ -189,7 +186,6 @@
             box-shadow: 0 0 15px #00ff00 !important; transform: scale(0.98);
         }
 
-        /* --- CCT BUTTONS STYLE --- */
         .preset-btn { 
             flex: 1; border: 1px solid #444; color: #000; 
             padding: 10px 0; border-radius: 4px; font-size: 12px; font-weight: 900; 
@@ -216,7 +212,6 @@
         .fullscreen-btn { background: #002200; color: #050; border: 2px solid #050; flex: 1; transition: background 0.2s, color 0.2s; }
         .fullscreen-btn.active { background: #006600 !important; color: #fff !important; border-color: #00ff00 !important; box-shadow: 0 0 15px #00ff00; text-shadow: 0 0 5px #fff; }
         
-        /* BLINK ANIMATION FOR FULLSCREEN BUTTON */
         @keyframes blink-3-times {
             0%, 100% { background-color: #002200; border-color: #050; color: #050; }
             50% { background-color: #00ff00; border-color: #fff; color: #000; box-shadow: 0 0 20px #00ff00; }
@@ -284,20 +279,40 @@
         .led-btn { flex: 1; border-radius: 4px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; text-align: center; }
         .signature { text-align: center; font-size: 8px; color: #004400; margin-top: 2px; font-family: 'Orbitron'; opacity: 0.8; }
         
-        /* HELP STYLES */
+       /* HELP STYLES & FEEDBACK */
         .help-signature { font-family: 'Orbitron'; font-size: 12px; color: var(--lcd-on); text-align: center; margin-bottom: 15px; border-bottom: 1px solid #004400; padding-bottom: 10px; }
         .help-section { margin-bottom: 25px; border-bottom: 1px solid #003300; padding-bottom: 15px; }
         .help-title { color: #fff; font-family: 'Orbitron'; font-size: 12px; margin-bottom: 8px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 5px #005500; }
         .help-text { font-size: 10px; color: #00aa00; line-height: 1.6; text-align: justify; font-family: 'Roboto Mono'; }
         .help-text strong { color: var(--lcd-on); }
         
-        .lang-selector { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap; display: none; }
+        .rossignol-box { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            margin: 20px auto 40px auto; padding: 30px; 
+            background: #001100; border-radius: 12px; border: 2px solid var(--lcd-on); 
+            box-shadow: 0 0 25px rgba(51, 255, 51, 0.2); width: 95%; 
+        }
+        .rossignol-brand { 
+            font-family: 'Orbitron'; font-size: 20px; color: var(--lcd-on); 
+            display: flex; align-items: center; gap: 15px; font-weight: 900; text-shadow: 0 0 10px var(--lcd-on); 
+        }
+        .rossignol-icon { font-size: 32px; filter: drop-shadow(0 0 5px var(--lcd-on)); }
 
-        .rossignol-box { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px; padding: 10px; background: #001a00; border-radius: 6px; border: 1px solid #003300; }
-        .rossignol-brand { font-family: 'Orbitron'; font-size: 11px; color: #0f0; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-        .rossignol-icon { font-size: 16px; }
-        .contact-link { font-family: 'Roboto Mono'; font-size: 9px; color: #008800; text-decoration: none; border-bottom: 1px dotted #004400; }
-        .contact-link:hover { color: #0f0; border-color: #0f0; }
+        .feedback-section { width: 95%; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+        .feedback-label { font-family: 'Orbitron'; font-size: 11px; color: #00aa00; text-align: center; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
+        .feedback-input { 
+            width: 100%; height: 80px; background: #000500; border: 1px solid #004400; color: #0f0; 
+            font-family: 'Roboto Mono'; font-size: 12px; padding: 10px; border-radius: 4px; resize: none; margin-bottom: 5px;
+        }
+        .feedback-input:focus { outline: none; border-color: var(--lcd-on); box-shadow: 0 0 10px rgba(51, 255, 51, 0.3); }
+        .feedback-btn { 
+            padding: 12px; font-size: 12px; width: 100%; border-radius: 4px; 
+            background: #003300; border: 1px solid #006600; color: #fff; cursor: pointer; 
+            font-family: 'Orbitron'; font-weight: 900; transition: 0.2s; letter-spacing: 1px;
+        }
+        .feedback-btn:hover { background: #006600; border-color: #fff; box-shadow: 0 0 15px var(--lcd-on); color: #fff; }
+
+        #help-content { margin-top: 50px; padding-top: 20px; border-top: 1px solid #003300; width: 100%; }
 
         /* MODAL CUSTOM MATRIX */
         #modal-overlay { 
@@ -365,7 +380,7 @@
         <div class="control-panel" id="main-panel" onclick="event.stopPropagation()">
             <div class="drag-bar" id="drag-handle"><div class="grip-lines"></div></div>
             <div class="panel-header">
-                <span class="app-title">Shnopia Light Engine V7.2</span>
+                <span class="app-title">Shnopia Light Engine V7.77</span>
                 
                 <div class="header-controls">
                     <span class="lang-icon" onclick="toggleLangMenu(event)">🌍</span>
@@ -476,6 +491,17 @@
                 <div class="label-row" style="margin-top:2px;"><span data-tr="COLOR_OVERRIDE">COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
                 <div class="palette-container" id="palette-fx"></div>
                 <div class="fx-grid" id="cinema-grid" style="margin-top:5px;"></div>
+                
+                <div class="modifiers-container" style="margin-top:10px; border-top:1px solid #004400; padding-top:10px;">
+                    <div class="control-group">
+                        <div class="label-row"><span>PARAM A (STRUCT)</span><span id="val-fx-p1">50%</span></div>
+                        <input type="range" min="0" max="100" value="50" id="input-fx-p1" oninput="updateFxParam(1, this.value)">
+                    </div>
+                    <div class="control-group">
+                        <div class="label-row"><span>PARAM B (COLOR/VAR)</span><span id="val-fx-p2">50%</span></div>
+                        <input type="range" min="0" max="100" value="50" id="input-fx-p2" oninput="updateFxParam(2, this.value)">
+                    </div>
+                </div>
             </div>
 
             <div id="tab-custom" class="panel-content">
@@ -486,13 +512,25 @@
                 <div class="label-row" style="margin-top:2px;"><span data-tr="COLOR_OVERRIDE">COLOR OVERRIDE (CLICK TO REPLACE FX COLORS)</span></div>
                 <div class="palette-container" id="palette-shnopia"></div>
                 <div class="fx-grid" id="shnopia-grid" style="margin-top:5px;"></div>
+                
+                <div class="modifiers-container" style="margin-top:10px; border-top:1px solid #004400; padding-top:10px;">
+                    <div class="control-group">
+                        <div class="label-row"><span>PARAM A (STRUCT)</span><span id="val-shnopia-p1">50%</span></div>
+                        <input type="range" min="0" max="100" value="50" id="input-shnopia-p1" oninput="updateFxParam(1, this.value)">
+                    </div>
+                    <div class="control-group">
+                        <div class="label-row"><span>PARAM B (COLOR/VAR)</span><span id="val-shnopia-p2">50%</span></div>
+                        <input type="range" min="0" max="100" value="50" id="input-shnopia-p2" oninput="updateFxParam(2, this.value)">
+                    </div>
+                </div>
             </div>
 
             <div id="tab-matrix" class="panel-content">
                 <div class="matrix-section" style="height:auto; flex:1;">
                     <div class="label-row" data-tr="PRESETS">PRESETS</div>
                     <div class="mapping-list" style="grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(5, 1fr);">
-                        <div class="map-btn active-map" onclick="setMapMode(0, this)"><span>Titan</span><span>8x16</span></div>
+                        <div class="map-btn" onclick="setMapMode(-1, this)"><span>OFF</span><span>(HD)</span></div>
+                        <div class="map-btn" onclick="setMapMode(0, this)"><span>Titan</span><span>8x16</span></div>
                         <div class="map-btn" onclick="setMapMode(1, this)"><span>Matrix</span><span>60x30</span></div>
                         <div class="map-btn" onclick="setMapMode(2, this)"><span>Single</span><span>1x1</span></div>
                         <div class="map-btn" onclick="setMapMode(3, this)"><span>2-Lite</span><span>2x1</span></div>
@@ -532,8 +570,8 @@
                 <div class="control-group"><div class="label-row"><span data-tr="MESSAGE">MESSAGE</span></div><div class="text-input-wrapper"><input type="text" id="text-content" placeholder="TAPEZ ICI" value="Shnopia Light Engine enhances your set"></div></div>
                 <button class="text-toggle-btn momentary-btn" id="btn-text-toggle" onclick="toggleText()" data-tr="TEXT_OFF">TEXTE: OFF</button>
                 <div style="margin-top: 10px;">
-                    <div class="control-group"><div class="label-row"><span data-tr="FONT">POLICE</span></div><select id="input-text-font" class="dropdown"><option value="'Roboto Mono', monospace">Standard Tech</option><option value="'Bebas Neue', sans-serif">Cinéma</option><option value="'Press Start 2P', cursive">Pixel</option><option value="'Lobster', cursive">Manuscrit</option><option value="'Orbitron', sans-serif">Futuriste</option></select></div>
-                    <div class="control-group"><div class="label-row"><span data-tr="EFFECT">EFFET</span></div><select id="input-text-effect" class="dropdown"><option value="NONE">Aucun</option><option value="NEON">Neon</option><option value="GLITCH">Glitch</option><option value="WAVE">Wave</option><option value="TYPE">Typewriter</option><option value="STROKE">Outline</option></select></div>
+                    <div class="control-group"><div class="label-row"><span data-tr="FONT">POLICE</span></div><select id="input-text-font" class="dropdown"><option value="'Roboto Mono', monospace">Standard Tech</option><option value="'Bebas Neue', sans-serif">Cinéma</option><option value="'Press Start 2P', cursive">Pixel</option><option value="'Lobster', cursive">Manuscrit</option><option value="'Orbitron', sans-serif">Futuriste</option><option value="'Pacifico', cursive">Vintage</option><option value="'Bangers', cursive">Comics</option><option value="'Creepster', cursive">Horreur</option><option value="'Monoton', cursive">Rétro Lines</option><option value="'Black Ops One', cursive">Militaire</option></select></div>
+                    <div class="control-group"><div class="label-row"><span data-tr="EFFECT">EFFET</span></div><select id="input-text-effect" class="dropdown"><option value="NONE">Aucun</option><option value="NEON">Neon</option><option value="GLITCH">Glitch</option><option value="WAVE">Wave</option><option value="TYPE">Typewriter</option><option value="STROKE">Outline</option><option value="MIRROR">Reflet</option><option value="SHAKE">Tremblement</option><option value="RAINBOW">Rainbow</option><option value="BOUNCE">Rebond</option><option value="BREATHE">Respiration</option></select></div>
                     <div class="control-group modifier-slider" id="grp-text-fx"><div class="label-row"><span data-tr="INTENSITY">INTENSITÉ</span><span id="val-text-fx-lvl">50%</span></div><input type="range" min="0" max="100" value="50" id="input-text-fx-lvl" oninput="updateTextSlider()"></div>
                     <div class="control-group"><div class="label-row"><span data-tr="SIZE">TAILLE</span><span id="val-text-size">50%</span></div><input type="range" min="5" max="100" value="50" id="input-text-size"></div>
                     <div class="control-group"><div class="label-row"><span data-tr="SPEED">VITESSE</span><span id="val-text-speed">5</span></div><input type="range" min="0" max="30" value="5" id="input-text-speed"></div>
@@ -562,7 +600,7 @@
 
     <script>
         // --- TRANSLATION DICTIONARY ---
-        const DICT = {
+       const DICT = {
             FR: {
                 INTRO_TITLE: "INTRODUCTION",
                 INTRO_TEXT: "Shnopia Light Engine est une interface web universelle conçue pour transformer instantanément n'importe quel écran (ordinateur, tablette, smartphone) en source lumineuse professionnelle. Elle contrôle votre écran comme un projecteur de cinéma entièrement ajustable, sans aucune installation.",
@@ -573,213 +611,77 @@
                 SPEED: "VITESSE", COLOR_OVERRIDE: "REMPLACEMENT COULEURS (CLIC)", PRESETS: "PRESETS", MODIFIERS: "MODIFIEURS",
                 MESSAGE: "MESSAGE", FONT: "POLICE", EFFECT: "EFFET", INTENSITY: "INTENSITÉ", SIZE: "TAILLE", TEXT_OFF: "TEXTE: OFF", TEXT_ON: "TEXTE: ON",
                 DIMMER: "INTENSITÉ", FULLSCREEN: "PLEIN ÉCRAN",
-                HELP_CONTENT: `
-                <div class="help-signature">MANUEL UTILISATEUR COMPLET</div>
-                <div class="help-section"><div class="help-title">1. ONGLET LIVE (PATCHES & PERFORMANCE)</div><div class="help-text">
-                    Cet onglet est le cœur du système pour le live. Il permet de sauvegarder et rappeler instantanément des "Patches" (configurations complètes).<br><br>
-                    <strong>ENREGISTRER :</strong> Cliquez sur <strong>SAVE</strong> sous un pad. Le bouton flashe ROUGE pendant 1 sec (temps d'enregistrement). Cela stocke tous les réglages (Couleur, FX, Matrix...) et capture une boucle vidéo de 2 secondes comme aperçu.<br>
-                    <strong>RAPPELER :</strong> Cliquez sur un pad pour rappeler la scène instantanément.
-                </div></div>
-                <div class="help-section"><div class="help-title">2. ONGLET COLOR (MANUEL)</div><div class="help-text">
-                    Contrôle total de la couleur.<br>
-                    <strong>ROUE :</strong> Sélection rapide teinte/saturation.<br>
-                    <strong>SLIDERS RVB :</strong> Ajustement fin. Cliquez sur les nombres verts (ex: 255) pour entrer une valeur précise au clavier.<br>
-                    <strong>MÉMOIRES :</strong> Cliquez sur la case pour CHARGER, sur SAVE pour SAUVEGARDER.
-                </div></div>
-                <div class="help-section"><div class="help-title">3. ONGLET WHITE (CCT)</div><div class="help-text">
-                    Gestion du blanc.<br>
-                    <strong>KELVIN :</strong> 1750K à 10000K.<br>
-                    <strong>TINT :</strong> Correction Vert/Magenta.<br>
-                    <strong>PRESETS :</strong> Boutons rapides avec retour visuel de la teinte.
-                </div></div>
-                <div class="help-section"><div class="help-title">4. FX (CINEMA & SHNOPIA)</div><div class="help-text">
-                    Effets dynamiques.<br>
-                    <strong>COLOR OVERRIDE :</strong> Cliquez sur les mémoires de couleur en haut pour les activer. Si actives, elles <strong>REMPLACENT</strong> les couleurs d'origine de l'effet. Plusieurs couleurs actives créent un cycle complexe.
-                </div></div>
-                <div class="help-section"><div class="help-title">5. ONGLET MATRIX</div><div class="help-text">
-                    Simule la résolution en pixels.<br>
-                    <strong>PRESETS :</strong> Formats standards (Titan, 1x1...).<br>
-                    <strong>MODIFIERS :</strong> Grid (multiplication), Warp (déformation), Noise (grain).
-                </div></div>
-                <div class="help-section"><div class="help-title">6. ONGLET TEXT</div><div class="help-text">
-                    Message défilant. Tapez le texte, activez-le (ON), choisissez la police et l'effet (Neon, Glitch...).
-                </div></div>
-                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">
-                    <strong>INTENSITÉ :</strong> Master dimmer.<br>
-                    <strong>BLACKOUT :</strong> Coupe tout.<br>
-                    <strong>FULL SCREEN :</strong> Mode plein écran.
-                </div></div>
-                `
+                HELP_CONTENT: "<div class='rossignol-box' style='padding: 20px; margin-bottom: 20px;'><a href='https://haarsk.github.io/Shnopia-Light-Engine/manual.html' target='_blank' style='font-family: \"Orbitron\"; color: #00ff00; text-decoration: underline; font-weight: 900; font-size: 18px; text-shadow: 0 0 10px #00ff00;'>Manuel disponible ici</a><span style='font-family: \"Orbitron\"; color: #ff0000; font-weight: bold; display: inline-block; margin-top: 15px; max-width: 95%; line-height: 1.5; font-size: 12px; text-align: center;'>(Attention vous allez sortir de l'application, il faudra revenir au bon onglet dans votre navigateur pour retrouver vos Set-up)</span></div>"
             },
             EN: {
                 INTRO_TITLE: "INTRODUCTION",
-                INTRO_TEXT: "Shnopia Light Engine is a universal web interface designed to instantly transform any screen (computer, tablet, smartphone) into a professional light source. It controls your screen like a fully adjustable cinema fixture, without any installation.",
+                INTRO_TEXT: "Shnopia Light Engine is a universal web interface designed to instantly transform any screen (computer, tablet, smartphone) into a professional light source. It controls your screen like a fully adjustable cinema projector, without any installation.",
                 INTRO_HINT: "CLICK TO CONTINUE",
-                PREVIEW: "PREVIEW", HIDE: "HIDE", LIVE: "LIVE", COLOR: "COLOR", WHITE: "WHITE", CINEMA: "CINEMA FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIX", TEXT: "TEXT", HELP: "HOW TO USE",
-                SATURATION: "SATURATION", RED: "RED", GREEN: "GREEN", BLUE: "BLUE", RECALL_WHITE: "RECALL WHITE SETTINGS", ACTIVATE_COLOR: "ACTIVATE COLOR", MEMORIES: "MEMORIES (TOP: LOAD / BOT: SAVE)",
-                KELVIN: "TEMPERATURE (KELVIN)", TINT: "TINT (G/M)", MANUAL_WHITE: "MANUAL WHITE", ACTIVATE_WHITE: "ACTIVATE WHITE",
-                SPEED: "SPEED", COLOR_OVERRIDE: "COLOR OVERRIDE (CLICK TO REPLACE)", PRESETS: "PRESETS", MODIFIERS: "MODIFIERS",
-                MESSAGE: "MESSAGE", FONT: "FONT", EFFECT: "EFFECT", INTENSITY: "INTENSIDAD", SIZE: "SIZE", TEXT_OFF: "TEXT: OFF", TEXT_ON: "TEXT: ON",
-                DIMMER: "INTENSITY", FULLSCREEN: "FULL SCREEN",
-                HELP_CONTENT: `
-                <div class="help-signature">FULL USER MANUAL</div>
-                <div class="help-section"><div class="help-title">1. LIVE TAB (PATCHES)</div><div class="help-text">
-                    The heart of the system. Save and recall full setups.<br>
-                    <strong>SAVE:</strong> Click <strong>SAVE</strong> under a pad. Red flash confirms recording (2s video loop + settings).<br>
-                    <strong>RECALL:</strong> Click any pad to instantly recall the scene.
-                </div></div>
-                <div class="help-section"><div class="help-title">2. COLOR TAB</div><div class="help-text">
-                    Manual control. Wheel & RGB Sliders. Click green numbers to type exact values on keyboard. Memories at bottom (Load/Save).
-                </div></div>
-                <div class="help-section"><div class="help-title">3. WHITE TAB</div><div class="help-text">
-                    CCT control. Kelvin (1750K-10000K) and Tint (Green/Magenta). Quick presets with visual feedback.
-                </div></div>
-                <div class="help-section"><div class="help-title">4. FX TABS</div><div class="help-text">
-                    Dynamic effects. <strong>COLOR OVERRIDE:</strong> Toggle memory colors at the top. Active colors <strong>REPLACE</strong> the original effect colors. Multiple active colors create a dynamic blend.
-                </div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX TAB</div><div class="help-text">
-                    Pixel resolution simulation. Presets (Titan, etc.) and Modifiers (Grid, Warp, Noise).
-                </div></div>
-                <div class="help-section"><div class="help-title">6. TEXT TAB</div><div class="help-text">
-                    Scrolling text layer. Type message, toggle ON, select font and effect type.
-                </div></div>
-                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">
-                    Master Dimmer, Blackout, Full Screen.
-                </div></div>
-                `
+                PREVIEW: "PREVIEW", HIDE: "HIDE", LIVE: "LIVE", COLOR: "COLOR", WHITE: "WHITE", CINEMA: "CINEMA FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIX", TEXT: "TEXT", HELP: "HELP",
+                SATURATION: "SATURATION", RED: "RED", GREEN: "GREEN", BLUE: "BLUE", RECALL_WHITE: "RECALL WHITE", ACTIVATE_COLOR: "ACTIVATE COLOR", MEMORIES: "MEMORIES",
+                KELVIN: "KELVIN", TINT: "TINT", MANUAL_WHITE: "MANUAL WHITE", ACTIVATE_WHITE: "ACTIVATE WHITE",
+                SPEED: "SPEED", COLOR_OVERRIDE: "COLOR OVERRIDE", PRESETS: "PRESETS", MODIFIERS: "MODIFIERS",
+                MESSAGE: "MESSAGE", FONT: "FONT", EFFECT: "EFFECT", INTENSITY: "INTENSITÉ", SIZE: "SIZE", TEXT_OFF: "TEXT: OFF", TEXT_ON: "TEXT: ON",
+                DIMMER: "DIMMER", FULLSCREEN: "FULL SCREEN",
+                HELP_CONTENT: "<div class='rossignol-box' style='padding: 20px; margin-bottom: 20px;'><a href='https://haarsk.github.io/Shnopia-Light-Engine/manual.html' target='_blank' style='font-family: \"Orbitron\"; color: #00ff00; text-decoration: underline; font-weight: 900; font-size: 18px; text-shadow: 0 0 10px #00ff00;'>Manual available here</a><span style='font-family: \"Orbitron\"; color: #ff0000; font-weight: bold; display: inline-block; margin-top: 15px; max-width: 95%; line-height: 1.5; font-size: 12px; text-align: center;'>(Warning: you will leave the app, you will have to return to the right tab in your browser to find your Set-ups)</span></div>"
             },
-            ES: {
-                INTRO_TITLE: "INTRODUCCIÓN",
-                INTRO_TEXT: "Shnopia Light Engine es una interfaz web universal diseñada para transformar instantáneamente cualquier pantalla en una fuente de luz profesional. Controla tu pantalla como un proyector de cine totalmente ajustable, sin necesidad de instalación.",
-                INTRO_HINT: "CLIC PARA CONTINUAR",
-                PREVIEW: "VISTA", HIDE: "OCULTAR", LIVE: "VIVO", COLOR: "COLOR", WHITE: "BLANCO", CINEMA: "CINE FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIZ", TEXT: "TEXTO", HELP: "AYUDA",
-                SATURATION: "SATURACION", RED: "ROJO", GREEN: "VERDE", BLUE: "AZUL", RECALL_WHITE: "RECUPERAR BLANCO", ACTIVATE_COLOR: "ACTIVAR COLOR", MEMORIES: "MEMORIAS (ARRIBA: CARGAR / ABAJO: GUARDAR)",
-                KELVIN: "TEMPERATURA (KELVIN)", TINT: "TINTE (G/M)", MANUAL_WHITE: "BLANCO MANUAL", ACTIVATE_WHITE: "ACTIVAR BLANCO",
-                SPEED: "VELOCIDAD", COLOR_OVERRIDE: "REEMPLAZO DE COLOR (CLICK)", PRESETS: "AJUSTES", MODIFIERS: "MODIFICADORES",
-                MESSAGE: "MENSAJE", FONT: "FUENTE", EFFECT: "EFECTO", INTENSITY: "INTENSIDAD", SIZE: "TAMAÑO", TEXT_OFF: "TEXTO: OFF", TEXT_ON: "TEXTO: ON",
-                DIMMER: "INTENSIDAD", FULLSCREEN: "PANTALLA COMPLETA",
-                HELP_CONTENT: `
-                <div class="help-signature">MANUAL DE USUARIO</div>
-                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">Sistema central. <strong>SAVE:</strong> Clic en <strong>SAVE</strong> (flash rojo) para guardar ajustes y video loop (2s). <strong>RECALL:</strong> Clic en pad.</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">Control manual. Rueda y Sliders RGB. Haz clic en los números verdes para escribir valores. Memorias abajo.</div></div>
-                <div class="help-section"><div class="help-title">3. BLANCO</div><div class="help-text">Control CCT (1750K-10000K) y Tinte. Botones rápidos con visualización.</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Efectos dinámicos. <strong>COLOR OVERRIDE:</strong> Activa colores arriba para <strong>REEMPLAZAR</strong> los colores originales del efecto.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIZ</div><div class="help-text">Resolución de píxeles y Modificadores (Grid, Warp, Noise).</div></div>
-                <div class="help-section"><div class="help-title">6. TEXTO</div><div class="help-text">Texto desplazable. Escribe, activa (ON), ajusta.</div></div>
-                <div class="help-section"><div class="help-title">7. GLOBAL</div><div class="help-text">Dimmer maestro, Blackout, Pantalla completa.</div></div>
-                `
+            ES: { 
+                INTRO_TITLE: "INTRODUCCIÓN", 
+                INTRO_TEXT: "Shnopia Light Engine es una interfaz web universal diseñada para transformar instantáneamente cualquier pantalla (ordenador, tableta, smartphone) en una fuente de luz profesional. Controla su pantalla como un proyector de cine totalmente ajustable, sin ninguna instalación.", 
+                INTRO_HINT: "HAGA CLIC PARA CONTINUAR", 
+                PREVIEW: "VISTA", HIDE: "OCULTAR", LIVE: "VIVO", COLOR: "COLOR", WHITE: "BLANCO", CINEMA: "CINE FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRIZ", TEXT: "TEXTO", HELP: "AYUDA", SATURATION: "SATURACION", RED: "ROJO", GREEN: "VERDE", BLUE: "AZUL", RECALL_WHITE: "RECUPERAR BLANCO", ACTIVATE_COLOR: "ACTIVAR COLOR", MEMORIES: "MEMORIAS", KELVIN: "KELVIN", TINT: "TINTE", MANUAL_WHITE: "BLANCO MANUAL", ACTIVATE_WHITE: "ACTIVAR BLANCO", SPEED: "VELOCIDAD", COLOR_OVERRIDE: "COLOR", PRESETS: "PRESETS", MODIFIERS: "MODIFICADORES", MESSAGE: "MENSAJE", FONT: "FUENTE", EFFECT: "EFECTO", INTENSITY: "INTENSIDAD", SIZE: "TAMAÑO", TEXT_OFF: "TEXTO: OFF", TEXT_ON: "TEXTO: ON", DIMMER: "INTENSIDAD", FULLSCREEN: "PANTALLA COMPLETA", 
+                HELP_CONTENT: "<div class='rossignol-box' style='padding: 20px; margin-bottom: 20px;'><a href='https://haarsk.github.io/Shnopia-Light-Engine/manual.html' target='_blank' style='font-family: \"Orbitron\"; color: #00ff00; text-decoration: underline; font-weight: 900; font-size: 18px; text-shadow: 0 0 10px #00ff00;'>Manual disponible aquí</a><span style='font-family: \"Orbitron\"; color: #ff0000; font-weight: bold; display: inline-block; margin-top: 15px; max-width: 95%; line-height: 1.5; font-size: 12px; text-align: center;'>(Atención: saldrá de la aplicación, tendrá que volver a la pestaña correcta de su navegador para recuperar sus Set-ups)</span></div>" 
             },
-            RU: {
-                INTRO_TITLE: "ВВЕДЕНИЕ",
-                INTRO_TEXT: "Shnopia Light Engine — это универсальный веб-интерфейс, превращающий любой экран в профессиональный источник света. Управляйте экраном как кинопроектором без установки программ.",
-                INTRO_HINT: "НАЖМИТЕ ДЛЯ ПРОДОЛЖЕНИЯ",
-                PREVIEW: "ПРЕВЬЮ", HIDE: "СКРЫТЬ", LIVE: "LIVE", COLOR: "ЦВЕТ", WHITE: "БЕЛЫЙ", CINEMA: "КИНО FX", SHNOPIA: "SHNOPIA FX", MATRIX: "МАТРИЦА", TEXT: "ТЕКСТ", HELP: "ПОМОЩЬ",
-                SATURATION: "НАСЫЩЕННОСТЬ", RED: "КРАСНЫЙ", GREEN: "ЗЕЛЕНЫЙ", BLUE: "СИНИЙ", RECALL_WHITE: "ВЕРНУТЬ БЕЛЫЙ", ACTIVATE_COLOR: "АКТИВИРОВАТЬ ЦВЕТ", MEMORIES: "ПАМЯТЬ (ВЕРХ: ЗАГР / НИЗ: СОХР)",
-                KELVIN: "ТЕМПЕРАТУРА (K)", TINT: "ОТТЕНОК", MANUAL_WHITE: "РУЧНОЙ БЕЛЫЙ", ACTIVATE_WHITE: "АКТИВИРОВАТЬ БЕЛЫЙ",
-                SPEED: "СКОРОСТЬ", COLOR_OVERRIDE: "ЗАМЕНА ЦВЕТА (КЛИК)", PRESETS: "ПРЕСЕТЫ", MODIFIERS: "МОДИФИКАТОРЫ",
-                MESSAGE: "СООБЩЕНИЕ", FONT: "ШРИФТ", EFFECT: "ЭФФЕКТ", INTENSITY: "ИНТЕНСИВНОСТЬ", SIZE: "РАЗМЕР", TEXT_OFF: "ТЕКСТ: ВЫКЛ", TEXT_ON: "ТЕКСТ: ВКЛ",
-                DIMMER: "ЯРКОСТЬ", FULLSCREEN: "ПОЛНЫЙ ЭКРАН",
-                HELP_CONTENT: `
-                <div class="help-signature">РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ</div>
-                <div class="help-section"><div class="help-title">1. LIVE (ЖИВОЙ РЕЖИМ)</div><div class="help-text">Главная панель. <strong>SAVE:</strong> Нажмите (красная вспышка) для сохранения настроек и 2-сек видео. <strong>RECALL:</strong> Нажмите пэд для вызова.</div></div>
-                <div class="help-section"><div class="help-title">2. ЦВЕТ</div><div class="help-text">Ручное управление. Колесо и RGB слайдеры. Нажмите на зеленые цифры для ввода значений с клавиатуры.</div></div>
-                <div class="help-section"><div class="help-title">3. БЕЛЫЙ</div><div class="help-text">CCT (1750K-10000K) и Оттенок. Быстрые пресеты.</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">Эффекты. <strong>COLOR OVERRIDE:</strong> Нажмите цвета сверху, чтобы <strong>ЗАМЕНИТЬ</strong> цвета эффекта.</div></div>
-                <div class="help-section"><div class="help-title">5. МАТРИЦА</div><div class="help-text">Разрешение пикселей и модификаторы (Сетка, Искажение, Шум).</div></div>
-                <div class="help-section"><div class="help-title">6. ТЕКСТ</div><div class="help-text">Бегущая строка с эффектами. Введите текст, включите (ON).</div></div>
-                <div class="help-section"><div class="help-title">7. ОБЩЕЕ</div><div class="help-text">Диммер, Blackout (Затемнение), Полный экран.</div></div>
-                `
+            RU: { 
+                INTRO_TITLE: "ВВЕДЕНИЕ", 
+                INTRO_TEXT: "Shnopia Light Engine — это универсальный веб-интерфейс, разработанный для мгновенного превращения любого экрана (компьютера, планшета, смартфона) в профессиональный источник света. Он управляет вашим экраном как полностью регулируемым кинопроектором, без какой-либо установки.", 
+                INTRO_HINT: "НАЖМИТЕ ДЛЯ ПРОДОЛЖЕНИЯ", 
+                PREVIEW: "ПРЕВЬЮ", HIDE: "СКРЫТЬ", LIVE: "LIVE", COLOR: "ЦВЕТ", WHITE: "БЕЛЫЙ", CINEMA: "КИНО FX", SHNOPIA: "SHNOPIA FX", MATRIX: "МАТРИЦА", TEXT: "ТЕКСТ", HELP: "ПОМОЩЬ", SATURATION: "НАСЫЩЕННОСТЬ", RED: "КРАСНЫЙ", GREEN: "ЗЕЛЕНЫЙ", BLUE: "СИНИЙ", RECALL_WHITE: "БЕЛЫЙ", ACTIVATE_COLOR: "ЦВЕТ", MEMORIES: "ПАМЯТЬ", KELVIN: "K", TINT: "ОТТЕНОК", MANUAL_WHITE: "РУЧНОЙ", ACTIVATE_WHITE: "БЕЛЫЙ", SPEED: "СКОРОСТЬ", COLOR_OVERRIDE: "ЗАМЕНА", PRESETS: "ПРЕСЕТЫ", MODIFIERS: "МОДИФИКАТОРЫ", MESSAGE: "СООБЩЕНИЕ", FONT: "ШРИФТ", EFFECT: "ЭФФЕКТ", INTENSITY: "ИНТЕНСИВНОСТЬ", SIZE: "РАЗМЕР", TEXT_OFF: "ВЫКЛ", TEXT_ON: "ВКЛ", DIMMER: "ЯРКОСТЬ", FULLSCREEN: "ЭКРАН", 
+                HELP_CONTENT: "<div class='rossignol-box' style='padding: 20px; margin-bottom: 20px;'><a href='https://haarsk.github.io/Shnopia-Light-Engine/manual.html' target='_blank' style='font-family: \"Orbitron\"; color: #00ff00; text-decoration: underline; font-weight: 900; font-size: 18px; text-shadow: 0 0 10px #00ff00;'>Руководство доступно здесь</a><span style='font-family: \"Orbitron\"; color: #ff0000; font-weight: bold; display: inline-block; margin-top: 15px; max-width: 95%; line-height: 1.5; font-size: 12px; text-align: center;'>(Внимание: вы покидаете приложение, вам нужно будет вернуться на нужную вкладку браузера, чтобы вернуть свои настройки)</span></div>" 
             },
-            JP: {
-                INTRO_TITLE: "はじめに",
-                INTRO_TEXT: "Shnopia Light Engineは、あらゆる画面（PC、タブレット、スマホ）を瞬時にプロ仕様の光源に変えるユニバーサルWebインターフェースです。インストール不要で、映画撮影用照明のように画面を完全に制御できます。",
-                INTRO_HINT: "クリックして続行",
-                PREVIEW: "プレビュー", HIDE: "隠す", LIVE: "ライブ", COLOR: "カラー", WHITE: "ホワイト", CINEMA: "シネマ FX", SHNOPIA: "SHNOPIA FX", MATRIX: "マトリックス", TEXT: "テキスト", HELP: "ヘルプ",
-                SATURATION: "彩度", RED: "赤", GREEN: "緑", BLUE: "青", RECALL_WHITE: "ホワイト設定呼出", ACTIVATE_COLOR: "カラー有効化", MEMORIES: "メモリ (上:読込 / 下:保存)",
-                KELVIN: "色温度 (K)", TINT: "色合い", MANUAL_WHITE: "手動ホワイト", ACTIVATE_WHITE: "ホワイト有効化",
-                SPEED: "速度", COLOR_OVERRIDE: "色置換 (クリック)", PRESETS: "プリセット", MODIFIERS: "修飾子",
-                MESSAGE: "メッセージ", FONT: "フォント", EFFECT: "効果", INTENSITY: "強度", SIZE: "サイズ", TEXT_OFF: "テキスト: OFF", TEXT_ON: "テキスト: ON",
-                DIMMER: "調光", FULLSCREEN: "全画面",
-                HELP_CONTENT: `
-                <div class="help-signature">ユーザーマニュアル</div>
-                <div class="help-section"><div class="help-title">1. LIVE</div><div class="help-text">メインパネル。<strong>SAVE:</strong> クリックして設定と2秒動画を保存（赤フラッシュ）。<strong>RECALL:</strong> パッドをクリックして呼び出し。</div></div>
-                <div class="help-section"><div class="help-title">2. COLOR</div><div class="help-text">手動制御。ホイールとRGBスライダー。緑色の数字をクリックしてキーボード入力が可能。</div></div>
-                <div class="help-section"><div class="help-title">3. WHITE</div><div class="help-text">CCT (1750K-10000K) と色合い。クイックプリセット。</div></div>
-                <div class="help-section"><div class="help-title">4. FX</div><div class="help-text">動的効果。<strong>COLOR OVERRIDE:</strong> 上部の色をクリックして効果の色を<strong>置換</strong>します。複数の色が選択された場合、ブレンドされます。</div></div>
-                <div class="help-section"><div class="help-title">5. MATRIX</div><div class="help-text">ピクセル解像度設定と修飾子（グリッド、ワープ、ノイズ）。</div></div>
-                <div class="help-section"><div class="help-title">6. TEXT</div><div class="help-text">スクロールテキスト。メッセージを入力し、ONに切り替えます。</div></div>
-                <div class="help-section"><div class="help-title">7. 全体</div><div class="help-text">マスター調光、ブラックアウト、フルスクリーン。</div></div>
-                `
+            JP: { 
+                INTRO_TITLE: "はじめに", 
+                INTRO_TEXT: "Shnopia Light Engineは、あらゆる画面（コンピュータ、タブレット、スマートフォン）を即座にプロフェッショナルな光源に変えるために設計されたユニバーサルWebインターフェースです。インストール不要で、完全に調整可能なシネマプロジェクターのように画面を制御します。", 
+                INTRO_HINT: "クリックして続行", 
+                PREVIEW: "プレビュー", HIDE: "隠す", LIVE: "ライブ", COLOR: "カラー", WHITE: "ホワイト", CINEMA: "シネマ", SHNOPIA: "SHNOPIA", MATRIX: "マトリックス", TEXT: "テキスト", HELP: "ヘルプ", SATURATION: "彩度", RED: "赤", GREEN: "緑", BLUE: "青", RECALL_WHITE: "ホワイト", ACTIVATE_COLOR: "カラー", MEMORIES: "メモリ", KELVIN: "K", TINT: "色合い", MANUAL_WHITE: "手動", ACTIVATE_WHITE: "ホワイト", SPEED: "速度", COLOR_OVERRIDE: "置換", PRESETS: "プリセット", MODIFIERS: "修飾子", MESSAGE: "メッセージ", FONT: "フォント", EFFECT: "効果", INTENSITY: "強度", SIZE: "サイズ", TEXT_OFF: "OFF", TEXT_ON: "ON", DIMMER: "調光", FULLSCREEN: "全画面", 
+                HELP_CONTENT: "<div class='rossignol-box' style='padding: 20px; margin-bottom: 20px;'><a href='https://haarsk.github.io/Shnopia-Light-Engine/manual.html' target='_blank' style='font-family: \"Orbitron\"; color: #00ff00; text-decoration: underline; font-weight: 900; font-size: 18px; text-shadow: 0 0 10px #00ff00;'>マニュアルはこちら</a><span style='font-family: \"Orbitron\"; color: #ff0000; font-weight: bold; display: inline-block; margin-top: 15px; max-width: 95%; line-height: 1.5; font-size: 12px; text-align: center;'>(注意：アプリから移動します。設定に戻るにはブラウザの正しいタブに戻ってください)</span></div>" 
             },
-            PL: {
-                INTRO_TITLE: "WPROWADZENIE",
-                INTRO_TEXT: "Shnopia Light Engine to uniwersalny interfejs, który zmienia każdy ekran w profesjonalne źródło światła. Kontroluj swój ekran jak reflektor filmowy, w pełni regulowany i bez instalacji.",
-                INTRO_HINT: "KLIKNIJ, ABY KONTYNUOWAĆ",
-                PREVIEW: "PODGLĄD", HIDE: "UKRYJ", LIVE: "LIVE", COLOR: "KOLOR", WHITE: "BIAŁY", CINEMA: "KINO FX", SHNOPIA: "SHNOPIA FX", MATRIX: "MATRYCA", TEXT: "TEKST", HELP: "POMOC",
-                SATURATION: "NASYCENIE", RED: "CZERWONY", GREEN: "ZIELONY", BLUE: "NIEBIESKI", RECALL_WHITE: "PRZYWOŁAJ BIEL", ACTIVATE_COLOR: "AKTYWUJ KOLOR", MEMORIES: "PAMIĘĆ (GÓRA: ŁADUJ / DÓŁ: ZAPISZ)",
-                KELVIN: "TEMPERATURA (K)", TINT: "ODCIEŃ (G/M)", MANUAL_WHITE: "MANUALNA BIEL", ACTIVATE_WHITE: "AKTYWUJ BIEL",
-                SPEED: "PRĘDKOŚĆ", COLOR_OVERRIDE: "ZAMIANA KOLORÓW (KLIKNIJ)", PRESETS: "PRESETY", MODIFIERS: "MODYFIKATORY",
-                MESSAGE: "WIADOMOŚĆ", FONT: "CZCIONKA", EFFECT: "EFEKT", INTENSITY: "INTENSYWNOŚĆ", SIZE: "ROZMIAR", TEXT_OFF: "TEKST: WYŁ", TEXT_ON: "TEKST: WŁ",
-                DIMMER: "INTENSYWNOŚĆ", FULLSCREEN: "PEŁNY EKRAN",
-                HELP_CONTENT: `
-                <div class="help-signature">INSTRUKCJA OBSŁUGI</div>
-                <div class="help-section"><div class="help-title">1. LIVE (PATCHE)</div><div class="help-text">Sercem systemu jest Live. <strong>SAVE:</strong> Kliknij <strong>SAVE</strong> (czerwony błysk) aby zapisać ustawienia i 2s wideo. <strong>RECALL:</strong> Kliknij pad, aby przywołać.</div></div>
-                <div class="help-section"><div class="help-title">2. KOLOR</div><div class="help-text">Sterowanie ręczne. Koło i suwaki RGB. Kliknij zielone liczby, aby wpisać wartości z klawiatury.</div></div>
-                <div class="help-section"><div class="help-title">3. BIAŁY</div><div class="help-text">CCT (1750K-10000K) i Odcień. Szybkie presety z wizualizacją.</div></div>
-                <div class="help-section"><div class="help-title">4. FX OVERRIDE</div><div class="help-text">Efekty dynamiczne. Kliknij kolory pamięci u góry, aby je aktywować. Aktywne kolory <strong>ZASTĘPUJĄ</strong> oryginalne kolory efektu.</div></div>
-                <div class="help-section"><div class="help-title">5. MATRYCA</div><div class="help-text">Symulacja pikseli. Modyfikatory: Grid (Siatka), Warp (Zniekształcenie), Noise (Szum).</div></div>
-                <div class="help-section"><div class="help-title">6. TEKST</div><div class="help-text">Przewijany tekst. Wpisz wiadomość, włącz (ON), wybierz czcionkę i efekt.</div></div>
-                <div class="help-section"><div class="help-title">7. GLOBALNE</div><div class="help-text">Master Dimmer, Blackout, Pełny ekran.</div></div>
-                `
+            PL: { 
+                INTRO_TITLE: "WPROWADZENIE", 
+                INTRO_TEXT: "Shnopia Light Engine to uniwersalny interfejs internetowy zaprojektowany, aby natychmiast zmienić dowolny ekran (komputer, tablet, smartfon) w profesjonalne źródło światła. Steruje ekranem jak w pełni regulowanym projektorem kinowym, bez żadnej instalacji.", 
+                INTRO_HINT: "KLIKNIJ, ABY KONTYNUOWAĆ", 
+                PREVIEW: "PODGLĄD", HIDE: "UKRYJ", LIVE: "LIVE", COLOR: "KOLOR", WHITE: "BIAŁY", CINEMA: "KINO", SHNOPIA: "SHNOPIA", MATRIX: "MATRYCA", TEXT: "TEKST", HELP: "POMOC", SATURATION: "NASYCENIE", RED: "CZERWONY", GREEN: "ZIELONY", BLUE: "NIEBIESKI", RECALL_WHITE: "BIAŁY", ACTIVATE_COLOR: "KOLOR", MEMORIES: "PAMIĘĆ", KELVIN: "K", TINT: "ODCIEŃ", MANUAL_WHITE: "RĘCZNY", ACTIVATE_WHITE: "BIAŁY", SPEED: "PRĘDKOŚĆ", COLOR_OVERRIDE: "ZAMIANA", PRESETS: "PRESETY", MODIFIERS: "MODYFIKATORY", MESSAGE: "WIADOMOŚĆ", FONT: "CZCIONKA", EFFECT: "EFEKT", INTENSITY: "MOC", SIZE: "ROZMIAR", TEXT_OFF: "WYŁ", TEXT_ON: "TEKST: WŁ", DIMMER: "MOC", FULLSCREEN: "PEŁNY EKRAN", 
+                HELP_CONTENT: "<div class='rossignol-box' style='padding: 20px; margin-bottom: 20px;'><a href='https://haarsk.github.io/Shnopia-Light-Engine/manual.html' target='_blank' style='font-family: \"Orbitron\"; color: #00ff00; text-decoration: underline; font-weight: 900; font-size: 18px; text-shadow: 0 0 10px #00ff00;'>Instrukcja dostępna tutaj</a><span style='font-family: \"Orbitron\"; color: #ff0000; font-weight: bold; display: inline-block; margin-top: 15px; max-width: 95%; line-height: 1.5; font-size: 12px; text-align: center;'>(Uwaga, opuścisz aplikację, będziesz musiał wrócić do odpowiedniej karty w przeglądarce, aby odzyskać swoje ustawienia)</span></div>" 
             }
         };
     
-        // --- STARTUP LOGIC (V7 FINAL) ---
+        // --- STARTUP LOGIC ---
         let currentIntroLang = 'FR';
         const overlay = document.getElementById('startup-overlay');
         const langBtns = document.querySelectorAll('.intro-lang-btn');
 
-        // Function to update Intro Text without closing overlay
         function setIntroLang(lang, event) {
-            if(event) event.stopPropagation(); // Don't close overlay when clicking lang
+            if(event) event.stopPropagation(); 
             currentIntroLang = lang;
-            
-            // Visual Active State
             langBtns.forEach(b => b.classList.remove('active'));
             if(event) event.target.classList.add('active');
-
-            // Update Text
             const d = DICT[lang];
-            document.getElementById('intro-title').innerText = d.INTRO_TITLE;
-            document.getElementById('intro-text').innerText = d.INTRO_TEXT;
-            document.getElementById('intro-hint').innerText = d.INTRO_HINT;
+            if(d.INTRO_TITLE) document.getElementById('intro-title').innerText = d.INTRO_TITLE;
+            if(d.INTRO_TEXT) document.getElementById('intro-text').innerText = d.INTRO_TEXT;
+            if(d.INTRO_HINT) document.getElementById('intro-hint').innerText = d.INTRO_HINT;
         }
 
-        // Main Start Logic (Click anywhere on overlay except lang buttons)
         overlay.addEventListener('click', () => {
-            // 1. Set global app language to match what was selected in Intro
             setLangGlobal(currentIntroLang);
-
-            // 2. Open Color Tab by default
-            switchTab('tab-wheel', document.querySelector('.tab-btn:nth-child(2)')); // Index 2 is Color Tab
-
-            // 3. Fade out
+            switchTab('tab-wheel', document.querySelector('.tab-btn:nth-child(2)')); 
             overlay.style.opacity = '0';
             setTimeout(() => { overlay.style.display = 'none'; }, 500);
-            
-            // 4. Trigger Fullscreen
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log("Fullscreen attempt blocked or cancelled by user.");
-                });
+                document.documentElement.requestFullscreen().catch(err => { console.log("FS Blocked"); });
             }
-
-            // 5. Blink Full Screen Button (Visual Feedback)
             const fsBtn = document.querySelector('.fullscreen-btn');
             fsBtn.classList.add('blink-trigger');
-            setTimeout(() => {
-                fsBtn.classList.remove('blink-trigger');
-            }, 1200);
+            setTimeout(() => { fsBtn.classList.remove('blink-trigger'); }, 1200);
         });
 
         // --- UTILS ---
@@ -801,7 +703,7 @@
         // --- STATE ---
         let state = {
             mode: 'WHEEL', kelvin: 3200, tint: 0, hue: 0, sat: 100, val: 100,
-            dimmer: 100, blackout: false, fxMode: 0, speedCinema: 4, speedShnopia: 50, mapMode: 0,
+            dimmer: 100, blackout: false, fxMode: 0, speedCinema: 4, speedShnopia: 50, fxParam1: 50, fxParam2: 50, mapMode: -1,
             time: 0, 
             textOn: false, textString: "Shnopia Light Engine enhances your set", textSize: 50, textSpeed: 5, textColor: "#ffffff", textPos: 0, textFont: "'Roboto Mono', monospace", textEffect: "NONE", textFxLvl: 50,
             gridActive: true, gridLevel: 1, warpActive: false, warpLevel: 0, noiseActive: false, noiseLevel: 0,
@@ -864,7 +766,6 @@
             });
         }
 
-        // --- LANGUAGE SYSTEM ---
         function toggleLangMenu(e) {
             e.stopPropagation();
             document.getElementById('lang-menu').classList.toggle('show');
@@ -874,10 +775,12 @@
             CURRENT_LANG = lang;
             document.getElementById('lang-menu').classList.remove('show');
             const d = DICT[lang];
-            document.querySelectorAll('[data-tr]').forEach(el => {
-                const key = el.getAttribute('data-tr');
-                if(d[key]) el.innerText = d[key];
-            });
+            if(d) {
+                document.querySelectorAll('[data-tr]').forEach(el => {
+                    const key = el.getAttribute('data-tr');
+                    if(d[key]) el.innerText = d[key];
+                });
+            }
             const txtBtn = document.getElementById('btn-text-toggle');
             if(state.textOn) txtBtn.innerText = d.TEXT_ON; else txtBtn.innerText = d.TEXT_OFF;
             document.getElementById('help-content').innerHTML = d.HELP_CONTENT;
@@ -904,13 +807,10 @@
         function saveLive(index) {
             if(isRecording) return;
             isRecording = true;
-            
             const btn = document.getElementById(`save-btn-${index}`);
             btn.classList.add('saving-red');
             setTimeout(() => { btn.classList.remove('saving-red'); }, 1000);
-            
             liveMemory[index] = JSON.parse(JSON.stringify(state));
-            
             const stream = canvas.captureStream(30); 
             const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); 
             const chunks = [];
@@ -949,88 +849,77 @@
         }
         updateMemoriesUI();
 
-        // --- RENDER LOOP OPTIMISÉ (V7.1 PERFORMANCE) ---
+        // --- RENDER LOOP V7.6 (PARAM B = VARIATION/COULEUR, PAS INTENSITÉ) ---
         let stormFlash = 0;
-        
-        // Configuration Performance
-        // 0.15 = 15% de la résolution (Excellent compromis)
         const RENDER_SCALE = 0.15; 
         
-        // Buffers réutilisables pour éviter le Garbage Collection
         let cachedWidth = 0, cachedHeight = 0;
         let imgData = null;
-        let buf32 = null; // Vue 32-bits du buffer (beaucoup plus rapide)
+        let buf32 = null; 
 
         function render() {
-            // Gestion du Blackout efficace (coupe le calcul)
+            // Blackout check
             if(state.blackout) { 
                 ctx.fillStyle = "black"; 
-                // On efface juste une fois si nécessaire, pas besoin de loop
                 if(canvas.width > 1) { ctx.fillRect(0, 0, canvas.width, canvas.height); }
                 textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height); 
                 requestAnimationFrame(render); 
                 return; 
             }
 
-            // 1. Calcul de la résolution interne optimisée
+            // Resolution Setup
             let baseMap = MAPS[state.mapMode] || MAPS[0]; 
             let multiplier = state.gridActive ? state.gridLevel : 1;
-            
-            // Si on est en mode "Matrix" (pixels visibles), on garde une résolution liée à la grille
-            // Si on est en mode "FX/Couleur" (lumière), on utilise le RENDER_SCALE pour sauver la batterie
             let isMatrixMode = state.mapMode !== 0 && state.mode === 'MATRIX';
-            
-            // On détermine la taille physique du canvas HTML
             let rawW = window.innerWidth;
             let rawH = window.innerHeight;
-            
-            // Calcul de la résolution de rendu cible
             let targetW, targetH;
 
-            if (state.mapMode !== 0 && state.mapMode !== 14) {
-                 // Mode Matrix Preset: On force la résolution basse du preset (ex: 8x16)
+            // Matrix Logic Fix: If mapMode is -1, it's HD (OFF). If >= 0, it's Pixelated.
+            if (state.mapMode >= 0) {
                  targetW = baseMap.w * multiplier;
                  targetH = baseMap.h * multiplier;
             } else {
-                 // Modes fluides (Color, FX, Shnopia)
                  targetW = Math.floor(rawW * RENDER_SCALE);
                  targetH = Math.floor(rawH * RENDER_SCALE);
                  if(targetW < 1) targetW = 1; 
                  if(targetH < 1) targetH = 1;
             }
 
-            // 2. Redimensionnement intelligent (uniquement si changement)
             if(cachedWidth !== targetW || cachedHeight !== targetH) {
                 canvas.width = targetW;
                 canvas.height = targetH;
                 cachedWidth = targetW;
                 cachedHeight = targetH;
-                
-                // Lissage CSS pour éviter la pixellisation trop visible (sauf si voulu)
-                canvas.style.imageRendering = (isMatrixMode) ? 'pixelated' : 'auto';
-
-                // Allocation unique du buffer
+                canvas.style.imageRendering = (state.mapMode >= 0) ? 'pixelated' : 'auto';
                 imgData = ctx.createImageData(targetW, targetH);
                 buf32 = new Uint32Array(imgData.data.buffer);
             }
 
-            // Gestion Text Canvas (Toujours pleine résolution pour la netteté du texte)
             if(textCanvas.width !== rawW || textCanvas.height !== rawH) { 
                 textCanvas.width = rawW; 
                 textCanvas.height = rawH; 
             }
 
-            // 3. Boucle de Rendu
+            // --- PARAMETRES ---
             let currentSpeed = state.fxMode <= 20 ? state.speedCinema : state.speedShnopia;
             state.time += (currentSpeed / 50) * 0.05; 
             const t = state.time; 
             const w = targetW; 
             const h = targetH;
 
-            // Logique Storm (Eclairs)
-            if(state.fxMode === 8) { if(Math.random() > 0.98) stormFlash = 1; else stormFlash *= 0.85; if(stormFlash < 0.01) stormFlash = 0.02; }
+            // PA (0.1 à 2.0) : STRUCTURE (Zoom, Taille)
+            let pa = Math.max(0.1, state.fxParam1 / 50); 
+            // PB (0.0 à 1.0) : VARIATION / COULEUR (Normalized)
+            let pb = state.fxParam2 / 100; 
 
-            // Pré-calculs couleurs
+            // Eclair logic
+            if(state.fxMode === 8) { 
+                if(Math.random() > (0.99 - (pa * 0.01))) stormFlash = 1; 
+                else stormFlash *= 0.85; 
+                if(stormFlash < 0.01) stormFlash = 0.02; 
+            }
+
             const activeColors = state.savedColors.filter((c, i) => state.paletteActive[i]).map(hex => hexToRgb(hex)); 
             const usePalette = activeColors.length > 0 && state.fxMode !== 0;
             
@@ -1039,8 +928,6 @@
             else if (state.mode === 'CCT') { rB=state.whiteRgb.r; gB=state.whiteRgb.g; bB=state.whiteRgb.b; } 
             else { rB=0; gB=0; bB=0; }
 
-            // --- FONCTION PIXEL OPTIMISÉE (Bitwise) ---
-            // On écrit directement un entier 32 bits (ABGR)
             const setP = (i, r, g, b) => {
                 r = r < 0 ? 0 : (r > 255 ? 255 : r);
                 g = g < 0 ? 0 : (g > 255 ? 255 : g);
@@ -1048,7 +935,6 @@
                 buf32[i] = (255 << 24) | (b << 16) | (g << 8) | r;
             };
 
-            // Version FX Logic Wrapper
             const p = (idx32, r,g,b, i=1, x, y) => { 
                 if(state.warpActive && state.warpLevel > 0) { let offset = Math.sin(y * 0.1 * state.warpLevel + t) * (state.warpLevel * 2); i *= (0.5 + 0.5 * Math.sin(offset)); }
                 if(state.noiseActive && state.noiseLevel > 0) { if(Math.random() < state.noiseLevel * 0.05) { r=255; g=255; b=255; } else { let grain = (Math.random()-0.5) * state.noiseLevel * 20; r+=grain; g+=grain; b+=grain; } }
@@ -1056,12 +942,16 @@
                 if(usePalette) { 
                     let luma = 0.299*r + 0.587*g + 0.114*b;
                     if (luma > 10) {
-                        let cycle = Math.floor(t * 5 + (x/w)*2 + (y/h)*2); 
+                        let cycle = Math.floor(t * 2 + (x/w)*2*pa + (y/h)*2*pa);
                         let colIndex = cycle % activeColors.length;
                         if (colIndex < 0) colIndex = 0;
                         let targetCol = activeColors[colIndex];
                         let intensity = (luma/255) * i;
-                        setP(idx32, targetCol.r * intensity, targetCol.g * intensity, targetCol.b * intensity);
+                        // PB shift hue légèrement sur palette
+                        let rM = targetCol.r * (1-pb) + r * pb;
+                        let gM = targetCol.g * (1-pb) + g * pb;
+                        let bM = targetCol.b * (1-pb) + b * pb;
+                        setP(idx32, rM * intensity, gM * intensity, bM * intensity);
                     } else { setP(idx32, 0,0,0); }
                 } 
                 else { setP(idx32, r*i, g*i, b*i); }
@@ -1069,7 +959,6 @@
             
             const hsl = (idx32, hVal, sVal, lVal, x, y) => { const rgb=hslToRgb(hVal,sVal,lVal); p(idx32, rgb[0],rgb[1],rgb[2], 1, x, y); }
 
-            // --- BOUCLE PRINCIPALE ---
             let idx32 = 0;
             for(let y=0; y<h; y++) {
                 const v = (y + 0.5) / h; 
@@ -1079,63 +968,122 @@
                     
                     switch(state.fxMode) {
                         case 0: p(idx32, rB,gB,bB, 1, x, y); break;
-                        case 1: p(idx32,(Math.floor(t*6)%2 ? (u<0.5?0:255) : (u<0.5?255:0)), 0, (Math.floor(t*6)%2 ? (u<0.5?255:0) : (u<0.5?0:255)), (Math.floor(t*20)%2?1:0), x, y); break;
-                        case 2: { const n=(Math.sin(t*10 + u*10) + Math.sin(t*20 + v*10))/2 + 0.5; p(idx32,255, 50+n*100, 0, 0.5+n*0.5, x, y); break; }
-                        case 3: p(idx32,255,255,255, rnd>0.96?1:0, x, y); break;
-                        case 4: { let i=0.5+rnd*0.5; if((y+Math.floor(t*10))%5===0)i*=0.8; p(idx32,200,220,255,i, x, y); break; }
-                        case 5: p(idx32,200,230,255, (Math.sin(t*3)>0.9 && rnd>0.5)?1:0.05, x, y); break;
-                        case 6: p(idx32,255,180,100, Math.max(0, 1 - Math.abs(u - ((t*0.5)%1)) * 5), x, y); break;
-                        case 7: p(idx32,220,255,220, (rnd>0.9 || Math.sin(t)>0.8)?0.2:1, x, y); break;
-                        case 8: p(idx32,255,255,255, stormFlash, x, y); break;
-                        case 9: { let f=Math.sin(t*10)+Math.sin(t*23); p(idx32,255,150,50, 0.6+f*0.1, x, y); break; }
-                        case 10: p(idx32,255,255,255, Math.floor(t*30)%2?1:0, x, y); break;
-                        case 11: { let tr=t%3; p(idx32,255, (tr<0.2)?255:100, (tr<0.2)?255:0, (tr<1)?(tr<0.2?1:1-(tr-0.2)):0, x, y); break; }
-                        case 12: hsl(idx32, (t*50)%360, 100, 50, x, y); break;
-                        case 13: hsl(idx32, rnd*360, 100, rnd>0.96?50:0, x, y); break;
-                        case 14: p(idx32,200,255,220, (t%2<0.1 || rnd>0.95)?0:1, x, y); break;
-                        case 15: { let rot = (Math.atan2(v-0.5, u-0.5) + t*5) % (Math.PI*2); p(idx32,255, rot>0?150:0, 0, 1, x, y); break; }
-                        case 16: if(rnd>0.99) hsl(idx32,rnd*360,100,50, x, y); else p(idx32,0,0,0,0.9, x, y); break;
-                        case 17: { let bang = t%1; p(idx32,255,200,150, bang<0.05?1:0, x, y); break; }
-                        case 18: p(idx32,255,0,0, 0.5+Math.sin(t*5)*0.5, x, y); break;
-                        case 19: p(idx32,255,200,150, (v + t*0.5)%1 < 0.2 ? 1 : 0, x, y); break;
-                        case 20: { let flicker=rnd>0.9?0:1; p(idx32,50,100,50, flicker*0.5, x, y); break; }
-                        case 21: hsl(idx32, 140+Math.max(0,50-Math.abs(v-(0.5+Math.sin(u*5+t)*0.1))*100), 100, 50, x, y); break;
-                        case 22: { let r=(v + t)%1; hsl(idx32, 120, 100, (Math.abs(v-r)<0.1 && rnd>0.8)?50:0, x, y); break; }
-                        case 23: hsl(idx32, ((u+v)%0.2 < 0.1)?300:180, 100, 30+Math.sin(t*5)*20, x, y); break;
-                        case 24: hsl(idx32, (Math.sin(u*5+t)+Math.sin(v*5+t))*40%360, 100, 50, x, y); break;
-                        case 25: hsl(idx32, 200+Math.sin(u*10+t)*10, 80, 40, x, y); break;
-                        case 26: { let n=Math.sin(u*4+t)+Math.cos(v*4+t); hsl(idx32, 10+n*10, 100, 40+n*20, x, y); break; }
-                        case 27: hsl(idx32, (t*40+u*100)%360, 100, 50, x, y); break;
-                        case 28: hsl(idx32, 280-v*60, 80, 50, x, y); break;
-                        case 29: { let noise = Math.sin(u*5)*Math.cos(v*5+t); hsl(idx32, 260+noise*30, 80, 20+noise*20, x, y); break; }
-                        case 30: hsl(idx32, u*360 + t*50, 100, 50, x, y); break;
-                        case 31: p(idx32,255,0,0, Math.abs(u - (Math.sin(t)*0.4 + 0.5)) < 0.05 ? 1 : 0, x, y); break;
-                        case 32: { let dist=Math.sqrt((u-0.5)**2+(v-0.5)**2); hsl(idx32, 200, 100, Math.sin(dist*10 - t*5)*50+50, x, y); break; }
-                        case 33: p(idx32,255,255,255, rnd>0.95?1:0, x, y); break;
-                        case 34: if(rnd>0.9) hsl(idx32, rnd*360, 100, 50, x, y); else p(idx32,0,0,0, 1, x, y); break;
-                        case 35: p(idx32,0,255,0, (Math.floor(u*10+v*10+t)%2)?1:0, x, y); break;
-                        case 36: p(idx32,255,0,0, Math.pow(Math.sin(t*5), 10), x, y); break;
-                        case 37: hsl(idx32, 100, 100, 20+Math.sin(u*10+t)*20, x, y); break;
-                        case 38: p(idx32,255,255,255, (Math.abs(u-0.5)<v)?1:0, x, y); break;
-                        case 39: hsl(idx32, 220, 100, rnd>0.9 ? 80 : 0, x, y); break;
-                        case 40: { let ang=Math.atan2(v-0.5, u-0.5)+t; hsl(idx32, ang*50, 100, 50, x, y); break; }
-                        case 41: { let mx=Math.abs(u-0.5), my=Math.abs(v-0.5); hsl(idx32, (mx*my*100+t*100)%360, 100, 50, x, y); break; }
+                        
+                        // CINEMA FX
+                        // Police: PB = Ajout Blanc (Desaturation)
+                        case 1: p(idx32,(Math.floor(t*6)%2 ? (u<0.5*pa?0:255) : (u<0.5*pa?255:0)) + (255*pb), 255*pb, (Math.floor(t*6)%2 ? (u<0.5*pa?255:0) : (u<0.5*pa?0:255)) + (255*pb), (Math.floor(t*20)%2?1:0), x, y); break;
+                        
+                        // Fire: PB = Teinte vers Jaune/Blanc
+                        case 2: { const n=(Math.sin(t*10 + u*10*pa) + Math.sin(t*20 + v*10*pa))/2 + 0.5; p(idx32,255, (50+n*100) + (100*pb), 50*pb, 0.5+n*0.5, x, y); break; }
+                        
+                        // Paparazzi: PB = Température (Froid -> Chaud)
+                        case 3: p(idx32,255, 255-(50*pb), 255-(150*pb), rnd>(0.99 - (pa*0.04))?1:0, x, y); break;
+                        
+                        // TV: PB = Bruit de couleur
+                        case 4: { let i=0.5+rnd*0.5; if((y+Math.floor(t*20))%(Math.floor(5*pa)+1)===0)i*=0.8; p(idx32,200,220-(100*pb),255,i, x, y); break; }
+                        
+                        // Welding: PB = Bleu électrique vs Blanc chaud
+                        case 5: p(idx32,200,230,255-(200*pb), (Math.sin(t*10)>0.5 && rnd>0.5/pa)?1:0.05, x, y); break;
+                        
+                        // Process: PB = Couleur de fond
+                        case 6: p(idx32,255,180,100 + (155*pb), Math.max(0, 1 - Math.abs(u - ((t*0.5)%1)) * (10/pa)), x, y); break;
+                        
+                        // Bad Bulb: PB = Teinte Verdatre (Matrix) vs Chaud
+                        case 7: p(idx32,220,255,220-(200*pb), (rnd>(0.5*pa) || Math.sin(t)>0.8)?0.2:1, x, y); break;
+                        
+                        // Storm: PB = Couleur Eclair (Blanc -> Violet)
+                        case 8: p(idx32,255-(50*pb),255-(200*pb),255, stormFlash, x, y); break;
+                        
+                        // Candle: PB = Rougeur
+                        case 9: { let f=Math.sin(t*10)+Math.sin(t*(20*pa)); p(idx32,255,150-(50*pb),50, 0.6+f*0.1, x, y); break; }
+                        
+                        // Strobe: PB = Couleur Aléatoire
+                        case 10: { let isCol = (pb > 0.1 && rnd < pb); p(idx32, isCol?rnd*255:255, isCol?rnd*255:255, isCol?rnd*255:255, (t%1 < 0.5*pa)?1:0, x, y); break; }
+                        
+                        // Explosion: PB = Fumée (Gris)
+                        case 11: { let tr=t%3; let val=(tr<0.2*pa?1:1-(tr-(0.2*pa))); p(idx32,255, (tr<0.2)?255:(100+155*pb), (tr<0.2)?255:(100*pb), val, x, y); break; }
+                        
+                        // Club: PB = Saturation
+                        case 12: hsl(idx32, (t*50 + x*pa)%360, 100-(50*pb), 50, x, y); break;
+                        
+                        // Papa Color: PB = Fond coloré
+                        case 13: { let fl = rnd>(0.99-(pa*0.04)); hsl(idx32, rnd*360, 100, fl?50:(pb*20), x, y); break; }
+                        
+                        // Fluorescent: PB = Teinte tube (Vert -> Bleu)
+                        case 14: p(idx32,200-(100*pb),255,220+(35*pb), (t*pa%2<0.1 || rnd>0.95)?0:1, x, y); break;
+                        
+                        // Emergency: PB = Ajout Rouge/Bleu fixe
+                        case 15: { let rot = (Math.atan2(v-0.5, u-0.5) * pa + t*5) % (Math.PI*2); p(idx32,255, rot>0?0:0, rot>0?0:255*pb, 1, x, y); break; }
+                        
+                        // Fireworks: PB = Traînée (White fade)
+                        case 16: if(rnd>(0.995/pa)) hsl(idx32,rnd*360,100,50, x, y); else p(idx32,255,255,255,0.9*pb, x, y); break;
+                        // Gunshot: PB = Muzzle Flash Color (Yellow -> White)
+                        case 17: { let bang = t%1; p(idx32,255,200+(55*pb),150+(105*pb), bang<(0.05*pa)?1:0, x, y); break; }
+                        // Red Alert: PB = Add White pulse
+                        case 18: { let s=(Math.pow(Math.sin(t*5), pa)); p(idx32,255,255*pb*s,255*pb*s, s, x, y); break; }
+                        // Elevator: PB = Floor indicator color
+                        case 19: p(idx32,255,200-(200*pb),150-(150*pb), (v + t*0.5)%1 < (0.2*pa) ? 1 : 0, x, y); break;
+                        // Horror: PB = Darkness (inverse)
+                        case 20: { let flicker=rnd>0.9?0:1; p(idx32,50+(50*pb),100,50, flicker*(0.5+0.5*pb), x, y); break; }
+                        
+                        // SHNOPIA FX - PB = SHIFT COULEUR (Cycle offset)
+                        // Aurora
+                        case 21: hsl(idx32, 140+(100*pb)+Math.max(0,50-Math.abs(v-(0.5+Math.sin(u*5*pa+t)*0.1))*100), 100, 50, x, y); break;
+                        // Matrix
+                        case 22: { let r=(v + t*pa)%1; hsl(idx32, 120+(180*pb), 100, (Math.abs(v-r)<(0.1*pa) && rnd>0.8)?50:0, x, y); break; }
+                        // Cyber
+                        case 23: hsl(idx32, ((u*pa+v*pa)%0.2 < 0.1)?300:180+(180*pb), 100, (30+Math.sin(t*5)*20), x, y); break;
+                        // Plasma
+                        case 24: hsl(idx32, (Math.sin(u*5*pa+t)+Math.sin(v*5*pa+t))*40 + (360*pb)%360, 100, 50, x, y); break;
+                        // Ocean
+                        case 25: hsl(idx32, 200+(100*pb)+Math.sin(u*10*pa+t)*10, 80, 40, x, y); break;
+                        // Lava
+                        case 26: { let n=Math.sin(u*4*pa+t)+Math.cos(v*4*pa+t); hsl(idx32, 10+(60*pb)+n*10, 100, (40+n*20), x, y); break; }
+                        // Disco
+                        case 27: hsl(idx32, (t*40+u*100*pa + 180*pb)%360, 100, 50, x, y); break;
+                        // Sunset
+                        case 28: hsl(idx32, 280-v*60*pa + (100*pb), 80, 50, x, y); break;
+                        // Nebula
+                        case 29: { let noise = Math.sin(u*5*pa)*Math.cos(v*5*pa+t); hsl(idx32, 260+(100*pb)+noise*30, 80, (20+noise*20), x, y); break; }
+                        // Bifrost
+                        case 30: hsl(idx32, u*360*pa + (180*pb) + t*50, 100, 50, x, y); break;
+                        // Scanner
+                        case 31: p(idx32,255,255*pb,255*pb, Math.abs(u - (Math.sin(t*pa)*0.4 + 0.5)) < (0.05*pa) ? 1 : 0, x, y); break;
+                        // Ripple
+                        case 32: { let dist=Math.sqrt((u-0.5)**2+(v-0.5)**2); hsl(idx32, 200+(160*pb), 100, (Math.sin(dist*10*pa - t*5)*50+50), x, y); break; }
+                        // Snow: PB=Blue Tint
+                        case 33: p(idx32,255-(100*pb),255,255, rnd>(0.95/pa)?1:0, x, y); break;
+                        // Glitch
+                        case 34: if(rnd>(0.9/pa)) hsl(idx32, rnd*360, 100, 50, x, y); else p(idx32,0,255*pb,0, 1, x, y); break;
+                        // Binary
+                        case 35: p(idx32,0,255,100*pb, (Math.floor(u*10*pa+v*10*pa+t)%2)?1:0, x, y); break;
+                        // Heartbeat
+                        case 36: p(idx32,255,255*pb,255*pb, Math.pow(Math.sin(t*5), 10/pa), x, y); break;
+                        // Biohazard
+                        case 37: hsl(idx32, 100+(200*pb), 100, (20+Math.sin(u*10*pa+t)*20), x, y); break;
+                        // Warp
+                        case 38: p(idx32,255-(200*pb),255,255, (Math.abs(u-0.5)<v*pa)?1:0, x, y); break;
+                        // Rain
+                        case 39: hsl(idx32, 220+(40*pb), 100, rnd>(0.9/pa) ? 80 : 0, x, y); break;
+                        // Vortex
+                        case 40: { let ang=Math.atan2(v-0.5, u-0.5)+t; hsl(idx32, ang*50*pa+(180*pb), 100, 50, x, y); break; }
+                        // Kaleido
+                        case 41: { let mx=Math.abs(u-0.5), my=Math.abs(v-0.5); hsl(idx32, (mx*my*100*pa+t*100 + 180*pb)%360, 100, 50, x, y); break; }
                     }
                     
-                    idx32++; // Incrément manuel pour buffer 32 bits
+                    idx32++;
                 }
             }
             
-            // Push des pixels dans le canvas
             ctx.putImageData(imgData, 0, 0);
             
-            // Gestion Dimmer Global
+            // Dimmer Final
             if(state.dimmer < 100) { 
                 ctx.fillStyle=`rgba(0,0,0, ${1-state.dimmer/100})`; 
                 ctx.fillRect(0,0,w,h); 
             }
 
-            // --- TEXT RENDER ---
+            // TEXTE
             textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
             if(state.textOn && state.textString) {
                 const fontSize = Math.max(20, textCanvas.height * (state.textSize/100));
@@ -1152,22 +1100,67 @@
                 else if(state.textEffect === "WAVE") { textCtx.fillStyle = state.textColor; for (let i = 0; i < state.textString.length; i++) { const char = state.textString[i]; const yOff = Math.sin(t*5 + i*0.5) * (50 * lvl); textCtx.fillText(char, x + (i*fontSize*0.6), y + yOff); } }
                 else if(state.textEffect === "TYPE") { const len = Math.floor(state.textString.length * ((Math.sin(t)+1)/2)); textCtx.fillText(state.textString.substring(0, len), x, y); }
                 else if(state.textEffect === "STROKE") { textCtx.lineWidth = 2 + 5*lvl; textCtx.strokeStyle = state.textColor; textCtx.strokeText(state.textString, x, y); }
+                else if(state.textEffect === "MIRROR") { textCtx.fillText(state.textString, x, y); textCtx.save(); textCtx.scale(1, -1); textCtx.globalAlpha = 0.3; textCtx.fillText(state.textString, x, -y + (fontSize*0.8)); textCtx.restore(); }
+                else if(state.textEffect === "SHAKE") { const ox = (Math.random()-0.5)*20*lvl; const oy = (Math.random()-0.5)*20*lvl; textCtx.fillText(state.textString, x+ox, y+oy); }
+                else if(state.textEffect === "RAINBOW") { textCtx.fillStyle = `hsl(${(t*100)%360}, 100%, 50%)`; textCtx.fillText(state.textString, x, y); }
+                else if(state.textEffect === "BOUNCE") { const by = Math.abs(Math.sin(t*5))*100*lvl; textCtx.fillText(state.textString, x, y - by + (50*lvl)); }
+                else if(state.textEffect === "BREATHE") { const scale = 1 + Math.sin(t*3)*0.3*lvl; textCtx.save(); textCtx.translate(x + textWidth/2, y); textCtx.scale(scale, scale); textCtx.translate(-(x + textWidth/2), -y); textCtx.fillText(state.textString, x, y); textCtx.restore(); }
                 textCtx.globalAlpha = 1;
             }
             
-            // --- PREVIEW RENDER ---
+            // PREVIEW
             previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
             previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
 
             requestAnimationFrame(render);
         }
 
-        // --- INTERACTION ---
         window.switchTab = (id, btn) => { document.querySelectorAll('.panel-content').forEach(e => e.classList.remove('visible')); document.getElementById(id).classList.add('visible'); document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active')); if(btn) btn.classList.add('active'); };
         
         window.setEffect = (id, el) => { 
-            if (id === 0) { activateStatic('WHEEL'); } 
-            else { state.fxMode = id; state.mode = 'FX'; document.querySelectorAll('.fx-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
+            if (id === 0) { 
+                activateStatic('WHEEL'); 
+            } else { 
+                state.fxMode = id; 
+                state.mode = 'FX'; 
+                document.querySelectorAll('.fx-card').forEach(c => c.classList.remove('active')); 
+                el.classList.add('active'); 
+
+                // --- AUTO PRESETS LOGIC ---
+                // Param A = Structure/Zoom/Fréquence
+                // Param B = Couleur/Variation/Intensité
+                const presets = {
+                    // CINEMA FX
+                    1: {a: 50, b: 0},   // Police (Structure Std, Couleurs Pures)
+                    2: {a: 30, b: 25},  // Fire (Mvt Doux, Teinte Orange/Rouge Chaude)
+                    3: {a: 85, b: 10},  // Paparazzi (Rapide/Net, Blanc Froid)
+                    4: {a: 60, b: 40},  // TV (Grain Moyen, Désaturé)
+                    5: {a: 95, b: 5},   // Welding (Éclats vifs, Blanc Bleu)
+                    6: {a: 50, b: 50},  // Process
+                    7: {a: 40, b: 70},  // Bad Bulb (Flicker irrégulier, Teinte chaude)
+                    8: {a: 95, b: 0},   // Storm (Eclairs Nets, Blanc/Bleu Froid)
+                    9: {a: 15, b: 90},  // Candle (Très doux, Teinte très chaude/Rouge)
+                    10: {a: 100,b: 50}, // Strobe (Rapide)
+                    11: {a: 10, b: 15}, // Explosion (Large zone, Feu intense)
+                    14: {a: 20, b: 20}, // Fluorescent (Instable, Vert/Bleu)
+                    15: {a: 50, b: 0},  // Emergency (Rouge/Bleu pur)
+                    16: {a: 90, b: 10}, // Fireworks (Explosions fines)
+                    17: {a: 100,b: 15}, // Gunshot (Instantané, Jaune/Blanc)
+                    18: {a: 50, b: 100},// Red Alert (Pulse, Rouge pur)
+                    20: {a: 80, b: 0},  // Horror (Saccadé, Sombre)
+
+                    // SHNOPIA FX (Exemples)
+                    21: {a: 25, b: 50}, // Aurora (Vagues larges)
+                    22: {a: 60, b: 80}, // Matrix (Pluie fine, Vert Numérique)
+                    33: {a: 80, b: 20}, // Snow (Flocons fins, Teinte Froide)
+                    39: {a: 90, b: 30}, // Rain (Traits rapides, Gris/Bleu)
+                };
+
+                // Appliquer le preset ou 50/50 par défaut
+                const p = presets[id] || {a: 50, b: 50};
+                updateFxParam(1, p.a);
+                updateFxParam(2, p.b);
+            }
         };
         
         window.setKelvin = (k, btn) => { 
@@ -1199,7 +1192,6 @@
             updateFromRGB(); activateStatic('WHEEL');
         };
 
-        // --- SLIDER TRACK PROGRESS UPDATE (NEW) ---
         function updateRangeStyle(input) {
             const val = (input.value - input.min) / (input.max - input.min) * 100;
             let color = 'var(--lcd-on)';
@@ -1241,7 +1233,6 @@
             setMapMode(14, document.getElementById('btn-set')); document.getElementById('set-display').innerText = `${w}x${h}`; document.getElementById('set-display').style.color = '#0f0'; document.getElementById('modal-overlay').style.display = 'none';
         };
 
-        // Standard inputs
         document.getElementById('text-content').oninput = e => state.textString = e.target.value;
         document.getElementById('input-text-size').oninput = e => { state.textSize = parseInt(e.target.value); document.getElementById('val-text-size').innerText = state.textSize + "%"; updateRangeStyle(e.target); };
         document.getElementById('input-text-speed').oninput = e => { state.textSpeed = parseInt(e.target.value); document.getElementById('val-text-speed').innerText = state.textSpeed; updateRangeStyle(e.target); };
@@ -1249,7 +1240,6 @@
         document.getElementById('input-text-font').onchange = e => state.textFont = e.target.value;
         document.getElementById('input-text-effect').onchange = e => state.textEffect = e.target.value;
         
-        // NUMERIC INPUTS HANDLERS (Manual Typing)
         function linkInputRange(inputId, rangeId, updateFunc) {
             const input = document.getElementById(inputId);
             const range = document.getElementById(rangeId);
@@ -1280,7 +1270,6 @@
         linkInputRange('val-speed-input', 'input-speed', () => { state.speedCinema = parseInt(document.getElementById('input-speed').value); });
         linkInputRange('val-speed-shnopia-input', 'input-speed-shnopia', () => { state.speedShnopia = parseInt(document.getElementById('input-speed-shnopia').value); });
         
-        // SLIDERS
         document.getElementById('input-dimmer').oninput = e => { state.dimmer = parseInt(e.target.value); document.getElementById('val-dimmer-input').value = state.dimmer; updateRangeStyle(e.target); };
         document.getElementById('input-speed').oninput = e => { state.speedCinema = parseInt(e.target.value); document.getElementById('val-speed-input').value = state.speedCinema; updateRangeStyle(e.target); };
         document.getElementById('input-speed-shnopia').oninput = e => { state.speedShnopia = parseInt(e.target.value); document.getElementById('val-speed-shnopia-input').value = state.speedShnopia; updateRangeStyle(e.target); };
@@ -1348,7 +1337,6 @@
         window.addEventListener('resize', () => { if(state.mode === 'WHEEL') updateCursorVisuals(); });
         ['input-r', 'input-g', 'input-b'].forEach(id => { document.getElementById(id).addEventListener('input', () => { updateFromRGB(); activateStatic('WHEEL'); }); });
 
-        // WHEEL LOGIC
         const wheel = document.getElementById('color-wheel'); const hexInput = document.getElementById('hex-input');
         let isWheelDrag = false;
         function updateWheel(e) {
@@ -1378,16 +1366,26 @@
         window.addEventListener('touchmove', e => { if(isWheelDrag) { e.preventDefault(); updateWheel(e); } }, {passive:false}); 
         window.addEventListener('touchend', () => isWheelDrag=false);
 
-        // DRAG PANEL
         const panel = document.getElementById('main-panel'); const handle = document.getElementById('drag-handle'); let isDrag=false, startX, startY, initL, initT;
         handle.addEventListener('mousedown', e => { isDrag=true; startX=e.clientX; startY=e.clientY; const r=panel.getBoundingClientRect(); panel.style.transform='none'; panel.style.left=r.left+'px'; panel.style.top=r.top+'px'; initL=r.left; initT=r.top; });
         window.addEventListener('mousemove', e => { if(isDrag){ panel.style.left=(initL+(e.clientX-startX))+'px'; panel.style.top=(initT+(e.clientY-startY))+'px'; }});
         window.addEventListener('mouseup', ()=>isDrag=false);
 
-        // --- INIT ALL SLIDER STYLES ON LOAD ---
         function initSliderStyles() {
             document.querySelectorAll('input[type=range]').forEach(el => updateRangeStyle(el));
         }
+
+        window.updateFxParam = (id, val) => {
+            val = parseInt(val);
+            state['fxParam'+id] = val;
+            
+            ['fx', 'shnopia'].forEach(tab => {
+                const label = document.getElementById(`val-${tab}-p${id}`);
+                const input = document.getElementById(`input-${tab}-p${id}`);
+                if(label) label.innerText = val + "%";
+                if(input) { input.value = val; updateRangeStyle(input); }
+            });
+        };
 
         function syncUI() {
             document.getElementById('val-sat-input').value = Math.round(state.sat); document.getElementById('val-kelvin').innerText = state.kelvin + "K"; document.getElementById('val-tint').innerText = state.tint;
@@ -1401,18 +1399,22 @@
             const rgb = hsvToRgb(state.hue, state.sat, 100); updateRGBInputs(rgb);
             const wRgb = applyTint(kelvinToRgb(state.kelvin), state.tint); updateWhiteUI(wRgb);
 
-            // Matrix Sync
             const gridInput = document.getElementById('input-grid-lvl'); gridInput.value = state.gridLevel; updateGridSlider(gridInput);
             const warpInput = document.getElementById('input-warp-lvl'); warpInput.value = state.warpLevel; updateWarpSlider(warpInput);
             const noiseInput = document.getElementById('input-noise-lvl'); noiseInput.value = state.noiseLevel; updateNoiseSlider(noiseInput);
             
-            // Matrix Buttons Sync
             document.querySelectorAll('.map-btn').forEach((btn, index) => {
-                if(index === state.mapMode) btn.classList.add('active-map');
-                else btn.classList.remove('active-map');
+                // The OFF button is virtual (-1) so we handle it manually or skip
+                if(btn.innerText.includes("OFF")) {
+                    if(state.mapMode === -1) btn.classList.add('active-map');
+                    else btn.classList.remove('active-map');
+                } else {
+                    // Indices 0 to 13 map to other buttons
+                    // We need a way to map button index to mapMode.
+                    // Simplified: just update visual class in setMapMode
+                }
             });
 
-            // Text Sync
             document.getElementById('text-content').value = state.textString;
             document.getElementById('input-text-color').value = state.textColor;
             document.getElementById('input-text-font').value = state.textFont;
@@ -1424,10 +1426,11 @@
 
             if (document.fullscreenElement) document.querySelector('.fullscreen-btn').classList.add('active');
             
-            // Refresh visual sliders
             initSliderStyles();
-            
             setTimeout(updateCursorVisuals, 100);
+
+            // SYNC FX PARAMS
+            [1, 2].forEach(id => updateFxParam(id, state['fxParam'+id]));
         }
         
         initSliderStyles();
