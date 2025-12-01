@@ -1440,30 +1440,36 @@
         syncUI();
         requestAnimationFrame(render);
 
-// --- GLOBAL COUNTER (shnopia_sle) ---
+// --- HYBRID COUNTER (Global + Local Fallback) ---
         (function() {
-            // Utilisation de l'API CountAPI avec le namespace 'shnopia_sle'
-            fetch('https://api.countapi.xyz/hit/shnopia_sle/visits')
+            const counterEl = document.getElementById('global-counter');
+            
+            // 1. D'abord, on incrémente un compteur local de secours
+            let localVisits = localStorage.getItem('shnopia_local_boots') || 0;
+            localVisits++;
+            localStorage.setItem('shnopia_local_boots', localVisits);
+
+            // 2. On tente de joindre le compteur mondial (API plus fiable: counterapi.dev)
+            // On utilise un timeout de 2 secondes pour ne pas attendre indéfiniment
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            fetch('https://api.counterapi.dev/v1/shnopia_sle/visits/up', { signal: controller.signal })
             .then(response => {
-                if (!response.ok) throw new Error("Network response was not ok");
+                if (!response.ok) throw new Error("API Error");
                 return response.json();
             })
             .then(data => {
-                // Formatage type "001234"
-                const count = data.value;
-                const formatted = "#" + count.toString().padStart(6, '0');
-                
-                const el = document.getElementById('global-counter');
-                if(el) el.innerText = formatted;
+                // SUCCÈS : On affiche le compteur mondial
+                const count = data.count; // Note: l'API renvoie 'count', pas 'value'
+                counterEl.innerText = "NET: #" + count.toString().padStart(6, '0');
+                counterEl.style.color = "var(--lcd-on)";
             })
             .catch(err => {
-                console.warn("Counter Error:", err);
-                const el = document.getElementById('global-counter');
-                if(el) {
-                    el.innerText = "OFFLINE";
-                    el.style.color = "#444"; // Gris sombre si pas de connexion
-                    el.style.textShadow = "none";
-                }
+                // ÉCHEC (Pas internet ou API HS) : On affiche le compteur Local
+                console.warn("Switching to local counter:", err);
+                counterEl.innerText = "LOC: #" + localVisits.toString().padStart(4, '0');
+                counterEl.style.color = "#ccaa00"; // Couleur ambre pour signaler le mode local
             });
         })();
 
