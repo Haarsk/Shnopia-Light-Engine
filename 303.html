@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resh Synth Gift</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #282c34;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #piano {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .key {
+            width: 50px;
+            height: 200px;
+            margin: 1px;
+            background-color: #ddd;
+            border: 1px solid #bbb;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        .key.active {
+            background-color: #ff9800;
+        }
+
+        .key.white {
+            background-color: #fff;
+        }
+
+        .key.black {
+            width: 40px;
+            height: 150px;
+            margin-left: -20px;
+            margin-right: -20px;
+            background-color: #333;
+            z-index: 1;
+        }
+
+        #text {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="text">Resh Synth Gift</div>
+
+    <div id="piano">
+        <!-- White keys -->
+        <div class="key white" data-note="C"></div>
+        <div class="key black" data-note="C#"></div>
+        <div class="key white" data-note="D"></div>
+        <div class="key black" data-note="D#"></div>
+        <div class="key white" data-note="E"></div>
+        <div class="key white" data-note="F"></div>
+        <div class="key black" data-note="F#"></div>
+        <div class="key white" data-note="G"></div>
+        <div class="key black" data-note="G#"></div>
+        <div class="key white" data-note="A"></div>
+        <div class="key black" data-note="A#"></div>
+        <div class="key white" data-note="B"></div>
+        <div class="key white" data-note="C2"></div>
+    </div>
+
+    <script>
+        const notes = {
+            "C": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
+            "C#": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"),
+            "D": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"),
+            "D#": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"),
+            "E": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"),
+            "F": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"),
+            "F#": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"),
+            "G": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"),
+            "G#": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"),
+            "A": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"),
+            "A#": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3"),
+            "B": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"),
+            "C2": new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3"),
+        };
+
+        let currentAudio = null; // Variable pour stocker l'audio en cours
+
+        const keys = document.querySelectorAll('.key');
+
+        keys.forEach(key => {
+            key.addEventListener('click', function () {
+                const note = key.getAttribute('data-note');
+                
+                // Si une autre note est déjà en cours de lecture, on l'arrête
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0; // Rewind
+                }
+
+                // Joue la nouvelle note
+                currentAudio = notes[note];
+                currentAudio.currentTime = 0; // Rewind to start
+                currentAudio.play();
+
+                // Active la touche pendant 200ms
+                key.classList.add('active');
+                setTimeout(() => {
+                    key.classList.remove('active');
+                }, 200); 
+            });
+        });
+
+        // Hymne militaire : Exemple de séquence de notes
+        const militaryHymn = ["C", "E", "G", "C", "C", "E", "G", "A", "G", "E", "D"];
+
+        // Jouer l'hymne en séquence
+        function playMilitaryHymn() {
+            let delay = 0;
+            militaryHymn.forEach(note => {
+                setTimeout(() => {
+                    const key = document.querySelector(`.key[data-note='${note}']`);
+                    key.click();
+                }, delay);
+                delay += 500; // Délai entre chaque note
+            });
+        }
+
+        // Lancer l'hymne après 1 seconde
+        setTimeout(playMilitaryHymn, 1000);
+    </script>
+
+</body>
+</html>
