@@ -1,10 +1,8 @@
 {
   "name": "Expositor Pro: Exposure & Cinema",
   "short_name": "Expositor Pro",
-  "description": "Calculateur d'exposition photo et cinéma.",
   "start_url": "/Shnopia-Light-Engine/Expositor Pro V1.5isPro.html",
   "display": "standalone",
-  "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#007aff",
   "icons": [
