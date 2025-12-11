@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "haarsk.github",
+  "orientation": "any",
+  "scope": "//Shnopia-Light-Engine/",
+  "short_name": "haarsk.github",
+  "start_url": "/Shnopia-Light-Engine/Expositor Pro V1.5isPro.html",
+  "theme_color": "#ffffff",
+  "lang": "fr"
+}
