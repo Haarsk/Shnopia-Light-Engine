@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expositor Pro: Exposure & Cinema</title>
+    <style>
+        :root {
+            /* --- PALETTE LIGHT MODE --- */
+            --bg-body: #f2f2f7;
+            --bg-card: #ffffff;
+            --text-main: #000000;
+            --text-muted: #8e8e93;
+            --accent-color: #007aff;
+            --accent-bg: rgba(0, 122, 255, 0.1);
+            --border-color: rgba(0,0,0,0.1);
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+            
+            /* Couleurs Scènes */
+            --col-sunny: #ffcc00;
+            --col-cloudy: #aeb5bc;
+            --col-sunset: #ff9500;
+            --col-night: #5856d6;
+        }
+
+        /* --- DARK MODE VARIABLES --- */
+        body.dark-mode {
+            --bg-body: #000000;
+            --bg-card: #1c1c1e;
+            --text-main: #ffffff;
+            --text-muted: #98989d;
+            --accent-color: #0a84ff;
+            --accent-bg: rgba(10, 132, 255, 0.2);
+            --border-color: rgba(255,255,255,0.15);
+            --shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- HEADER --- */
+        header {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            cursor: pointer; /* Indique que c'est cliquable */
+            user-select: none;
+        }
+        
+        /* Petit effet au survol du titre */
+        .brand:active { opacity: 0.7; transform: scale(0.98); }
+
+        h1 { font-size: 1.5rem; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+
+        /* ICONE LIQUID */
+        .liquid-icon {
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, var(--accent-color), #bf5af2);
+            border-radius: 14px; position: relative;
+            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -2px -2px 5px rgba(0,0,0,0.2), 5px 5px 15px rgba(0,0,0,0.2);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .liquid-icon::after {
+            content: ''; position: absolute; top: 5px; left: 5px; width: 20px; height: 20px;
+            border-radius: 50%; background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0.6; filter: blur(1px);
+        }
+        .liquid-icon span { color: white; font-weight: 900; font-size: 1.2rem; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        /* THEME SWITCH */
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch { display: inline-block; height: 30px; position: relative; width: 54px; }
+        .theme-switch input { display:none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 34px; }
+        .slider:before { background-color: white; bottom: 3px; content: ""; height: 24px; left: 3px; position: absolute; transition: .4s; width: 24px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--accent-color); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* --- CONTAINER --- */
+        .app-container { width: 100%; max-width: 400px; margin: 0 auto; }
+
+        /* Rétablissement de l'espacement entre les boîtes */
+        #mainView, #noticeView {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        /* --- MODE SWITCH (PHOTO/CINE) --- */
+        .mode-switch {
+            background: var(--bg-card); border-radius: 16px; box-shadow: var(--shadow);
+            padding: 6px; display: flex; gap: 4px;
+        }
+        .mode-btn {
+            flex: 1; border-radius: 12px; border: none; padding: 10px 0;
+            background: transparent; color: var(--text-muted); font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .mode-btn.active { background: var(--accent-bg); color: var(--accent-color); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+
+        /* --- CONTROLS --- */
+        .control-group {
+            background: var(--bg-card); border-radius: 20px; padding: 15px 0;
+            box-shadow: var(--shadow); overflow: hidden;
+        }
+        .label-header {
+            padding: 0 20px 10px 20px; font-size: 0.85rem; text-transform: uppercase;
+            color: var(--text-muted); font-weight: 600; letter-spacing: 1px;
+            display: flex; justify-content: space-between;
+        }
+        
+        /* Styles spécifiques NOTICE (Ajoutés) */
+        .text-block {
+            padding: 0 20px 10px 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+        .text-block p { margin: 0 0 10px 0; }
+        .text-block strong { color: var(--accent-color); }
+        
+        .highlight-box {
+            background: var(--accent-bg);
+            border-radius: 12px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            width: 100%;
+            background: var(--bg-card);
+            color: var(--accent-color);
+            border: none;
+            padding: 15px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            margin-bottom: 10px;
+        }
+
+        /* --- SCROLLERS --- */
+        .scroller {
+            display: flex; overflow-x: auto; gap: 12px; padding: 0 20px;
+            scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;
+        }
+        .scroller::-webkit-scrollbar { display: none; }
+
+        .scroll-item {
+            flex: 0 0 auto; min-width: 70px; height: 70px;
+            background: var(--bg-body); border-radius: 14px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; border: 2px solid transparent;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .scroll-item span.val { font-size: 1.1rem; font-weight: 700; }
+        .scroll-item span.sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+        
+        .scroll-item.active {
+            background: var(--accent-bg); border-color: var(--accent-color);
+            color: var(--accent-color); transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .scroll-item.active span.sub { color: var(--accent-color); opacity: 0.8; }
+
+        .weather-item { min-width: 120px; }
+        .weather-dot { width: 8px; height: 8px; border-radius: 50%; margin-bottom: 5px; }
+        .mini-item { min-width: 60px; height: 60px; }
+
+        /* --- RESULTS --- */
+        .results-card {
+            background: var(--bg-card); border-radius: 20px; box-shadow: var(--shadow);
+            padding: 5px 0; position: relative;
+        }
+        .result-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 22px; border-bottom: 1px solid var(--border-color); font-size: 0.95rem;
+        }
+        .result-row:last-child { border-bottom: none; }
+
+        .f-stop {
+            font-family: 'Courier New', monospace; color: var(--accent-color);
+            font-weight: 700; font-size: 1.1rem; background: var(--accent-bg);
+            padding: 4px 8px; border-radius: 6px;
+        }
+        .shutter-speed { font-size: 1.1rem; font-weight: 600; }
+        .row-label { font-size: 0.85rem; color: var(--text-muted); }
+
+        .ev-display {
+            text-align: center; padding: 15px; font-size: 0.9rem;
+            color: var(--text-muted); border-top: 1px dashed var(--border-color); margin-top: 5px;
+        }
+        .ev-number { color: var(--text-main); font-weight: bold; }
+        .nd-indicator { font-size: 0.8rem; color: var(--accent-color); margin-left: 5px; }
+        .mode-hint { display:block; font-size:0.75rem; margin-top:4px; opacity: 0.7; }
+        
+        #cineControls { display: none; }
+
+        /* SIGNATURE STYLE */
+        .signature-neon {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            margin: 5px 0 10px 0;
+            padding: 0;
+            font-family: "Courier New", monospace;
+            color: var(--accent-color);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+        
+        .get-pro {
+            text-align: center; font-size: 0.8rem; color: var(--text-muted);
+            margin: 5px 0 10px 0; cursor: pointer; text-decoration: underline;
+        }
+        
+        .get-pro {
+            text-align: center; font-size: 0.8rem; color: var(--text-muted);
+            margin: 5px 0 10px 0; cursor: pointer; text-decoration: underline;
+        }
+        
+        /* Helpers pour l'affichage */
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand" onclick="toggleView()">
+            <div class="liquid-icon"><span>E</span></div>
+            <h1>Expositor Pro</h1>
+        </div>
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider"></div>
+            </label>
+        </div>
+    </header>
+
+    <div class="app-container">
+
+        <div id="mainView">
+            
+            <div class="mode-switch">
+                <button class="mode-btn active" id="modePhotoBtn">Photo</button>
+                <button class="mode-btn" id="modeCineBtn">Cinéma</button>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header">
+                    <span>Film Speed</span><span>ISO</span>
+                </div>
+                <div class="scroller" id="isoScroller"></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header">
+                    <span>Condition</span><span>Lumière</span>
+                </div>
+                <div class="scroller" id="sceneScroller"></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header">
+                    <span>Filtre</span><span>Densité Neutre</span>
+                </div>
+                <div class="scroller" id="ndScroller"></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header">
+                    <span>Compensation</span><span>+/- EV</span>
+                </div>
+                <div class="scroller" id="evCompScroller"></div>
+            </div>
+
+            <div class="control-group" id="cineControls">
+                <div class="label-header">
+                    <span>Vidéo</span><span>FPS & Angle</span>
+                </div>
+                <div class="scroller" id="fpsScroller"></div>
+                <div style="height:1px; background:var(--border-color); margin: 5px 20px;"></div>
+                <div class="scroller" id="angleScroller"></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header">
+                    <span>Optique</span><span>Focale & Distance</span>
+                </div>
+                <div class="scroller" id="focalScroller"></div>
+                <div style="height:1px; background:var(--border-color); margin: 5px 20px;"></div>
+                <div class="scroller" id="distScroller"></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header">
+                    <span>Support</span><span>Pellicule / Capteur</span>
+                </div>
+                <div class="scroller" id="filmScroller"></div>
+            </div>
+
+            <div class="results-card">
+                <div id="resultsList"></div>
+                <div class="ev-display">
+                    Exposition Totale : <span class="ev-number" id="evTotal">EV 15</span>
+                    <span class="mode-hint" id="modeHint">Mode Photo : couples ƒ/ – vitesse</span>
+                </div>
+                <div class="signature-neon" id="signatureDisplay">Rossignol Grip Vibe Coding</div>
+                <div class="get-pro hidden" id="proButton" onclick="handlePurchaseAttempt()">Besoin de plus ? Passer en Pro</div>
+            </div>
+        </div>
+
+        <div id="noticeView" class="hidden">
+            
+            <div class="control-group">
+                <div class="label-header"><span>Concept</span></div>
+                <div class="text-block">
+                    <p><strong>Expositor Pro</strong> est un calculateur d'exposition universel conçu pour les photographes argentiques et les cinéastes.</p>
+                    <p>Il remplace une cellule à main en utilisant le système <strong>Sunny 16</strong> étendu, couplé à un calculateur de profondeur de champ.</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header"><span>Modes de Prise de vue</span></div>
+                <div class="text-block">
+                    <p><strong>Mode Photo :</strong> Calcule les couples Vitesse / Ouverture pour une exposition correcte. Affiche également la profondeur de champ estimée.</p>
+                    <p><strong>Mode Cinéma :</strong> Fixe la vitesse selon la règle des 180° (ou autre angle) et vous donne l'ouverture (T-Stop) requise.</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header"><span>Réglages & Scènes</span></div>
+                <div class="text-block">
+                    <p>Sélectionnez d'abord vos <strong>ISO</strong> (sensibilité du film).</p>
+                    <p>Choisissez ensuite la <strong>Condition Lumineuse</strong>. La couleur du point indique la "chaleur" ou le type de lumière.</p>
+                    <div class="highlight-box">EV (Exposure Value) est recalculé automatiquement.</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header"><span>Filtres & Compensation</span></div>
+                <div class="text-block">
+                    <p><strong>Filtres ND :</strong> Si vous utilisez un filtre neutre, sélectionnez sa densité pour ajuster le calcul.</p>
+                    <p><strong>Compensation +/- :</strong> Permet de surexposer ou sous-exposer volontairement.</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header"><span>Réciprocité (Argentique)</span></div>
+                <div class="text-block">
+                    <p>Dans la section <strong>Support</strong>, sélectionnez votre pellicule.</p>
+                    <p>Si le temps de pose dépasse 1s, le défaut de réciprocité est appliqué. Le temps corrigé apparaît en couleur après une flèche.</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-header"><span>Optique & Focus</span></div>
+                <div class="text-block">
+                    <p>Renseignez votre <strong>Focale</strong> (mm) et la <strong>Distance</strong> du sujet.</p>
+                    <p>L'application calcule la zone de netteté (DoF) sous chaque ouverture.</p>
+                </div>
+            </div>
+
+            <div class="signature-neon">Rossignol Grip Vibe Coding</div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DONNÉES ---
+        const isoValues = [50, 100, 200, 400, 800, 1600, 3200, 6400];
+        const scenes = [
+            { ev: 16, name: "Neige / Mer", sub: "Très brillant", color: "var(--col-sunny)" },
+            { ev: 15, name: "Grand Soleil", sub: "Ombres nettes", color: "var(--col-sunny)" },
+            { ev: 14, name: "Soleil Voilé", sub: "Ombres douces", color: "var(--col-cloudy)" },
+            { ev: 13, name: "Nuageux", sub: "Pas d'ombres", color: "var(--col-cloudy)" },
+            { ev: 12, name: "Couvert", sub: "Sombre", color: "var(--col-cloudy)" },
+            { ev: 11, name: "Coucher Soleil", sub: "Ou Pluie", color: "var(--col-sunset)" },
+            { ev: 9,  name: "Ville Nuit", sub: "Vitrines", color: "var(--col-night)" },
+            { ev: 6,  name: "Intérieur", sub: "Artificiel", color: "var(--col-night)" }
+        ];
+        const ndFilters = [
+            { stops: 0, label: "Sans", sub: "0 stop" },
+            { stops: 1, label: "ND2", sub: "1 stop" },
+            { stops: 2, label: "ND4", sub: "2 stops" },
+            { stops: 3, label: "ND8", sub: "3 stops" },
+            { stops: 6, label: "ND64", sub: "6 stops" },
+            { stops: 10, label: "ND1000", sub: "10 stops" }
+        ];
+        const evCompValues = [
+            { val: -2, label: "-2" }, { val: -1, label: "-1" }, 
+            { val: 0, label: "0" }, 
+            { val: 1, label: "+1" }, { val: 2, label: "+2" }
+        ];
+        const filmStocks = [
+            { name: "Numérique", sub: "Sans", factor: 1.0 },
+            { name: "Générique", sub: "Standard", factor: 1.31 },
+            { name: "Kodak Portra", sub: "160/400", factor: 1.35 },
+            { name: "Ilford HP5", sub: "Plus", factor: 1.31 },
+            { name: "Kodak Tri-X", sub: "400", factor: 1.27 },
+            { name: "Fuji Pro", sub: "400H", factor: 1.30 },
+            { name: "Cinestill", sub: "800T", factor: 1.33 }
+        ];
+
+        // DONNÉES OPTIQUES
+        const focalLengths = [24, 28, 35, 50, 85, 100, 135];
+        const distances = [1, 2, 3, 5, 10, 20, 100]; // 100 = infini
+
+        const fpsValues = [24, 25, 30, 50, 60, 120];
+        const angleValues = [45, 90, 180, 360];
+        const fStops = [1.4, 2.0, 2.8, 4.0, 5.6, 8.0, 11, 16, 22];
+
+        // --- ÉTAT ---
+        let isPro = false; // <<< MASTER SWITCH : false pour Version Gratuite, true pour Version Payante
+        let currentIso = 100;
+        let currentEvBase = 15;
+        let currentNdStop = 0;
+        let currentEvOffset = 0;
+        let currentFilmIndex = 0; 
+        let currentMode = 'photo'; 
+        let currentFps = 25;
+        let currentAngle = 180;
+        let currentFocal = 50; 
+        let currentDist = 2;
+
+        // --- DOM ---
+        const isoScroller = document.getElementById('isoScroller');
+        const sceneScroller = document.getElementById('sceneScroller');
+        const ndScroller = document.getElementById('ndScroller');
+        const evCompScroller = document.getElementById('evCompScroller');
+        const filmScroller = document.getElementById('filmScroller');
+        const fpsScroller = document.getElementById('fpsScroller');
+        const angleScroller = document.getElementById('angleScroller');
+        const focalScroller = document.getElementById('focalScroller');
+        const distScroller = document.getElementById('distScroller');
+        
+        const resultsList = document.getElementById('resultsList');
+        const evTotalDisplay = document.getElementById('evTotal');
+        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+        const modePhotoBtn = document.getElementById('modePhotoBtn');
+        const modeCineBtn = document.getElementById('modeCineBtn');
+        const cineControls = document.getElementById('cineControls');
+        const modeHint = document.getElementById('modeHint');
+        const proButton = document.getElementById('proButton'); // NOUVEAU
+        const signatureDisplay = document.getElementById('signatureDisplay'); // NOUVEAU
+        
+        // VUES
+        const mainView = document.getElementById('mainView');
+        const noticeView = document.getElementById('noticeView');
+
+        // --- TOGGLE NOTICE FUNCTION ---
+        function toggleView() {
+            if (noticeView.classList.contains('hidden')) {
+                // Montrer Notice
+                mainView.classList.add('hidden');
+                noticeView.classList.remove('hidden');
+            } else {
+                // Montrer App
+                noticeView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+            }
+            window.scrollTo(0,0);
+        }
+
+        /// --- INIT ---
+        async function init() { // La fonction est maintenant ASYNC
+            // Helpers
+            const createItem = (val, sub, isActive, onClick) => {
+                const el = document.createElement('div');
+                el.className = `scroll-item ${isActive ? 'active' : ''}`;
+                el.innerHTML = `<span class="val">${val}</span><span class="sub">${sub}</span>`;
+                el.onclick = onClick;
+                return el;
+            };
+
+            // 1. ISO
+            isoValues.forEach(val => {
+                isoScroller.appendChild(createItem(val, '', val === currentIso, function() {
+                    currentIso = val; updateUI(isoScroller, this); calculate();
+                }));
+            });
+
+            // 2. SCENES
+            scenes.forEach(scene => {
+                const el = document.createElement('div');
+                el.className = `scroll-item weather-item ${scene.ev === currentEvBase ? 'active' : ''}`;
+                el.innerHTML = `
+                    <div class="weather-dot" style="background-color: ${scene.color}"></div>
+                    <span class="val" style="font-size:0.9rem">${scene.name}</span>
+                    <span class="sub">${scene.sub}</span>
+                `;
+                el.onclick = function() {
+                    currentEvBase = scene.ev; updateUI(sceneScroller, this); calculate();
+                };
+                sceneScroller.appendChild(el);
+            });
+
+            // 3. ND FILTERS
+            ndFilters.forEach(nd => {
+                ndScroller.appendChild(createItem(nd.label, nd.sub, nd.stops === currentNdStop, function() {
+                    currentNdStop = nd.stops; updateUI(ndScroller, this); calculate();
+                }));
+            });
+
+            // 4. EV COMPENSATION
+            evCompValues.forEach(comp => {
+                evCompScroller.appendChild(createItem(comp.label, 'EV', comp.val === currentEvOffset, function() {
+                    currentEvOffset = comp.val; updateUI(evCompScroller, this); calculate();
+                }));
+            });
+            
+            // 5. FILMS
+            filmStocks.forEach((film, index) => {
+                const el = createItem(film.name, film.sub, index === currentFilmIndex, function() {
+                    currentFilmIndex = index; updateUI(filmScroller, this); calculate();
+                });
+                if(index === 0) el.style.border = "1px solid var(--border-color)";
+                filmScroller.appendChild(el);
+            });
+
+            // 6. FPS
+            fpsValues.forEach(val => {
+                const el = createItem(val, 'fps', val === currentFps, function() {
+                    currentFps = val; updateUI(fpsScroller, this); calculate();
+                });
+                el.classList.add('mini-item');
+                fpsScroller.appendChild(el);
+            });
+
+            // 7. ANGLE
+            angleValues.forEach(val => {
+                const el = createItem(val + '°', 'Angle', val === currentAngle, function() {
+                    currentAngle = val; updateUI(angleScroller, this); calculate();
+                });
+                el.classList.add('mini-item');
+                angleScroller.appendChild(el);
+            });
+
+            // 8. FOCALES
+            focalLengths.forEach(val => {
+                const el = createItem(val, 'mm', val === currentFocal, function() {
+                    currentFocal = val; updateUI(focalScroller, this); calculate();
+                });
+                el.classList.add('mini-item');
+                focalScroller.appendChild(el);
+            });
+
+            // 9. DISTANCES
+            distances.forEach(val => {
+                const label = val === 100 ? '∞' : val + 'm';
+                const el = createItem(label, 'Dist.', val === currentDist, function() {
+                    currentDist = val; updateUI(distScroller, this); calculate();
+                });
+                el.classList.add('mini-item');
+                distScroller.appendChild(el);
+            });
+
+            // MODE SWITCHING
+            modePhotoBtn.onclick = () => { setMode('photo'); };
+            modeCineBtn.onclick = () => { setMode('cine'); };
+
+            // MODE DE DÉPART ET AFFICHAGE CIBLÉ
+            if (currentMode === 'cine') {
+                cineControls.style.display = 'block';
+                modeCineBtn.classList.add('active');
+            } else {
+                modePhotoBtn.classList.add('active');
+            }
+
+            // Déclenche la vérification d'achat au démarrage. 
+            // La fonction checkPurchases() gère la logique d'affichage/masquage/isPro.
+            checkPurchases(); 
+
+            // THEME
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                document.body.classList.toggle('dark-mode', currentTheme === 'dark');
+                toggleSwitch.checked = currentTheme === 'dark';
+            }
+            toggleSwitch.addEventListener('change', switchTheme, false);
+
+            calculate();
+        }
+
+        function setMode(mode) {
+            if (mode === 'cine' && !isPro) {
+                checkProFeature("Mode Cinéma"); // L'alerte est gérée ici.
+                if (currentMode === 'cine') { // Pour éviter une boucle infinie d'appel à setMode('photo')
+                    currentMode = 'photo';
+                }
+                modePhotoBtn.classList.add('active');
+                modeCineBtn.classList.remove('active');
+                cineControls.style.display = 'none';
+                modeHint.innerText = 'Version Gratuite • Mode Photo';
+                calculate();
+                return;
+            }
+            
+            currentMode = mode;
+            if (mode === 'photo') {
+                modePhotoBtn.classList.add('active');
+                modeCineBtn.classList.remove('active');
+                cineControls.style.display = 'none';
+                modeHint.innerText = isPro ? 'Mode Photo : couples ƒ/ – vitesse' : 'Version Gratuite • Mode Photo'; // AJUSTEMENT HINT
+            } else {
+                modeCineBtn.classList.add('active');
+                modePhotoBtn.classList.remove('active');
+                cineControls.style.display = 'block'; 
+                modeHint.innerText = 'Mode Cinéma : Ouverture requise (T-Stop)';
+            }
+            calculate();
+        }
+
+        function updateUI(container, activeEl) {
+            Array.from(container.children).forEach(c => c.classList.remove('active'));
+            activeEl.classList.add('active');
+            activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.body.classList.add('dark-mode'); localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode'); localStorage.setItem('light', 'dark');
+            }
+        }
+        
+        // ID du produit PRO sur Google Play Console (pour référence future)
+        const PRO_PRODUCT_ID = 'expositor_pro_unlock'; 
+        
+        // Fonction unique pour mettre à jour l'état et redessiner l'UI
+        function setIsPro(newValue) {
+            if (isPro === newValue) return; 
+            
+            isPro = newValue;
+            
+            // LOGIQUE D'AFFICHAGE/MASQUAGE DES CONTRÔLES
+            if (!isPro) {
+                // Masquer les contrôles avancés
+                document.querySelector('#ndScroller').closest('.control-group').classList.add('hidden');
+                document.querySelector('#evCompScroller').closest('.control-group').classList.add('hidden');
+                
+                // Masquer le contrôle FILM si la liste des films est restreinte
+                const filmControlGroup = document.querySelector('#filmScroller').closest('.control-group');
+                if (filmStocks.length > 2) {
+                    // Masquer les choix de films PRO (uniquement si la liste est plus longue que la liste FREE)
+                    filmScroller.querySelectorAll('.scroll-item').forEach((item, index) => {
+                        if (index > 1) item.classList.add('hidden');
+                    });
+                    // On masque le groupe complet si on ne laisse que le premier élément (Numérique)
+                    if (filmStocks.length > 1) { // Si > 1, il y a au moins Numérique et un autre, donc on masque les autres
+                         filmControlGroup.classList.add('hidden');
+                    }
+                }
+                
+                // Afficher le bouton PRO et TOUJOURS afficher la signature
+                if (proButton && signatureDisplay) {
+                     proButton.classList.remove('hidden');
+                     signatureDisplay.classList.remove('hidden'); // NE JAMAIS MASQUER LA SIGNATURE
+                }
+            } else {
+                 // Afficher les contrôles avancés
+                document.querySelector('#ndScroller').closest('.control-group').classList.remove('hidden');
+                document.querySelector('#evCompScroller').closest('.control-group').classList.remove('hidden');
+                // Afficher le contrôle FILM
+                document.querySelector('#filmScroller').closest('.control-group').classList.remove('hidden');
+                // Afficher tous les choix de films
+                filmScroller.querySelectorAll('.scroll-item').forEach(item => item.classList.remove('hidden'));
+                
+                // Masquer le bouton PRO et TOUJOURS afficher la signature
+                if (proButton && signatureDisplay) {
+                    proButton.classList.add('hidden');
+                    signatureDisplay.classList.remove('hidden'); // NE JAMAIS MASQUER LA SIGNATURE
+                }
+            }
+            
+            // S'assurer que le mode Cinéma est désactivé si on passe en Free
+            if (currentMode === 'cine' && !isPro) {
+                setMode('photo'); // Appel setMode pour gérer le retour UI
+            }
+            
+            // Mise à jour du Mode Hint et Recalcul
+            modeHint.innerText = isPro ? (currentMode === 'photo' ? 'Mode Photo : couples ƒ/ – vitesse' : 'Mode Cinéma : Ouverture requise (T-Stop)') : 'Version Gratuite • Mode Photo';
+            calculate(); 
+        }
+        
+        // Fonction ASYNCHRONE pour vérifier l'historique d'achat (Restauration)
+        async function checkPurchases() {
+            let isProUser = false;
+            
+            if (!('getDigitalGoodsService' in window)) {
+                // FALLBACK : Pas dans une TWA ou navigateur non supporté. 
+                // C'est le cas pour les tests en local.
+                console.warn("L'API Digital Goods n'est pas disponible. Mode Gratuit actif.");
+                // isProUser reste FALSE (Gratuit) par défaut
+            } else {
+                try {
+                    // 1. Obtenir le service Play Billing
+                    const service = await window.getDigitalGoodsService("https://play.google.com/billing");
+                    if (!service) throw new Error("Service Play Billing non trouvé.");
+    
+                    // 2. Vérifier les droits (si le produit est possédé)
+                    const purchases = await service.getPurchases();
+                    
+                    // Vérifier si notre produit PRO est dans la liste des achats non consommés
+                    isProUser = purchases.some(p => p.itemId === PRO_PRODUCT_ID);
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la vérification des achats Play Billing:", error);
+                    // En cas d'erreur de communication, on reste en mode Gratuit par défaut
+                    isProUser = false;
+                }
+            }
+            
+            // On met à jour l'état de l'interface UNIQUEMENT après toutes les vérifications
+            setIsPro(isProUser); 
+        }
+        
+        // Fonction ASYNCHRONE pour gérer la tentative d'achat
+        async function handlePurchaseAttempt() {
+            if (isPro) {
+                alert('Vous possédez déjà la version PRO !');
+                return;
+            }
+
+            if (!('getDigitalGoodsService' in window)) {
+                alert("Erreur: Le service de paiement Google Play n'est pas disponible. (Absence de TWA)");
+                return;
+            }
+
+            try {
+                const service = await window.getDigitalGoodsService("https://play.google.com/billing");
+                if (!service) throw new Error("Service Play Billing non trouvé.");
+
+                // 1. Demander l'achat
+                // Cela ouvre la fenêtre de paiement native de Google Play
+                const purchaseResult = await service.purchase({ itemId: PRO_PRODUCT_ID });
+                
+                // 2. Si l'achat est réussi
+                if (purchaseResult && purchaseResult.purchaseToken) {
+                    alert('Félicitations ! Expositor Pro est débloqué.');
+                    setIsPro(true);
+                } else {
+                    // L'achat peut échouer sans lancer d'exception (ex: paiement refusé)
+                    alert('Achat non finalisé ou paiement refusé.');
+                }
+                
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    // L'utilisateur a annulé l'achat
+                    alert('Achat annulé.');
+                } else {
+                    console.error("Erreur lors de l'achat Play Billing:", error);
+                    alert('Erreur: Impossible de finaliser l\'achat.');
+                }
+            }
+        }
+        
+        // --- GESTION DU PAYWALL (Ancienne fonction simplifiée pour réutilisation) ---
+        function checkProFeature(featureName) {
+            if (isPro) {
+                return true;
+            }
+            alert(`Fonctionnalité PRO uniquement. Veuillez passer en PRO pour accéder à : ${featureName}`);
+            // Pas besoin d'appeler setMode('photo') ici car il est déjà géré par setMode() au-dessus
+            return false;
+        }
+
+        // --- CALCUL OPTIQUE (DoF) ---
+
+        // --- CALCUL OPTIQUE (DoF) ---
+
+        // --- CALCUL OPTIQUE (DoF) ---
+        function calculateDoF(fStop) {
+            const coc = 0.03; 
+            const f = currentFocal; 
+            const d = currentDist * 1000; 
+
+            if (currentDist >= 100) return "∞"; 
+
+            const H = (f * f) / (fStop * coc);
+            const near = (H * d) / (H + d);
+            const far = (H * d) / (H - d);
+            let dof = far - near;
+
+            if (far < 0 || dof > 100000) return "> 100m";
+
+            const dofCm = Math.round(dof / 10); 
+            if (dofCm < 100) return `${dofCm} cm`;
+            return `${(dofCm/100).toFixed(1)} m`;
+        }
+
+        // --- MOTEUR PRINCIPAL ---
+        function calculate() {
+            // Force les valeurs neutres en mode gratuit
+            let ndStops = currentNdStop;
+            let evOffset = currentEvOffset;
+            let filmIndex = currentFilmIndex;
+            
+            if (!isPro) {
+                ndStops = 0; // Pas de filtre ND
+                evOffset = 0; // Pas de compensation EV
+                filmIndex = 0; // Force sur "Numérique" (sans facteur de réciprocité)
+            }
+
+            // Utilise les variables contrôlées (`ndStops`, `evOffset`) pour le calcul
+            const evAdjusted = currentEvBase + Math.log2(currentIso / 100) - ndStops - evOffset;
+            
+            let evText = `EV ${Math.round(evAdjusted*10)/10}`;
+            let modifiers = [];
+            if (currentNdStop > 0) modifiers.push(`ND${Math.pow(2, currentNdStop)}`);
+            if (currentEvOffset > 0) modifiers.push(`+${currentEvOffset}`);
+            if (currentEvOffset < 0) modifiers.push(`${currentEvOffset}`);
+            if (modifiers.length > 0) evText += ` <span class="nd-indicator">(${modifiers.join(', ')})</span>`;
+            evTotalDisplay.innerHTML = evText;
+
+            resultsList.innerHTML = '';
+            
+            // Utilise le film index neutre ou pro
+            const activeFilm = filmStocks[filmIndex]; 
+            const isFilmMode = activeFilm.factor > 1.0;
+
+            if (currentMode === 'photo') {
+                fStops.forEach(f => {
+                    let timeSeconds = (f * f) / Math.pow(2, evAdjusted);
+                    let displayTime = formatShutter(timeSeconds);
+
+                    // Correction de Réciprocité UNIQUEMENT si en mode PRO
+                    if (isPro && isFilmMode && timeSeconds > 1) {
+                         const corrected = Math.pow(timeSeconds, activeFilm.factor);
+                         displayTime += ` <span style="font-size:0.75em; color:var(--accent-color); font-weight:700; margin-left:6px;">➜ ${formatShutter(corrected)}</span>`;
+                    } else if (!isPro && isFilmMode && timeSeconds > 1) {
+                         // Message Paywall en mode gratuit si la correction est nécessaire
+                         displayTime += ` <span style="font-size:0.75em; color:var(--text-muted); font-style:italic; margin-left:6px;">(Pro: corr. Réciprocité)</span>`;
+                    }
+
+                    const dofText = calculateDoF(f);
+
+                    const row = document.createElement('div');
+                    row.className = 'result-row';
+                    row.innerHTML = `
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <span class="f-stop">ƒ/${f}</span>
+                            <span style="font-size:0.7rem; color:var(--text-muted); padding-left:2px;">Net: ${dofText}</span>
+                        </div>
+                        <span class="shutter-speed">${displayTime}</span>
+                    `;
+                    resultsList.appendChild(row);
+                });
+            } else {
+                const timeSeconds = (currentAngle / 360) / currentFps;
+                const baseF = Math.sqrt(timeSeconds * Math.pow(2, evAdjusted));
+
+                const steps = [
+                    { label: "Idéale", offset: 0, bold: true },
+                    { label: "Sous (-1)", offset: -1, bold: false },
+                    { label: "Sur (+1)", offset: 1, bold: false }
+                ];
+
+                const infoRow = document.createElement('div');
+                infoRow.className = 'result-row';
+                infoRow.style.background = 'rgba(0,0,0,0.03)';
+                infoRow.innerHTML = `
+                    <span class="row-label">Vitesse fixe</span>
+                    <span class="shutter-speed" style="font-size:1rem">${formatShutter(timeSeconds)}</span>
+                `;
+                resultsList.appendChild(infoRow);
+
+                steps.forEach(step => {
+                    const factor = Math.pow(Math.SQRT2, -step.offset); 
+                    const fVal = baseF * factor;
+                    const dofText = calculateDoF(fVal);
+
+                    const row = document.createElement('div');
+                    row.className = 'result-row';
+                    row.innerHTML = `
+                        <span class="row-label" style="${step.bold ? 'color:var(--text-main);font-weight:bold' : ''}">${step.label}</span>
+                        <div style="text-align:right">
+                            <span class="f-stop">ƒ/${formatFNumber(fVal)}</span>
+                            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">Net: ${dofText}</div>
+                        </div>
+                    `;
+                    resultsList.appendChild(row);
+                });
+            }
+        }
+
+        function formatShutter(seconds) {
+            if (seconds >= 1) {
+                if (seconds >= 60) {
+                    let min = Math.floor(seconds / 60);
+                    let sec = Math.round(seconds % 60);
+                    return `${min}m ${sec}s`;
+                }
+                return seconds >= 10 ? Math.round(seconds) + 's' : Math.round(seconds*10)/10 + 's';
+            } else {
+                let denominator = 1 / seconds;
+                const standardSpeeds = [1, 2, 4, 8, 15, 24, 25, 30, 48, 50, 60, 100, 120, 125, 250, 500, 1000, 2000, 4000, 8000];
+                let closest = standardSpeeds.reduce((prev, curr) => Math.abs(curr - denominator) < Math.abs(prev - denominator) ? curr : prev);
+                
+                if (Math.abs(closest - denominator) / denominator > 0.20) {
+                     return '1/' + Math.round(denominator);
+                }
+                return '1/' + closest;
+            }
+        }
+
+        function formatFNumber(f) {
+            if (f < 1.0) return f.toFixed(2);
+            if (f < 10) return f.toFixed(1);
+            return Math.round(f);
+        }
+
+        init();
+    </script>
+</body>
+</html>
