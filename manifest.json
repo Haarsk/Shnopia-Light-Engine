@@ -1,12 +1,17 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
+  "name": "Expositor Pro: Exposure & Cinema",
+  "short_name": "Expositor Pro",
+  "description": "Calculateur d'exposition photo et cinéma.",
+  "start_url": "/Shnopia-Light-Engine/Expositor Pro V1.5isPro.html",
   "display": "standalone",
-  "name": "haarsk.github",
   "orientation": "any",
-  "scope": "/",
-  "short_name": "haarsk.github",
-  "start_url": "//Shnopia-Light-Engine/Expositor Pro V1.5isPro.html",
-  "theme_color": "#ffffff",
-  "lang": "fr"
+  "background_color": "#ffffff",
+  "theme_color": "#007aff",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
